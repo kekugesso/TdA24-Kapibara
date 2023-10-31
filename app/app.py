@@ -1,5 +1,5 @@
 import os
-
+import json
 from flask import Flask
 from . import db
 
@@ -19,8 +19,14 @@ db.init_app(app)
 
 
 @app.route('/')
-def hello_world():  # put application's code here
-    return "Hello Tour de App! Edited Twice :), tho"
+def hello_world():
+    return "Hello TdA"
+
+
+@app.route('/api')
+def json_api():
+    j = '{ "secret": "The cake is a lie"}'
+    return json.loads(j)
 
 
 if __name__ == '__main__':
