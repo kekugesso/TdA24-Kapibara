@@ -38,7 +38,10 @@ def return_title():
 
 @app.route('/lecturer/<uuid>')  # api
 def lecturer_specific(uuid):
-    return render_template('lecturer.html', lecturer_uuid=uuid)
+
+    data = json.load(open('app\static\json\lecturer.json', 'r'))
+    return data['test']
+    #return render_template('lecturer.html', lecturer_uuid=uuid)
 
 
 if __name__ == '__main__':
