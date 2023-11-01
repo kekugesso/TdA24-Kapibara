@@ -8,17 +8,22 @@
     <link rel="stylesheet" href="static/css/styles.min.css">
 </head>
 <body>
-    <ul>
-        <li class="picture"><img src="{{data['picture_url']}}"></img></li>
-        <li class="name">{{data['title_before']}} {{data['first_name']}} {{data['middle_name']}} {{data['lastName']}}</li>
-        <li class="location">{{data['location']}}</li>
-        <li class="claim">{{data['claim']}}</li>
-        <li class="bio">{{data['bio']}}</li>
-        <li class="tags">{{data['tags']}}</li>
-        <li class="cena">{{data['price_per_hour']}}</li>
-        <li class="kontakt_phone">{{data['contact']}}</li>
-        <li class="kontakt_email">{{data['contact']}}</li>
-    </ul>
-<p>
+    <container>
+        <div class="picture"><img src="{{data['picture_url']}}"></img></div>
+        <div class="name">{{data['title_before']}} {{data['first_name']}} {{data['middle_name']}} {{data['last_Name']}} {{data['title_after']}}</div>
+        <div class="cena">{{data['price_per_hour']}}</div>
+        <div class="location">{{data['location']}}</div>
+        <div class="claim">{{data['claim']}}</div>
+        <div class="bio">{{data['bio']}}</div>
+        {% for tag in data['tags'] %}
+        <div class="badge badge-warning tags">{{tag["name"]}}</div>
+        {% endfor %}
+        {% for telephone_number in data['contact']['telephone_numbers'] %}
+        <div class="kontakt_phone">{{telephone_number}}</div>
+        {% endfor %}
+        {% for email in data['contact']['emails'] %}
+        <div class="kontakt_email">{{email}}</div>
+        {% endfor %}
+    </container>
 </body>
 </html>
