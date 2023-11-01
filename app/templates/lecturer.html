@@ -8,11 +8,17 @@
     <link rel="stylesheet" href="static/css/styles.min.css">
 </head>
 <body>
-    <ul class="navbar-nav ms-auto">
-        <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
-        <li class="nav-item"><a class="nav-link" href="#">Kdo jsme</a></li>
-        <li class="nav-item"><a class="nav-link" href="#">Databáze</a></li>
+    <ul>
+        <li class="picture"><img src="{{data['picture_url']}}"></img></li>
+        <li class="name">{{data['title_before']}} {{data['first_name']}} {{data['middle_name']}} {{data['lastName']}}</li>
+        <li class="location">{{data['location']}}</li>
+        <li class="claim">{{data['claim']}}</li>
+        <li class="bio">{{data['bio']}}</li>
+        <li class="tags">{{data['tags']}}</li>
+        <li class="cena">{{data['price_per_hour']}}</li>
+        <li class="kontakt_phone">{{data['contact']}}</li>
+        <li class="kontakt_email">{{data['contact']}}</li>
     </ul>
-<p><a href="#">Check out this cool form!</a></p>
+<p>
 </body>
 </html>

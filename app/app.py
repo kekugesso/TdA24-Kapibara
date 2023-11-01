@@ -30,18 +30,16 @@ def json_api():
     return json.dumps('{ "secret": "The cake is a lie"}')
 
 
-@app.route('/lecturer')  # api
+@app.route('/lecturer')  # lecturer
 def return_title():
     redirect(url_for('title'))
     return render_template('lecturer.html')
 
 
-@app.route('/lecturer/<uuid>')  # api
+@app.route('/lecturer/<uuid>')  # Lecturer - spesific
 def lecturer_specific(uuid):
-
     data = json.load(open('app\static\json\lecturer.json', 'r'))
-    return data['test']
-    #return render_template('lecturer.html', lecturer_uuid=uuid)
+    return render_template('lecturer.html', lecturer_uuid=uuid, data=data)
 
 
 if __name__ == '__main__':
