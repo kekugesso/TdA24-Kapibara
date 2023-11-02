@@ -21,8 +21,7 @@ db.init_app(app)
 
 @app.route('/')  # title page
 def title():
-    ip = request.remote_addr
-    return render_template('index.html', user_ip=ip)
+    return render_template('index.html')
 
 
 @app.route('/api')  # api
@@ -38,7 +37,7 @@ def return_title():
 
 @app.route('/lecturer/<uuid>')  # Lecturer - spesific
 def lecturer_specific(uuid):
-    data = json.load(open('app\static\json\lecturer.json', 'r'))
+    data = json.load(open('app/static/json/lecturer.json', 'r'))
     return render_template('lecturer.html', lecturer_uuid=uuid, data=data)
 
 
