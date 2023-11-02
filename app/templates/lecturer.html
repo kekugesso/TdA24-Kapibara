@@ -6,9 +6,11 @@
     <title>Teacher digital Agency</title>
     <link rel="stylesheet" href="static/css/bootstrap.min.css">
     <link rel="stylesheet" href="static/css/styles.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="static/js/bootstrap.min.js"></script>
 </head>
 <body>
-    <container>
+    <div class="container">
         <div class="picture"><img src="{{data['picture_url']}}"></img></div>
         <div class="name">{{data['title_before']}} {{data['first_name']}} {{data['middle_name']}} {{data['last_Name']}} {{data['title_after']}}</div>
         <div class="cena">{{data['price_per_hour']}}</div>
@@ -24,6 +26,6 @@
         {% for email in data['contact']['emails'] %}
         <div class="kontakt_email">{{email}}</div>
         {% endfor %}
-    </container>
+    </div>
 </body>
 </html>
