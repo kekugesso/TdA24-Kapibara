@@ -1,19 +1,13 @@
-# syntax=docker/dockerfile:1
+FROM python:3.10-alpine
 
-FROM python:3.10-buster
-
+COPY . ./app
 WORKDIR /app
 
-RUN pip install pipenv
+RUN pip install -r requirements.txt
 
-COPY Pipfile .
-COPY Pipfile.lock .
-
-RUN pipenv install --system --deploy
-
-COPY . .
+ENV HOST="0.0.0.0"
+ENV PORT=80
 
 EXPOSE 80
 
-CMD ["./start.sh"]
-
+CMD [ "python3", "app/app.py" ] 

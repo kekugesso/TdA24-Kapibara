@@ -1,7 +1,7 @@
 import os
 import json
 from flask import Flask
-from . import db
+import db
 
 app = Flask(__name__)
 
@@ -30,4 +30,4 @@ def json_api():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host=os.getenv("HOST"), port=os.getenv("PORT"))
