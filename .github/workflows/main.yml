@@ -1,4 +1,11 @@
 - name: Upload app to TdA
   # You may pin to the exact commit or the version.
   # uses: Tour-de-App/upload-app@cb9e7221c0466310285cbbc0ce970a34db3b42e5
-  uses: Tour-de-App/upload-app@bf5769126458ec2071d570bdb7e1b8c4
+  uses: Tour-de-App/upload-app@tda-24
+  with:
+    # The name of docker image
+    image_name: tda-kapibara
+    # The path of docker image
+    image_path: 80
+    # Team secret
+    team_secret: bf5769126458ec2071d570bdb7e1b8c4
