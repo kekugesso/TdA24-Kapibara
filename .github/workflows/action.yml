@@ -3,7 +3,7 @@ name: Build and push to TdA
 on:
   push:
     branches:
-      - Faze-1
+      - main
 
 jobs:
   build:
