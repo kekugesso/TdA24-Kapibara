@@ -1,6 +1,126 @@
+@import url('https://fonts.googleapis.com/css2?family=Lalezar&family=Open+Sans:wght@300;400&display=swap');
 .primary
 {
  background-color: #333333;
  color: #ffffff;
  font: optional;
+}
+.nadpisy {
+    font-family: "Regular 400", 'Lalezar', "Regular 400", 'Open Sans';
+    font-size: 30px;
+}
+.text-na-bilem {
+    font-family: "Regular 400", 'Open Sans', "Regular 400", 'Open Sans';
+    font-size: 18px;
+}        
+.text-na-cernem {
+    color: #ffffff;
+    font-family: "Light 300", 'Open Sans', "Regular 400", 'Open Sans';
+    font-size: 15px;
+}
+.container {
+    display: grid; 
+    grid-template-columns: 75% 25%;
+    grid-template-rows: auto; 
+    gap: 0px 2%; 
+    grid-template-areas: 
+    "LeftSide RightSide"; 
+    margin-top: 5%;
+}
+.LeftSide {
+    grid-area: LeftSide; 
+    display: grid; 
+    grid-template-columns: 1fr; 
+    grid-template-rows: auto auto auto ; 
+    gap: 5% 0px; 
+    grid-template-areas: 
+    "Basic-info"
+        "Bio"
+        "Kontakt"; 
+    }
+.RightSide { 
+    grid-area: RightSide; 
+    display: grid; 
+    grid-template-columns: 1fr; 
+    grid-template-rows: auto auto; 
+    gap: 1% 0px; 
+    align-items: center;
+    text-align: center;
+    grid-template-areas: 
+        "Profile-pic"
+        "Tags"; 
+    }
+.Basic-info {
+    grid-area: Basic-info;
+    display: grid; 
+    grid-template-rows: auto auto auto auto; 
+    grid-template-columns: 1fr; 
+    gap: 0px 0px; 
+    grid-template-areas: 
+        "Name"
+        "Claim"
+        "Cena" 
+        "Lokace"; 
+    }
+.Name { 
+    grid-area: Name; 
+    font-size: 40px;
+    
+}
+.Claim { 
+    grid-area: Claim; 
+
+}
+.Cena { 
+    grid-area: Cena; 
+
+}
+.Lokace { 
+    grid-area: Lokace; 
+
+}
+.Bio {
+     grid-area: Bio; 
+     margin-right: 1%;
+    
+    }
+.Kontakty {
+    grid-area: Kontakt; 
+    display: grid; 
+    text-align: center;
+    grid-template-rows: auto auto auto; 
+    grid-template-columns: 1fr; 
+    gap: 0px 0px; 
+    grid-template-areas: 
+        "Nadpis-Kontakty"
+        "Telephony"
+        "Emaily";
+    }
+.Nadpis-Kontakty { 
+    grid-area: Nadpis-Kontakty; 
+
+}
+.Telephony { 
+    grid-area: Telephony; 
+
+}
+.Emaily { 
+    grid-area: Emaily; 
+
+}
+.Tags { 
+    grid-area: Tags; 
+}
+.tag {
+    color: #000;
+    background-color: #FECB2E;
+}
+.Profile-pic { 
+    grid-area: Profile-pic; 
+    margin-top: 1%;
+    border: #000 2px solid;
+}
+.kontakt {
+    padding: 0px;
+    margin: 0px;
 }

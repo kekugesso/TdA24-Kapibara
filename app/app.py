@@ -30,9 +30,10 @@ def json_api():
 
 
 @app.route('/lecturer')  # lecturer
-def return_title():
-    redirect(url_for('title'))
-    return render_template('lecturer.html')
+def lecturer_static():
+    data = json.load(open('app/static/json/lecturer.json', 'r'))
+    return render_template('lecturer.html', data=data)
+
 
 
 @app.route('/lecturer/<uuid>')  # Lecturer - spesific
