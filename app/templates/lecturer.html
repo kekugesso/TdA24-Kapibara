@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="cz">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Teacher digital Agency</title>
+    <link rel="stylesheet" href="../static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/css/styles.min.css">
+    <link rel="stylesheet" href="../static/css/main.css">
+</head>
+<body>
+    <div class="container">
+        <div class="LeftSide">
+            <div class="Basic-info text-na-bilem">
+                <div class="Name nadpisy">{{data['title_before']}} {{data['first_name']}} {{data['middle_name']}} {{data['last_name']}} {{data['title_after']}}</div>
+                <div class="Claim text-na-bilem">{{data['claim']}}</div>
+                <div class="Cena text-na-bilem">Cena na hodinu: {{data['price_per_hour']}} Kč</div>
+                <div class="Lokace text-na-bilem">Lokace: {{data['location']}}</div>
+            </div>
+            <div class="Bio text-na-bilem" id="bio">
+                {{data['bio']}}
+            </div>
+            <div class="Kontakty">
+                <div class="Nadpis-Kontakty nadpisy">Kontakty:</div>
+                {% for telephone_number in data['contact']['telephone_numbers'] %}
+                <div class="kontakt text-na-bilem"><a href="tel:{{telephone_number}}">{{telephone_number}}</a></div>
+                {% endfor %}
+                {% for email in data['contact']['emails'] %}
+                <div class="kontakt text-na-bilem"><a href="mailto:{{email}}">{{email}}</a></div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="RightSide">
+            <img class="Profile-pic" src="{{data['picture_url']}}"></img>
+            <div class="Tags text-na-bilem">
+                <div class="nadpisy">Tagy:</div>
+                {% for tag in data['tags'] %}
+                <div class="badge badge-pill tag">{{tag["name"]}}</div>
+                {% endfor %}
+            </div>
+        </div>
+        <!--Mobile Side-->
+        <div class="MobileView">
+            <img class="Profile-pic" src="{{data['picture_url']}}"></img>
+            <div class="Basic-info text-na-bilem">
+                <div class="Name nadpisy">{{data['title_before']}} {{data['first_name']}} {{data['middle_name']}} {{data['last_name']}} {{data['title_after']}}</div>
+                <div class="Claim text-na-bilem">{{data['claim']}}</div>
+                <div class="Cena text-na-bilem">Cena na hodinu: {{data['price_per_hour']}} Kč</div>
+                <div class="Lokace text-na-bilem">Lokace: {{data['location']}}</div>
+            </div>
+            <div class="Bio bioMobile text-na-bilem" id="biomobile">
+                {{data['bio']}}
+            </div>
+            <div class="Kontakty kontaktyMobile">
+                <div class="Nadpis-Kontakty nadpisy">Kontakty:</div>
+                {% for telephone_number in data['contact']['telephone_numbers'] %}
+                <div class="kontakt text-na-bilem"><a href="tel:{{telephone_number}}">{{telephone_number}}</a></div>
+                {% endfor %}
+                {% for email in data['contact']['emails'] %}
+                <div class="kontakt text-na-bilem"><a href="mailto:{{email}}">{{email}}</a></div>
+                {% endfor %}
+            </div>
+            <div class="Tags text-na-bilem">
+                <div class="nadpisy">Tagy:</div>
+                {% for tag in data['tags'] %}
+                <div class="badge badge-pill tag">{{tag["name"]}}</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+<script src="../static/js/bootstrap.min.js"></script>
+<script src="../static/js/bio.conventor.js"></script>
+</body>
+</html>

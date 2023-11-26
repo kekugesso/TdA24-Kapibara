@@ -1,6 +1,7 @@
 import os
 import json
-from flask import Flask
+from flask import *
+# Flask, request, url_for, redirect, render_template
 from . import db
 
 app = Flask(__name__)
@@ -18,16 +19,28 @@ except OSError:
 db.init_app(app)
 
 
-@app.route('/')
-def hello_world():
-    return "Hello TdA"
+@app.route('/')  # title page
+def title():
+    return render_template('index.html')
 
 
-@app.route('/api')
+@app.route('/api')  # api
 def json_api():
-    j = '{ "secret": "The cake is a lie"}'
-    return json.loads(j)
+    return json.dumps('{ "secret": "The cake is a lie"}')
+
+
+@app.route('/lecturer')  # lecturer
+def lecturer_static():
+    data = json.load(open('app/static/json/lecturer.json', 'r'))
+    return render_template('lecturer.html', data=data)
+
+
+
+@app.route('/lecturer/<uuid>')  # Lecturer - spesific
+def lecturer_specific(uuid):
+    data = json.load(open('app/static/json/lecturer.json', 'r'))
+    return render_template('lecturer.html', lecturer_uuid=uuid, data=data)
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
