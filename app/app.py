@@ -16,10 +16,6 @@ try:
 except OSError:
     pass
 
-@app.before_request
-def before_request():
-    db.create_all()
-
 @app.route('/')  # title page
 def title():
     return render_template('index.html')
@@ -41,7 +37,6 @@ def lecturer_static():
 def lecturer_specific(uuid):
     data = json.load(open('app/static/json/lecturer.json', 'r'))
     return render_template('lecturer.html', lecturer_uuid=uuid, data=data)
-
 
 @app.route('/test', methods=['POST', 'GET'])
 def test():
