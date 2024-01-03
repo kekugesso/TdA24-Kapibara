@@ -24,19 +24,24 @@ def before_request():
 def title():
     return render_template('index.html')
 
+
 @app.route('/api')  # api
 def json_api():
-    return json.dumps({'secret': 'The cake is a lie'})
+    return json.dumps('{ "secret": "The cake is a lie"}')
+
 
 @app.route('/lecturer')  # lecturer
 def lecturer_static():
-    lecturers_data = Lecturer.query.first()
-    return render_template('lecturer.html', data=lecturers_data)
+    data = json.load(open('app/static/json/lecturer.json', 'r'))
+    return render_template('lecturer.html', data=data)
 
-@app.route('/lecturer/<int:lecturer_id>')  # Lecturer - specific
-def lecturer_specific(lecturer_id):
-    lecturer_data = Lecturer.query.get(lecturer_id)
-    return render_template('lecturer.html', lecturer=lecturer_data)
+
+
+@app.route('/lecturer/<uuid>')  # Lecturer - spesific
+def lecturer_specific(uuid):
+    data = json.load(open('app/static/json/lecturer.json', 'r'))
+    return render_template('lecturer.html', lecturer_uuid=uuid, data=data)
+
 
 @app.route('/test', methods=['POST', 'GET'])
 def test():
