@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 
+
 db = SQLAlchemy()
 
 class Lecturer(db.Model):
@@ -27,7 +28,7 @@ class Lecturer(db.Model):
 
 class Tags(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    uuid = db.Column(db.Integer, nullable = False)
+    uuid = db.Column(db.Text, nullable = False)
     name = db.Column(db.Text, nullable=False)
     lecturers = db.relationship('Lecturer', secondary='lecture_tag', back_populates='tags')
 
@@ -56,3 +57,4 @@ lecture_tag = db.Table('lecture_tag',
                     db.Column('lecture_id', db.Integer, db.ForeignKey('lecturer.id')),
                     db.Column('tag_id', db.Integer, db.ForeignKey('tags.id'))
                     )
+
