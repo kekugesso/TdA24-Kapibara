@@ -11,7 +11,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 db.init_app(app)
 migrate = Migrate(app, db)
 api = Api(app)
-#api.add_resource(LecturerResource, '/api/lecturer/<string:lecturer_uuid>')
+api.add_resource(LecturerResource, '/api/lecturer/<string:lecturer_uuid>')
 
 
 # ensure the instance folder exists

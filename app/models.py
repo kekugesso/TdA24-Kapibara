@@ -37,16 +37,10 @@ class Tags(db.Model):
 
 class Contacts(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    phone1 = db.Column(db.Text, nullable = True)
+    phone1 = db.Column(db.Text, nullable = False)
     phone2 = db.Column(db.Text, nullable = True)
-    phone3 = db.Column(db.Text, nullable = True)
-    phone4 = db.Column(db.Text, nullable = True)
-    phone5 = db.Column(db.Text, nullable = True)
-    email1 = db.Column(db.Text, nullable = True)
+    email1 = db.Column(db.Text, nullable = False)
     email2 = db.Column(db.Text, nullable = True)
-    email3 = db.Column(db.Text, nullable = True)
-    email4 = db.Column(db.Text, nullable = True)
-    email5 = db.Column(db.Text, nullable = True)
 
     lecturer = db.relationship('Lecturer', back_populates='contacts', uselist=False)
 

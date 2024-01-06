@@ -1,16 +1,14 @@
 from flask_restful import Resource
 import uuid
 from flask import request
-from models import db, Lecturer, lecture_tag, Tags
+from models import db, Lecturer, lecture_tag, Tags, Contacts
 
 
 class LecturerResource(Resource):
     def get(self, lecturer_uuid):
         lecturer = Lecturer.query.filter_by(uuid=lecturer_uuid).first()
         if lecturer:
-            tags = lecturer.tags
-            contact = lecturer.contacts
-            return {"UUID": lecturer.uuid,  "title_before": lecturer.title_before, "first_name": lecturer.first_name, "middle_name": lecturer.middle_name, "last_name": lecturer.last_name, "title_after": lecturer.title_after, "picture_url": lecturer.picture_url, "location": lecturer.location,  "claim": lecturer.claim, "bio": lecturer.bio, "tags": tags, "price_per_hour": lecturer.price_per_hour, "contact": contact}, 200
+            return {"UUID": lecturer.uuid,  "title_before": lecturer.title_before, "first_name": lecturer.first_name, "middle_name": lecturer.middle_name, "last_name": lecturer.last_name, "title_after": lecturer.title_after, "picture_url": lecturer.picture_url, "location": lecturer.location,  "claim": lecturer.claim, "bio": lecturer.bio, 'tags': [{'uuid': tag.uuid, 'name': tag.name} for tag in lecturer.tags], "price_per_hour": lecturer.price_per_hour, "contact": {"telephone_numbers": [lecturer.contacts.phone1, lecturer.contacts.phone2], "emails": [lecturer.contacts.email1, lecturer.contacts.email2]}}, 200
         else:
             return {'message': 'Lecturer not found'}, 404
 
