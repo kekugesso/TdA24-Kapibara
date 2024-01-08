@@ -1,11 +1,9 @@
 from flask_sqlalchemy import SQLAlchemy
 
-
 db = SQLAlchemy()
 
 class Lecturer(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    uuid = db.Column(db.Text, nullable = False)
+    uuid = db.Column(db.Text, nullable = False, primary_key=True, unique=True)
     title_before = db.Column(db.Text, nullable=False)
     first_name = db.Column(db.Text, nullable=False)
     middle_name = db.Column(db.Text, nullable=False)
@@ -19,36 +17,51 @@ class Lecturer(db.Model):
     
     tags = db.relationship('Tag', secondary='lecture_tag', back_populates='lecturers')
 
-    contacts_id = db.Column(db.Integer, db.ForeignKey('contacts.id'), nullable=True)
-
-    contacts = db.relationship('Contacts', back_populates='lecturer', uselist=False)
+    contact = db.relationship('Contact', uselist=False, backref='lecturer', cascade='all, delete-orphan')
 
     def __repr__(self):
-        return f'<Lecturer {self.id}>'
+        return f'<Lecturer {self.uuid}>'
 
-class Tags(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    uuid = db.Column(db.Text, nullable = False)
+
+class Tag(db.Model):
+    uuid = db.Column(db.Text, nullable=False, primary_key=True, unique=True)
     name = db.Column(db.Text, nullable=False)
     lecturers = db.relationship('Lecturer', secondary='lecture_tag', back_populates='tags')
 
     def __repr__(self):
-        return f'<Tags {self.id}>'
+        return f'<Tag {self.uuid}>'
+    
 
-class Contacts(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
-    phone1 = db.Column(db.Text, nullable = False)
-    phone2 = db.Column(db.Text, nullable = True)
-    email1 = db.Column(db.Text, nullable = False)
-    email2 = db.Column(db.Text, nullable = True)
+class Contact(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    lecturer_uuid = db.Column(db.Text, db.ForeignKey('lecturer.uuid', ondelete='CASCADE'), nullable=False)
 
-    lecturer = db.relationship('Lecturer', back_populates='contacts', uselist=False)
+
+
+class TelephoneNumber(db.Model):
+    __tablename__ = 'telephone_number'
+
+    phone = db.Column(db.Text, nullable=False, primary_key=True, unique=True)
+    contact_id = db.Column(db.Integer, db.ForeignKey('contact.id', ondelete='CASCADE'), nullable = False)
+    contact = db.relationship('Contact', backref='telephone_numbers', foreign_keys=[contact_id])
 
     def __repr__(self):
-        return f'<Contacts {self.id}>'
+        return self.phone
+
+
+class Email(db.Model):
+    __tablename__ = 'email'
+
+    email = db.Column(db.Text, nullable=False, primary_key=True, unique=True)
+    contact_id = db.Column(db.Integer, db.ForeignKey('contact.id', ondelete='CASCADE'), nullable = False)
+    contact = db.relationship('Contact', backref='emails', foreign_keys=[contact_id])
+
+    def __repr__(self):
+        return self.email
+
 
 lecture_tag = db.Table('lecture_tag',
-                    db.Column('lecture_id', db.Integer, db.ForeignKey('lecturer.id')),
-                    db.Column('tag_id', db.Integer, db.ForeignKey('tags.id'))
+                    db.Column('lecture_uuid', db.Text, db.ForeignKey('lecturer.uuid', ondelete='CASCADE')),
+                    db.Column('tag_uuid', db.Text, db.ForeignKey('tag.uuid', ondelete='CASCADE'))
                     )
 
