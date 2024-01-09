@@ -34,8 +34,16 @@ def json_api():
 
 @app.route('/lecturer', methods = ["GET", "POST"])  # lecturer
 def lecturer_static():
-    data = json.load(open('app/static/json/lecturer.json', 'r'))
-    return render_template('lecturer.html', data=data)
+    if request.method == "GET":
+        lecturers = Lecturer.query.all()
+        if lecturers:
+            lecturer_schema = LecturerSchema(many=True)
+            result = lecturer_schema.dump(lecturers)
+            print(result)
+            data = json.load(open('app/static/json/lecturer.json', 'r'))
+            return render_template('lecturer.html', data=data)
+        else:
+            return {'message': "Lecturers is not founded"}, 404
 
 
 
