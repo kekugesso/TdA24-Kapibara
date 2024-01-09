@@ -18,9 +18,9 @@ try:
 except OSError:
     pass
 
-@app.before_request
-def before_request():
-    db.create_all()
+#@app.before_request
+#def before_request():
+#    db.create_all()
 
 @app.route('/')  # title page
 def title():
@@ -38,20 +38,27 @@ def lecturer_static():
     return render_template('lecturer.html', data=data)
 
 
+@app.route('/lecturers')
+def lecturers():
+    lecturer = Lecturer.query.all()
+    print(lecturer)
+    return render_template('lecturers.html', data=Lecturer.query.all())
+
 
 @app.route('/lecturer/<uuid>', methods = ["GET", "PUT", "DELETE"])  # Lecturer - spesific
-def lecturer_specific(uuid):
+def lecturer(uuid):
     if request.method == "GET":
         lecturer = Lecturer.query.filter_by(uuid=uuid).first()
         if lecturer:
             lecturer_schema = LecturerSchema()
             result = lecturer_schema.dump(lecturer)
         print(result)
-        return render_template('lecturer.html', lecturer_uuid=uuid, data=result)
+        return render_template('lecturer.html', uuid=uuid, data=result)
     elif request.method == "DELETE":
         db.session.delete(Lecturer.query.get(uuid))
         db.session.commit()
         return {'message': 'Lecturer has deleted successfully'}, 200
+
 
 if __name__ == '__main__':
     app.run(debug=True)
