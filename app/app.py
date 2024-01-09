@@ -39,9 +39,7 @@ def lecturer_static():
         if lecturers:
             lecturer_schema = LecturerSchema(many=True)
             result = lecturer_schema.dump(lecturers)
-            print(result)
-            data = json.load(open('app/static/json/lecturer.json', 'r'))
-            return render_template('lecturer.html', data=data)
+            return render_template('lecturer.html', data=result)
         else:
             return {'message': "Lecturers is not founded"}, 404
 
