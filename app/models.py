@@ -35,15 +35,15 @@ class Tag(db.Model):
 class Contact(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     lecturer_uuid = db.Column(db.Text, db.ForeignKey('lecturer.uuid', ondelete='CASCADE'), nullable=False)
-
+    emails = db.relationship('Email', backref='contact', cascade='all, delete-orphan')
+    telephone_numbers = db.relationship('TelephoneNumber', backref='contact', cascade='all, delete-orphan')
 
 
 class TelephoneNumber(db.Model):
     __tablename__ = 'telephone_number'
 
     phone = db.Column(db.Text, nullable=False, primary_key=True, unique=True)
-    contact_id = db.Column(db.Integer, db.ForeignKey('contact.id', ondelete='CASCADE'), nullable = False)
-    contact = db.relationship('Contact', backref='telephone_numbers', foreign_keys=[contact_id])
+    contact_id = db.Column(db.Integer, db.ForeignKey('contact.id', ondelete='CASCADE'), nullable=False)
 
     def __repr__(self):
         return self.phone
@@ -53,15 +53,17 @@ class Email(db.Model):
     __tablename__ = 'email'
 
     email = db.Column(db.Text, nullable=False, primary_key=True, unique=True)
-    contact_id = db.Column(db.Integer, db.ForeignKey('contact.id', ondelete='CASCADE'), nullable = False)
-    contact = db.relationship('Contact', backref='emails', foreign_keys=[contact_id])
+    contact_id = db.Column(db.Integer, db.ForeignKey('contact.id', ondelete='CASCADE'), nullable=False)
 
     def __repr__(self):
         return self.email
 
 
-lecture_tag = db.Table('lecture_tag',
-                    db.Column('lecture_uuid', db.Text, db.ForeignKey('lecturer.uuid', ondelete='CASCADE')),
-                    db.Column('tag_uuid', db.Text, db.ForeignKey('tag.uuid', ondelete='CASCADE'))
-                    )
+class lecture_tag(db.Model):
+    __tablename__ = 'lecture_tag'
+    lecturer_uuid = db.Column(db.Text, db.ForeignKey('lecturer.uuid', ondelete='CASCADE'), primary_key=True)
+    tag_uuid = db.Column(db.Text, db.ForeignKey('tag.uuid', ondelete='CASCADE'))
+
+    def __repr__(self):
+        return f"<lecture_tag {self.lecturer_uuid}>"
 

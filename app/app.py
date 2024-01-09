@@ -46,8 +46,9 @@ def lecturer_specific(uuid):
         if lecturer:
             lecturer_schema = LecturerSchema()
             result = lecturer_schema.dump(lecturer)
-        print(result)
-        return render_template('lecturer.html', lecturer_uuid=uuid, data=result)
+            return render_template('lecturer.html', lecturer_uuid=uuid, data=result)
+        else:
+            return {'message': "Lector is not founded"}, 404
     elif request.method == "DELETE":
         db.session.delete(Lecturer.query.get(uuid))
         db.session.commit()
