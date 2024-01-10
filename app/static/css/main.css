@@ -223,3 +223,64 @@ img {
     .picture{ display: none; } 
     .lecturer{ grid-template-columns: 100% 0%; }
 }
+
+
+/* Button back*/
+.back {
+    position: absolute;
+    margin-left: 3%;
+    margin-top: 1.5%;
+    border-radius: 50% !important;
+    background-color: rgba(0,56,77,1);
+    color: white !important;
+    border: none !important;
+    padding: 15px 15px !important;
+    font-size: smaller;
+    -webkit-transition: background-color 1s, color 1s, -webkit-transform 0.5s;
+       transition: background-color 1s, transform 0.5s;
+  }
+  
+  .back:hover {
+    background-color: rgba(0,56,77,0.8);
+    color: black;
+    -webkit-transform: translateX(-5px);
+    -webkit-box-shadow: 5px 0px 18px 0px rgba(105,105,105,0.8);
+    -moz-box-shadow: 5px 0px 18px 0px rgba(105,105,105,0.8);
+    box-shadow: 5px 0px 18px 0px rgba(105,105,105,0.8);
+  }
+
+  /* Footer */
+  footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 3.5rem;            /* Footer height */
+  }
+  .wrapper {
+    position: relative;
+    min-height: 100vh;
+  }
+  
+  .content {
+    padding-bottom: 3.5rem;    /* Footer height */
+  }
+
+  /* introduction */
+  .introduction {
+    border-bottom: #333333 2px solid;
+    display: grid; 
+    grid-template-columns: auto auto; 
+    grid-template-rows: auto; 
+    gap: 0px 0px; 
+    align-self: center;
+    align-items: center;
+    grid-template-areas: 
+      "logo intro-text"; 
+  }
+  .logo { 
+    grid-area: logo; 
+    width: 125px;
+    height: 95px;
+    margin: 2% auto;
+}
+  .intro-text { grid-area: intro-text; }
