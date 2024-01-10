@@ -4,16 +4,16 @@ db = SQLAlchemy()
 
 class Lecturer(db.Model):
     uuid = db.Column(db.Text, nullable = False, primary_key=True, unique=True)
-    title_before = db.Column(db.Text, nullable=False)
+    title_before = db.Column(db.Text, nullable=True)
     first_name = db.Column(db.Text, nullable=False)
-    middle_name = db.Column(db.Text, nullable=False)
+    middle_name = db.Column(db.Text, nullable=True)
     last_name = db.Column(db.Text, nullable=False)
-    title_after = db.Column(db.Text, nullable=False)
-    picture_url = db.Column(db.Text, nullable=False)
-    location = db.Column(db.Text, nullable=False)
-    claim = db.Column(db.Text, nullable=False)
-    bio = db.Column(db.Text, nullable=False)
-    price_per_hour = db.Column(db.Integer, nullable=False)
+    title_after = db.Column(db.Text, nullable=True)
+    picture_url = db.Column(db.Text, nullable=True)
+    location = db.Column(db.Text, nullable=True)
+    claim = db.Column(db.Text, nullable=True)
+    bio = db.Column(db.Text, nullable=True)
+    price_per_hour = db.Column(db.Integer, nullable=True)
     
     tags = db.relationship('Tag', secondary='lecture_tag', back_populates='lecturers')
 
@@ -61,7 +61,8 @@ class Email(db.Model):
 
 class lecture_tag(db.Model):
     __tablename__ = 'lecture_tag'
-    lecturer_uuid = db.Column(db.Text, db.ForeignKey('lecturer.uuid', ondelete='CASCADE'), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    lecturer_uuid = db.Column(db.Text, db.ForeignKey('lecturer.uuid', ondelete='CASCADE'))
     tag_uuid = db.Column(db.Text, db.ForeignKey('tag.uuid', ondelete='CASCADE'))
 
     def __repr__(self):
