@@ -39,9 +39,10 @@ def lecturer_static():
     if request.method == "GET":
         lecturers = Lecturer.query.all()
         if lecturers:
+            print(lecturers)
             lecturer_schema = LecturerSchema(many=True)
             result = lecturer_schema.dump(lecturers)
-            return render_template('lecturers.html', data=result)
+            return render_template('lecturers.html', data=lecturers)
         else:
             return {'message': "Lecturers is not founded"}, 404
     elif request.method == "POST":
@@ -119,9 +120,15 @@ def lecturer_static():
                     )
                     db.session.add(new_lecture_tag)
                     db.session.commit()
-        except (IntegrityError, DataError):
-            return {'message' : "This values cant be a null"}, 400
-        return {'message': 'Lector has been succesfully added'}, 200
+        except (DataError):
+            return {'message' : "Data-error"}, 400
+        if (IntegrityError):
+            result = json.loads('{"message":"Lector has been added, but triggerd a IntegrityError", "uuid":"%s"}' % (lecturer_uuid))
+        else: 
+            result = json.loads('{"message":"Lector has been succesfully added", "uuid":"%s"}' % (lecturer_uuid))
+        lecturer = Lecturer.query.filter_by(uuid=lecturer_uuid).first()
+        lecturer_schema = LecturerSchema()
+        return json.dumps({**result, **json.loads(str(lecturer_schema.dumps(lecturer)))}), 200
 
 
 

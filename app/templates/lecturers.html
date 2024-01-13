@@ -13,7 +13,7 @@
         {% for lecturer in data %}
         <div class="lecturer" id="{{lecturer['uuid']}}">
             <img class="picture" src="{{lecturer['picture_url']}}"></img>
-            <div class="info text-na-bilem" onclick="location.href='/lecturer/{{lecturer['uuid']}}';" style="cursor: pointer;">
+            <div class="info text-na-bilem" onclick="location.href='/api/lecturer/{{lecturer['uuid']}}';" style="cursor: pointer;">
                 <div class="name nadpisy">{{lecturer['title_before']}} {{lecturer['first_name']}} {{lecturer['middle_name']}} {{lecturer['last_name']}} {{lecturer['title_after']}}</div>
                 <div class="claim text-na-bilem">{{lecturer['claim']}}</div>
                 <div class="cena text-na-bilem">Cena na hodinu: {{lecturer['price_per_hour']}} Kč</div>
