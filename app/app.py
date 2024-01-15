@@ -2,6 +2,7 @@ import os
 import json
 import uuid
 from flask import *
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError, DataError
 from models import db, Lecturer, Tag, TelephoneNumber, Email, lecture_tag, Contact
 from serializers import LecturerSchema
