@@ -125,9 +125,9 @@ def lecturer_static():
 
 
 
-@app.route('/api/lecturers/<uuid>', methods = ["GET", "PUT", "DELETE"])  # Lecturer - spesific
-def lecturer_specific(uuid):
-    lecturer = Lecturer.query.filter_by(uuid=uuid).first()
+@app.route('/api/lecturers/<uuid1>', methods = ["GET", "PUT", "DELETE"])  # Lecturer - spesific
+def lecturer_specific(uuid1):
+    lecturer = Lecturer.query.filter_by(uuid=uuid1).first()
     if request.method == "GET":
         if lecturer:
             lecturer_schema = LecturerSchema()
@@ -150,6 +150,38 @@ def lecturer_specific(uuid):
             for key in data:
                 if key in lecturer_data:
                     lecturer_data[key] = data.get(key)
+            print(lecturer_data)
+            lecture_tags = lecture_tag.query.filter_by(lecturer_uuid=uuid1).all()
+            for delete in lecture_tags:
+                db.session.delete(delete)
+                db.session.commit()
+            tags = lecturer_data.get('tags')
+            for tag in tags:
+                tagsdb = Tag.query.all()
+                for tagdb in tagsdb:
+                    if tag['name'] == tagdb.name:
+                        new_lecture_tag = lecture_tag(
+                            lecturer_uuid = uuid1,
+                            tag_uuid = tagdb.uuid,
+                        )
+                        db.session.add(new_lecture_tag)
+                        db.session.commit()
+                        tags.remove(tag)
+            if tags != []:
+                for tag in tags:
+                    tag_uuid = str(uuid.uuid4())
+                    new_tag = Tag(
+                        uuid = tag_uuid,
+                        name = tag["name"]
+                    )
+                    db.session.add(new_tag)
+                    db.session.commit()
+                    new_lecture_tag = lecture_tag(
+                        lecturer_uuid = uuid1,
+                        tag_uuid = tag_uuid
+                    )
+                    db.session.add(new_lecture_tag)
+                    db.session.commit()
             lecturer.title_before = lecturer_data.get('title_before')
             lecturer.first_name = lecturer_data.get('first_name')
             lecturer.middle_name = lecturer_data.get('middle_name')
