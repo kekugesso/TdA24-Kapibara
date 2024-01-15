@@ -125,7 +125,7 @@ def lecturer_static():
 
 
 
-@app.route('/api/lecturer/<uuid>', methods = ["GET", "PUT", "DELETE"])  # Lecturer - spesific
+@app.route('/api/lecturers/<uuid>', methods = ["GET", "PUT", "DELETE"])  # Lecturer - spesific
 def lecturer_specific(uuid):
     lecturer = Lecturer.query.filter_by(uuid=uuid).first()
     if request.method == "GET":
