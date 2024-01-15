@@ -42,7 +42,8 @@ class Contact(db.Model):
 class TelephoneNumber(db.Model):
     __tablename__ = 'telephone_number'
 
-    phone = db.Column(db.Text, nullable=False, primary_key=True, unique=True)
+    id = db.Column(db.Integer, primary_key=True)
+    phone = db.Column(db.Text, nullable=False)
     contact_id = db.Column(db.Integer, db.ForeignKey('contact.id', ondelete='CASCADE'), nullable=False)
 
     def __repr__(self):
@@ -52,7 +53,8 @@ class TelephoneNumber(db.Model):
 class Email(db.Model):
     __tablename__ = 'email'
 
-    email = db.Column(db.Text, nullable=False, primary_key=True, unique=True)
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.Text, nullable=False)
     contact_id = db.Column(db.Integer, db.ForeignKey('contact.id', ondelete='CASCADE'), nullable=False)
 
     def __repr__(self):

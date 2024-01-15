@@ -40,7 +40,7 @@ def lecturer_static():
         if lecturers:
             lecturer_schema = LecturerSchema(many=True)
             result = lecturer_schema.dump(lecturers)
-            return render_template('lecturers.html', data=result)
+            return result, 200
         else:
             return {'message': "Lecturers is not founded"}, 404
     elif request.method == "POST":
@@ -120,7 +120,10 @@ def lecturer_static():
                     db.session.commit()
         except (IntegrityError, DataError):
             return {'message' : "This values cant be a null"}, 400
-        return {'message': 'Lector has been succesfully added'}, 200
+        created_lecturer = Lecturer.query.filter_by(uuid=lecturer_uuid).first()
+        lecturer_schema = LecturerSchema()
+        result = lecturer_schema.dump(created_lecturer)
+        return result, 200
 
 
 
@@ -131,7 +134,7 @@ def lecturer_specific(uuid):
         if lecturer:
             lecturer_schema = LecturerSchema()
             result = lecturer_schema.dump(lecturer)
-            return render_template('lecturer.html', lecturer_uuid=uuid, data=result)
+            return result, 200
         else:
             return {'message': "Lector is not founded"}, 404
     elif request.method == "DELETE":
@@ -161,7 +164,9 @@ def lecturer_specific(uuid):
             lecturer.claim = lecturer_data.get('claim')
             lecturer.price_per_hour = lecturer_data.get('price_per_hour')
             db.session.commit()
-            return {"message": "Lecturer has changed succesfully"}, 200
+            lecturer_schema = LecturerSchema()
+            result = lecturer_schema.dump(lecturer)
+            return result, 200
         else:
             return {"message": "Lecturer is not founded"}, 404
 
