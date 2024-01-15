@@ -38,12 +38,9 @@ def json_api():
 def lecturer_static():
     if request.method == "GET":
         lecturers = Lecturer.query.all()
-        if lecturers:
-            lecturer_schema = LecturerSchema(many=True)
-            result = lecturer_schema.dump(lecturers)
-            return result, 200
-        else:
-            return {'message': "Lecturers is not founded"}, 404
+        lecturer_schema = LecturerSchema(many=True)
+        result = lecturer_schema.dump(lecturers)
+        return result, 200
     elif request.method == "POST":
         try:
             data = request.get_json()
@@ -153,7 +150,6 @@ def lecturer_specific(uuid):
             for key in data:
                 if key in lecturer_data:
                     lecturer_data[key] = data.get(key)
-            print(lecturer_data)
             lecturer.title_before = lecturer_data.get('title_before')
             lecturer.first_name = lecturer_data.get('first_name')
             lecturer.middle_name = lecturer_data.get('middle_name')
