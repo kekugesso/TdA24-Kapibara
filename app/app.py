@@ -4,8 +4,8 @@ import uuid
 from flask import *
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError, DataError
-from app.models import db, Lecturer, Tag, TelephoneNumber, Email, lecture_tag, Contact
-from app.serializers import LecturerSchema
+from models import db, Lecturer, Tag, TelephoneNumber, Email, lecture_tag, Contact
+from serializers import LecturerSchema
 from flask_migrate import Migrate
 
 app = Flask(__name__)
@@ -39,10 +39,9 @@ def lecturer_static():
     if request.method == "GET":
         lecturers = Lecturer.query.all()
         if lecturers:
-            print(lecturers)
             lecturer_schema = LecturerSchema(many=True)
             result = lecturer_schema.dump(lecturers)
-            return render_template('lecturers.html', data=lecturers)
+            return result, 200
         else:
             return {'message': "Lecturers is not founded"}, 404
     elif request.method == "POST":
@@ -120,15 +119,12 @@ def lecturer_static():
                     )
                     db.session.add(new_lecture_tag)
                     db.session.commit()
-        except (DataError):
+        except (DataError, IntegrityError):
             return {'message' : "Data-error"}, 400
-        if (IntegrityError):
-            result = json.loads('{"message":"Lector has been added, but triggerd a IntegrityError", "uuid":"%s"}' % (lecturer_uuid))
-        else: 
-            result = json.loads('{"message":"Lector has been succesfully added", "uuid":"%s"}' % (lecturer_uuid))
         lecturer = Lecturer.query.filter_by(uuid=lecturer_uuid).first()
         lecturer_schema = LecturerSchema()
-        return json.dumps({**result, **json.loads(str(lecturer_schema.dumps(lecturer)))}), 200
+        result = lecturer_schema.dump(lecturer)
+        return result, 200
 
 
 
@@ -139,7 +135,7 @@ def lecturer_specific(uuid):
         if lecturer:
             lecturer_schema = LecturerSchema()
             result = lecturer_schema.dump(lecturer)
-            return render_template('lecturer.html', lecturer_uuid=uuid, data=result)
+            return result, 200
         else:
             return {'message': "Lector is not founded"}, 404
     elif request.method == "DELETE":
