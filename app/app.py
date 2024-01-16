@@ -1,7 +1,6 @@
 import os
 import json
 from flask import *
-from flask_restful import Api
 from app.models import db, Lecturer, Tag, TelephoneNumber, Email, lecture_tag, Contact
 from app.serializers import LecturerSchema
 from flask_migrate import Migrate
