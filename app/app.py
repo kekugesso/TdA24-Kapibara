@@ -26,7 +26,7 @@ def before_request():
 
 @app.route('/')  # title page
 def title():
-    return render_template('index.html')
+    return render_template('home.html', data=Lecturer.query.all())
 
 
 @app.route('/api')  # api
@@ -34,7 +34,7 @@ def json_api():
     return json.dumps('{ "secret": "The cake is a lie"}')
 
 
-@app.route('/lecturers', methods = ["GET", "POST"])  # lecturer
+@app.route('/api/lecturers', methods = ["GET", "POST"])  # lecturer
 def lecturer_static():
     if request.method == "GET":
         lecturers = Lecturer.query.all()
@@ -125,7 +125,7 @@ def lecturer_static():
 
 
 
-@app.route('/lecturers/<uuid1>', methods = ["GET", "PUT", "DELETE"])  # Lecturer - spesific
+@app.route('/api/lecturers/<uuid1>', methods = ["GET", "PUT", "DELETE"])  # Lecturer - spesific
 def lecturer_specific(uuid1):
     lecturer = Lecturer.query.filter_by(uuid=uuid1).first()
     if request.method == "GET":
