@@ -20,13 +20,24 @@ try:
 except OSError:
     pass
 
-@app.before_request
-def before_request():
-    db.create_all()
+#@app.before_request
+#def before_request():
+#    db.create_all()
 
 @app.route('/')  # title page
 def title():
-    return render_template('home.html', data=Lecturer.query.all())
+    lecturers = Lecturer.query.all()
+    lecturer_schema = LecturerSchema(many=True)
+    result = lecturer_schema.dump(lecturers)
+    return render_template('home.html', data=result)
+
+
+@app.route('/lecturer/<uuid>')  # Lecturer - spesific
+def lecturer(uuid):
+    lecturer = Lecturer.query.filter_by(uuid=uuid).first()
+    lecturer_schema = LecturerSchema()
+    result = lecturer_schema.dump(lecturer)
+    return render_template('lecturer.html', data=result)
 
 
 @app.route('/api')  # api
