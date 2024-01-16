@@ -182,6 +182,30 @@ def lecturer_specific(uuid1):
                     )
                     db.session.add(new_lecture_tag)
                     db.session.commit()
+            contact = Contact.query.filter_by(lecturer_uuid=uuid1).first()
+            emails = Email.query.filter_by(contact_id=contact.id).all()
+            for email in emails:
+                db.session.delete(email)
+                db.session.commit()
+            numbers = TelephoneNumber.query.filter_by(contact_id=contact.id).all()
+            for number in numbers:
+                db.session.delete(number)
+                db.session.commit()
+            contacts = lecturer_data.get('contact')
+            for number in contacts.get('telephone_numbers'):
+                new_number = TelephoneNumber(
+                    phone = number,
+                    contact_id=contact.id
+                )
+                db.session.add(new_number)
+                db.session.commit()
+            for email in contacts.get('emails'):
+                new_email = Email(
+                    email = email,
+                    contact_id = contact.id
+                )
+                db.session.add(new_email)
+                db.session.commit()
             lecturer.title_before = lecturer_data.get('title_before')
             lecturer.first_name = lecturer_data.get('first_name')
             lecturer.middle_name = lecturer_data.get('middle_name')
