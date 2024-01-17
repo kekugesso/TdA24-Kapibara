@@ -72,20 +72,28 @@
     var lecturersPerPage = 5;
     var currentPage = 1;
 
+
+    function trimSpaces(name) {
+        name = jQuery.trim(name);        
+        name = name.replace(/[ ]{2,}/, ' ');
+        return name;
+    }
     function filterLecturers() {
         var searchSelector = $('#searchSelector').val().toLowerCase();
-        var searchInput = $('#searchInput').val().toLowerCase();
+        var searchInput = trimSpaces($('#searchInput').val().toLowerCase());
         var minPrice = parseFloat($('#minPrice').val()) || 0;
         var maxPrice = parseFloat($('#maxPrice').val()) || highestPrice;
 
         $('.lecturer').each(function() {
-            var lecturerData = $(this).find('.info').text().toLowerCase();
+            var lecturerName = trimSpaces($(this).find('.name').text().toLowerCase());
+            var lecturerLocation = trimSpaces($(this).find('.lokace').text().replace('Lokace: ', '').toLowerCase());
             var lecturerPrice = parseFloat($(this).find('.cena').text().replace('Cena na hodinu: ', '').replace(' Kč', '')) || 0;
 
             if (
                 (searchSelector === 'tags' && checkTagSearch(this, searchInput)) ||
-                (searchSelector !== 'tags' && checkTextSearch(lecturerData, searchInput)) &&
-                checkPriceRange(lecturerPrice, minPrice, maxPrice)
+                (searchSelector === 'name' && checkNameSearch(lecturerName, searchInput)) && checkPriceRange(lecturerPrice, minPrice, maxPrice) ||
+                (searchSelector === 'location' && checkLocationSearch(lecturerLocation, searchInput)) && checkPriceRange(lecturerPrice, minPrice, maxPrice)
+            
             ) {
                 $(this).show();
             } else {
@@ -114,11 +122,18 @@
     function checkTextSearch(lecturerData, searchInput) {
         return searchInput === '' || lecturerData.includes(searchInput);
     }
+    function checkNameSearch(lecturerName, searchInput) {
+        return searchInput === '' || lecturerName.includes(searchInput);
+    }
+    function checkLocationSearch(lecturerLocation, searchInput) {
+        return searchInput === '' || lecturerLocation.includes(searchInput);
+    }
 
     function checkPriceRange(price, minPrice, maxPrice) {
         return price >= minPrice && price <= maxPrice;
     }
-
+    
+    /*
     function updatePagination() {
         var totalLecturers = $('.lecturer:visible').length;
         var totalPages = Math.ceil(totalLecturers / lecturersPerPage);
@@ -131,7 +146,6 @@
 
         $('#pagination').html(paginationHTML);
     }
-
     function showLecturersByPage(page) {
         var startIndex = (page - 1) * lecturersPerPage;
         var endIndex = startIndex + lecturersPerPage;
@@ -143,7 +157,7 @@
             $('.lecturer:visible').hide().slice(startIndex, endIndex).show();
         }
     }
-
+    */
     function changePage(page) {
         currentPage = page;
         showLecturersByPage(currentPage);
@@ -176,7 +190,7 @@
     
     function updateSlider() {
         var minPrice = parseFloat($('#minPrice').val()) || 0;
-        var maxPrice = parseFloat($('#maxPrice').val()) || 0;
+        var maxPrice = parseFloat($('#maxPrice').val()) || highestPrice;
 
         // Ensure maxPrice is not less than minPrice
         if (maxPrice < minPrice) {
