@@ -4,8 +4,8 @@ import uuid
 from flask import *
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError, DataError
-from models import db, Lecturer, Tag, TelephoneNumber, Email, lecture_tag, Contact
-from serializers import LecturerSchema
+from app.models import db, Lecturer, Tag, TelephoneNumber, Email, lecture_tag, Contact
+from app.serializers import LecturerSchema
 from flask_migrate import Migrate
 
 app = Flask(__name__)
@@ -29,7 +29,34 @@ def title():
     lecturers = Lecturer.query.all()
     lecturer_schema = LecturerSchema(many=True)
     result = lecturer_schema.dump(lecturers)
-    return render_template('home.html', data=result)
+    return render_template('home.html', 
+                           data=result, 
+                           unique_tags=get_unique_tags(result),
+                           unique_locations=get_unique_locations(result)
+                           )
+
+
+def get_unique_tags(data):
+    unique_tags = []
+    for lecturer in data:
+        tags = lecturer.get('tags', [])
+        if isinstance(tags, list):
+            for tag in tags:
+                tag_name = tag
+                print(tag_name)
+                if tag_name and tag_name not in unique_tags:
+                    unique_tags.append(tag_name)
+    return unique_tags
+
+
+def get_unique_locations(data):
+    unique_locations = []
+    for lecturer in data:
+        location = lecturer.get('location')
+        if location and location not in unique_locations:
+                    unique_locations.append(location)
+    return unique_locations
+
 
 
 @app.route('/lecturer/<uuid>')  # Lecturer - spesific

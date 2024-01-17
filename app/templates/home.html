@@ -5,12 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Teacher digital Agency</title>
     <link rel="stylesheet" href="../static/css/bootstrap.min.css">
-    <link rel="stylesheet" href="../static/css/styles.min.css">
     <link rel="stylesheet" href="../static/css/main.css">
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-    <script src="https://raw.githubusercontent.com/furf/jquery-ui-touch-punch/master/jquery.ui.touch-punch.js"></script>
+    <script type="module">
+        import Tags from "../static/js/tags.js";
+        Tags.init("select");
+    </script>
 </head>
 <body>
 <div class="wrapper">
@@ -19,24 +18,45 @@
             <img class="logo" src="../static/img/TdA_LOGO/TeacherDigitalAgency_LOGO_black.png">
             <div class="nadpisy text-center p-3 intro-text">Hello TdA!</div> 
         </div>
-        <div class="container search">
-            <label for="searchInput">Search by:</label>
-            <select id="searchSelector" onchange="updateSearchPlaceholder()">
-                <option value="name">Name</option>
-                <option value="location">Location</option>
-                <option value="tags">Tags</option>
-            </select>
-            <input type="text" id="searchInput" oninput="filterLecturers()" placeholder="Search...">
-            
-            <!-- the range slider for pricing -->
+        <div class="container search col">
+            <div class="input-group row">
+                <label for="validationTags" class="form-label nadpisy">Locations: </label>
+                <select class="form-select" id="validationLocations" name="tags[]" value="" multiple>
+                    <option selected disabled hidden value="">Choose a tag...</option>
+                    {% for location in unique_locations %}
+                        <option value="{{ loop.index }}">{{ location }}</option>
+                    {% endfor %}
+                </select>
+                <div class="invalid-feedback">Please select a valid tag.</div>
+            </div>
+            <div class="input-group row">
+                <label for="validationTags" class="form-label nadpisy">Tags: </label>
+                <select class="form-select" id="validationTags" name="tags[]" value="" multiple>
+                    <option selected disabled hidden value="">Choose a tag...</option>
+                    {% for tag in unique_tags %}
+                        <option style="background-color: #FECB2E !important;" data-badge-style="warning" data-badge-class="text-dark" value="{{ tag }}">{{ tag }}</option>
+                    {% endfor %}
+                </select>
+                <div class="invalid-feedback">Please select a valid tag.</div>
+            </div>
             <div class="price-range">
-                <!-- Range slider -->
-                <div id="priceSlider"></div>
-                <label for="minPrice">Min Price:</label>
-                <input type="number" id="minPrice" min="0" step="1" placeholder="Min Price" oninput="updateSlider()">
-                <label for="maxPrice">Max Price:</label>
-                <input type="number" id="maxPrice" min="0" step="1" placeholder="Max Price" oninput="updateSlider()">
-        
+                <label for="range_container" class="form-label nadpisy">Price: </label>
+                <div class="range_container">
+                    <div class="sliders_control">
+                       <input id="fromSlider" type="range" min="0" max="100"/>
+                       <input id="toSlider" type="range" min="0" max="100"/>
+                    </div>
+                    <div class="form_control text-center">
+                        <div>
+                            <div>Min</div>
+                            <input type="number" id="fromInput" min="0" max="100"/>
+                        </div>
+                        <div>
+                            <div>Max</div>
+                            <input type="number" id="toInput" min="0" max="100"/>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="container lecturers">
@@ -52,13 +72,14 @@
                 <div class="tagy text-na-bilem">
                     <div class="nadpisy">Tagy:</div>
                     {% for tag in lecturer['tags'] %}
-                    <div class="badge badge-pill tag" onclick="searchByTag('{{tag["name"]}}');" style="cursor: pointer;">{{tag["name"]}}</div>
+                    <div class="tag" name="{{tag}}" onclick="searchByTag('{{tag}}');" style="cursor: pointer;">{{tag}}</div>
                     {% endfor %}
                 </div>
             </div>
             {% endfor %}
+            <div id="noResultsMessage" class="text-center pd-5 nadpisy" style="margin-top: 10vh;margin-bottom: 10vh;font-size: xx-large;display: none;">No lecturers found.</div>
         </div>
-        <div id="pagination"></div>
+        <div class="text-center" id="pagination"></div>
     </div> 
 
     <footer class="text-center text-lg-start" style="background-color: #db6930;">
@@ -68,181 +89,7 @@
         </div>
     </footer>
 </div>
-<script>
-    var lecturersPerPage = 5;
-    var currentPage = 1;
-
-
-    function trimSpaces(name) {
-        name = jQuery.trim(name);        
-        name = name.replace(/[ ]{2,}/, ' ');
-        return name;
-    }
-    function filterLecturers() {
-        var searchSelector = $('#searchSelector').val().toLowerCase();
-        var searchInput = trimSpaces($('#searchInput').val().toLowerCase());
-        var minPrice = parseFloat($('#minPrice').val()) || 0;
-        var maxPrice = parseFloat($('#maxPrice').val()) || highestPrice;
-
-        $('.lecturer').each(function() {
-            var lecturerName = trimSpaces($(this).find('.name').text().toLowerCase());
-            var lecturerLocation = trimSpaces($(this).find('.lokace').text().replace('Lokace: ', '').toLowerCase());
-            var lecturerPrice = parseFloat($(this).find('.cena').text().replace('Cena na hodinu: ', '').replace(' Kč', '')) || 0;
-
-            if (
-                (searchSelector === 'tags' && checkTagSearch(this, searchInput)) ||
-                (searchSelector === 'name' && checkNameSearch(lecturerName, searchInput)) && checkPriceRange(lecturerPrice, minPrice, maxPrice) ||
-                (searchSelector === 'location' && checkLocationSearch(lecturerLocation, searchInput)) && checkPriceRange(lecturerPrice, minPrice, maxPrice)
-            
-            ) {
-                $(this).show();
-            } else {
-                $(this).hide();
-            }
-        });
-
-        // Reset current page to 1 after filtering
-        currentPage = 1;
-
-        // Update pagination based on the filtered lecturers
-        updatePagination();
-
-        // Show/hide lecturers based on the current page
-        showLecturersByPage(currentPage);
-    }
-
-    function checkTagSearch(lecturerElement, searchInput) {
-        var tags = $(lecturerElement).find('.tag').map(function() {
-            return $(this).text().toLowerCase();
-        }).get();
-
-        return searchInput === '' || tags.some(tag => tag.includes(searchInput));
-    }
-
-    function checkTextSearch(lecturerData, searchInput) {
-        return searchInput === '' || lecturerData.includes(searchInput);
-    }
-    function checkNameSearch(lecturerName, searchInput) {
-        return searchInput === '' || lecturerName.includes(searchInput);
-    }
-    function checkLocationSearch(lecturerLocation, searchInput) {
-        return searchInput === '' || lecturerLocation.includes(searchInput);
-    }
-
-    function checkPriceRange(price, minPrice, maxPrice) {
-        return price >= minPrice && price <= maxPrice;
-    }
-    
-    /*
-    function updatePagination() {
-        var totalLecturers = $('.lecturer:visible').length;
-        var totalPages = Math.ceil(totalLecturers / lecturersPerPage);
-
-        // Generate pagination buttons
-        var paginationHTML = '';
-        for (var i = 1; i <= totalPages; i++) {
-            paginationHTML += '<button class="btn btn-link" onclick="changePage(' + i + ')">' + i + '</button>';
-        }
-
-        $('#pagination').html(paginationHTML);
-    }
-    function showLecturersByPage(page) {
-        var startIndex = (page - 1) * lecturersPerPage;
-        var endIndex = startIndex + lecturersPerPage;
-
-        if ($('#searchInput').val() === '') {
-            $('.lecturer:visible').hide();
-            $('.lecturer').slice(startIndex, endIndex).show();
-        } else {
-            $('.lecturer:visible').hide().slice(startIndex, endIndex).show();
-        }
-    }
-    */
-    function changePage(page) {
-        currentPage = page;
-        showLecturersByPage(currentPage);
-    }
-
-    function updateSearchPlaceholder() {
-        var searchSelector = $('#searchSelector').val();
-        var placeholder = '';
-
-        if (searchSelector === 'name') {
-            placeholder = 'Search by Name...';
-        } else if (searchSelector === 'location') {
-            placeholder = 'Search by Location...';
-        } else if (searchSelector === 'tags') {
-            placeholder = 'Search by Tags...';
-        }
-
-        $('#searchInput').attr('placeholder', placeholder);
-
-        // Trigger a new search when the search selector changes
-        filterLecturers();
-    }
-
-    function searchByTag(tag) {
-        $('#searchSelector').val('tags');
-        $('#searchInput').val(tag);
-        filterLecturers();
-    }
-
-    
-    function updateSlider() {
-        var minPrice = parseFloat($('#minPrice').val()) || 0;
-        var maxPrice = parseFloat($('#maxPrice').val()) || highestPrice;
-
-        // Ensure maxPrice is not less than minPrice
-        if (maxPrice < minPrice) {
-            maxPrice = minPrice;
-            $('#maxPrice').val(maxPrice);
-        }
-
-        // Update the slider based on input values
-        $("#priceSlider").slider({
-            values: [minPrice, maxPrice]
-        });
-    }
-
-    // Initial setup
-    $(document).ready(function() {
-        // Add event listener for search selector change
-        $('#searchSelector').change(function() {
-            updateSearchPlaceholder();
-        });
-        // Get the highest price for setting the slider's max value
-            var highestPrice = Math.max.apply(Math, $('.lecturer').map(function() {
-            return parseFloat($(this).find('.cena').text().replace('Cena na hodinu: ', '').replace(' Kč', '')) || 0;
-        }).get());
-        // Initialize the range slider
-        $("#priceSlider").slider({
-            range: true,
-            min: 0,
-            max: highestPrice, // Set an appropriate maximum value for your pricing range
-            values: [0, highestPrice], // Initial values
-            change: function (event, ui) {
-                $("#minPrice").val(ui.values[0]);
-                $("#maxPrice").val(ui.values[1]);
-                filterLecturers();
-                updateSliderDisplay(ui.values[0], ui.values[1]);
-            }
-        });
-
-        // Display initial range values
-        updateSliderDisplay(0, highestPrice); // Set initial values based on your range
-
-        // Filter and show lecturers on page load
-        filterLecturers();
-        
-    });
-</script>
-
-
-
-
-
-
-
-
+<script src="../static/js/search.js"></script>
+<script src="../static/js/rangeSlider.js"></script>
 </body>
 </html>
