@@ -4,8 +4,8 @@ import uuid
 from flask import *
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError, DataError
-from app.models import db, Lecturer, Tag, TelephoneNumber, Email, lecture_tag, Contact
-from app.serializers import LecturerSchema
+from models import db, Lecturer, Tag, TelephoneNumber, Email, lecture_tag, Contact
+from serializers import LecturerSchema
 from flask_migrate import Migrate
 
 app = Flask(__name__)
@@ -25,61 +25,17 @@ except OSError:
 #    db.create_all()
 
 
-@app.route('/')  # title page
+@app.route('/', methods = ["GET", "POST"])  # title page
 def title():
-    lecturers = Lecturer.query.all()
-    lecturer_schema = LecturerSchema(many=True)
-    result = lecturer_schema.dump(lecturers)
-    return render_template('home.html', 
-                           data=result, 
-                           unique_tags=get_unique_tags(result),
-                           unique_locations=get_unique_locations(result)
-                           )
-
-
-def get_unique_tags(data):
-    unique_tags = []
-    for lecturer in data:
-        tags = lecturer.get('tags', [])
-        if isinstance(tags, list):
-            for tag in tags:
-                tag_name = tag
-                print(tag_name)
-                if tag_name and tag_name not in unique_tags:
-                    unique_tags.append(tag_name)
-    return unique_tags
-
-
-def get_unique_locations(data):
-    unique_locations = []
-    for lecturer in data:
-        location = lecturer.get('location')
-        if location and location not in unique_locations:
-                    unique_locations.append(location)
-    return unique_locations
-
-
-
-@app.route('/lecturer/<uuid>')  # Lecturer - spesific
-def lecturer(uuid):
-    lecturer = Lecturer.query.filter_by(uuid=uuid).first()
-    lecturer_schema = LecturerSchema()
-    result = lecturer_schema.dump(lecturer)
-    return render_template('lecturer.html', data=result)
-
-
-@app.route('/api')  # api
-def json_api():
-    return json.dumps('{ "secret": "The cake is a lie"}')
-
-
-@app.route('/api/lecturers', methods = ["GET", "POST"])  # lecturer
-def lecturer_static():
     if request.method == "GET":
         lecturers = Lecturer.query.all()
         lecturer_schema = LecturerSchema(many=True)
         result = lecturer_schema.dump(lecturers)
-        return result, 200
+        return render_template('home.html', 
+                           data=result, 
+                           unique_tags=get_unique_tags(result),
+                           unique_locations=get_unique_locations(result)
+                           )
     elif request.method == "POST":
         try:
             data = request.get_json()
@@ -163,15 +119,37 @@ def lecturer_static():
         return result, 200
 
 
+def get_unique_tags(data):
+    unique_tags = []
+    for lecturer in data:
+        tags = lecturer.get('tags', [])
+        if isinstance(tags, list):
+            for tag in tags:
+                tag_name = tag
+                print(tag_name)
+                if tag_name and tag_name not in unique_tags:
+                    unique_tags.append(tag_name)
+    return unique_tags
 
-@app.route('/api/lecturers/<uuid1>', methods = ["GET", "PUT", "DELETE"])  # Lecturer - spesific
-def lecturer_specific(uuid1):
+
+def get_unique_locations(data):
+    unique_locations = []
+    for lecturer in data:
+        location = lecturer.get('location')
+        if location and location not in unique_locations:
+                    unique_locations.append(location)
+    return unique_locations
+
+
+
+@app.route('/lecturer/<uuid1>', methods = ["GET", "POST", "PUT"])  # Lecturer - spesific
+def lecturer(uuid1):
     lecturer = Lecturer.query.filter_by(uuid=uuid1).first()
     if request.method == "GET":
         if lecturer:
             lecturer_schema = LecturerSchema()
             result = lecturer_schema.dump(lecturer)
-            return result, 200
+            return render_template('lecturer.html', data=result)
         else:
             return {'message': "Lector is not founded"}, 404
     elif request.method == "DELETE":
@@ -261,6 +239,7 @@ def lecturer_specific(uuid1):
             return result, 200
         else:
             return {"message": "Lecturer is not founded"}, 404
+
 
 if __name__ == '__main__':
     app.run(debug=True)
