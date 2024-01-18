@@ -24,6 +24,7 @@ except OSError:
 #def before_request():
 #    db.create_all()
 
+
 @app.route('/')  # title page
 def title():
     lecturers = Lecturer.query.all()
