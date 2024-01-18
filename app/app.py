@@ -4,8 +4,8 @@ import uuid
 from flask import *
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError, DataError
-from app.models import db, Lecturer, Tag, TelephoneNumber, Email, lecture_tag, Contact
-from app.serializers import LecturerSchema
+from models import db, Lecturer, Tag, TelephoneNumber, Email, lecture_tag, Contact
+from serializers import LecturerSchema
 from flask_migrate import Migrate
 
 app = Flask(__name__)
@@ -20,9 +20,9 @@ try:
 except OSError:
     pass
 
-#@app.before_request
-#def before_request():
-#    db.create_all()
+@app.before_request
+def before_request():
+    db.create_all()
 
 
 @app.route('/', methods = ["GET", "POST"])  # title page
