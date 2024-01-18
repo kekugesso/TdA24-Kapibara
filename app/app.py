@@ -20,9 +20,9 @@ try:
 except OSError:
     pass
 
-@app.before_request
-def before_request():
-    db.create_all()
+#@app.before_request
+#def before_request():
+#    db.create_all()
 
 
 @app.route('/', methods = ["GET", "POST"])  # title page
