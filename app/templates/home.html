@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="cz">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Teacher digital Agency</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" />
+    <link rel="stylesheet" href="../static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/css/main.css">
+    <script type="module">
+        import Tags from "../static/js/tags.js";
+        Tags.init("select");
+    </script>
+</head>
+<body>
+<div class="wrapper">
+    <div class="content">
+        <div class="introduction">
+            <img class="logo" src="../static/img/TdA_LOGO/TeacherDigitalAgency_LOGO_black.png">
+            <div class="nadpisy text-center p-3 intro-text">Hello TdA!</div> 
+        </div>
+        <div class="container search col">
+            <div class="input-group row">
+                <label for="validationTags" class="form-label nadpisy">Locations: </label>
+                <select class="form-select" id="validationLocations" name="tags[]" value="" multiple>
+                    <option selected disabled hidden value="">Choose a tag...</option>
+                    {% for location in unique_locations %}
+                        <option value="{{ loop.index }}">{{ location }}</option>
+                    {% endfor %}
+                </select>
+                <div class="invalid-feedback">Please select a valid tag.</div>
+            </div>
+            <div class="input-group row">
+                <label for="validationTags" class="form-label nadpisy">Tags: </label>
+                <select class="form-select" id="validationTags" name="tags[]" value="" multiple>
+                    <option selected disabled hidden value="">Choose a tag...</option>
+                    {% for tag in unique_tags %}
+                        <option style="background-color: #FECB2E !important;" data-badge-style="warning" data-badge-class="text-dark" value="{{ tag }}">{{ tag }}</option>
+                    {% endfor %}
+                </select>
+                <div class="invalid-feedback">Please select a valid tag.</div>
+            </div>
+            <div class="price-range">
+                <label for="range_container" class="form-label nadpisy">Price: </label>
+                <div class="range_container">
+                    <div class="sliders_control">
+                       <input id="fromSlider" type="range" min="0" max="100"/>
+                       <input id="toSlider" type="range" min="0" max="100"/>
+                    </div>
+                    <div class="form_control text-center">
+                        <div>
+                            <div>Min</div>
+                            <input type="number" id="fromInput" min="0" max="100"/>
+                        </div>
+                        <div>
+                            <div>Max</div>
+                            <input type="number" id="toInput" min="0" max="100"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container lecturers">
+            {% for lecturer in data %}
+            <div class="lecturer" id="{{lecturer['uuid']}}">
+                <img class="picture" src="{{lecturer['picture_url']}}"></img>
+                <div class="info text-na-bilem" onclick="location.href='/lecturer/{{lecturer['uuid']}}';" style="cursor: pointer;">
+                    <div class="name nadpisy">{{lecturer['title_before']}} {{lecturer['first_name']}} {{lecturer['middle_name']}} {{lecturer['last_name']}} {{lecturer['title_after']}}</div>
+                    <div class="claim text-na-bilem">{{lecturer['claim']}}</div>
+                    <div class="cena text-na-bilem">Cena na hodinu: {{lecturer['price_per_hour']}} Kč</div>
+                    <div class="lokace text-na-bilem">Lokace: {{lecturer['location']}}</div>
+                </div>
+                <div class="tagy text-na-bilem">
+                    <div class="nadpisy">Tagy:</div>
+                    {% for tag in lecturer['tags'] %}
+                    <div class="tag" name="{{tag}}" onclick="searchByTag('{{tag}}');" style="cursor: pointer;">{{tag}}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+            <div id="noResultsMessage" class="text-center pd-5 nadpisy" style="margin-top: 10vh;margin-bottom: 10vh;font-size: xx-large;display: none;">No lecturers found.</div>
+        </div>
+        <div class="text-center" id="pagination"></div>
+    </div> 
+
+    <footer class="text-center text-lg-start" style="background-color: #db6930;">
+        <div class="text-center text-white p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+            © 2020 Copyright:
+            <a class="text-white" href="#">Teacher digital Agency</a>
+        </div>
+    </footer>
+</div>
+<script src="../static/js/search.js"></script>
+<script src="../static/js/rangeSlider.js"></script>
+</body>
+</html>

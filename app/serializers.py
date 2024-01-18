@@ -2,7 +2,6 @@ from marshmallow import Schema, fields
 
 
 class TagSchema(Schema):
-    uuid = fields.String()
     name = fields.String()
 
 class ContactSchema(Schema):
@@ -12,7 +11,12 @@ class ContactSchema(Schema):
 
 class LecturerSchema(Schema):
     contact = fields.Nested(ContactSchema)
-    tags = fields.Nested(TagSchema, many=True)
+    tags = fields.Method("get_tag_names")
+
+    def get_tag_names(self, lecturer):
+        if lecturer.tags:
+            return [tag.name for tag in lecturer.tags]
+        return []
 
     class Meta:
         fields = ["uuid", "title_before", "first_name", "middle_name", "last_name", "title_after", "picture_url", "location", "claim", "bio", "price_per_hour", "tags", "contact"]
