@@ -5,7 +5,7 @@ from flask import *
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError, DataError
 from app.models import db, Lecturer, Tag, TelephoneNumber, Email, lecture_tag, Contact
-from app serializers import LecturerSchema
+from app.serializers import LecturerSchema
 from flask_migrate import Migrate
 
 app = Flask(__name__)
