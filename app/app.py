@@ -4,8 +4,8 @@ import uuid
 from flask import *
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError, DataError
-from app.models import db, Lecturer, Tag, TelephoneNumber, Email, lecture_tag, Contact
-from app.serializers import LecturerSchema
+from models import db, Lecturer, Tag, TelephoneNumber, Email, lecture_tag, Contact
+from serializers import LecturerSchema
 from flask_migrate import Migrate
 
 app = Flask(__name__)
@@ -126,7 +126,6 @@ def get_unique_tags(data):
         if isinstance(tags, list):
             for tag in tags:
                 tag_name = tag
-                print(tag_name)
                 if tag_name and tag_name not in unique_tags:
                     unique_tags.append(tag_name)
     return unique_tags
@@ -142,7 +141,7 @@ def get_unique_locations(data):
 
 
 
-@app.route('/lecturer/<uuid1>', methods = ["GET", "POST", "PUT"])  # Lecturer - spesific
+@app.route('/lecturer/<uuid1>', methods = ["GET", "DELETE", "PUT"])  # Lecturer - spesific
 def lecturer(uuid1):
     lecturer = Lecturer.query.filter_by(uuid=uuid1).first()
     if request.method == "GET":
