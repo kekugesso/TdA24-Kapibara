@@ -1,9 +1,13 @@
+from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
-class Lecturer(db.Model):
+class Lecturer(UserMixin, db.Model):
     uuid = db.Column(db.Text, nullable = False, primary_key=True, unique=True)
+    username = db.Column(db.Text, index=True, unique=True)
+    password = db.Column(db.Text, nullable=False)
     title_before = db.Column(db.Text, nullable=True)
     first_name = db.Column(db.Text, nullable=False)
     middle_name = db.Column(db.Text, nullable=True)
@@ -19,8 +23,17 @@ class Lecturer(db.Model):
 
     contact = db.relationship('Contact', uselist=False, backref='lecturer', cascade='all, delete-orphan')
 
+    rezervation = db.relationship('Rezervation', backref='lecturer', cascade='all, delete-orphan')
+
     def __repr__(self):
         return f'<Lecturer {self.uuid}>'
+    
+
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
+
+    def get_id(self):
+        return str(self.uuid)
 
 
 class Tag(db.Model):
@@ -69,3 +82,20 @@ class lecture_tag(db.Model):
 
     def __repr__(self):
         return f"<lecture_tag {self.lecturer_uuid}>"
+    
+class Rezervation(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.Text, nullable=False)
+    start_time = db.Column(db.Text, nullable=False)
+    end_time = db.Column(db.Text, nullable=False)
+    first_name_student = db.Column(db.Text, nullable=True)
+    second_name_student = db.Column(db.Text, nullable=True)
+    email_student = db.Column(db.Text, nullable=True)
+    number_student = db.Column(db.Text, nullable=True)
+    notes = db.Column(db.Text, nullable=True)
+    subject = db.Column(db.Text, nullable=False)
+    lecturer_uuid = db.Column(db.Text, db.ForeignKey('lecturer.uuid', ondelete='CASCADE'), nullable=False)
+
+    def __repr__(self):
+        return f"<Rezervation {self.id}>"
+    

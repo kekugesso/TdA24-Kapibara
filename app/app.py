@@ -4,15 +4,22 @@ import uuid
 from flask import *
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import IntegrityError, DataError
-from app.models import db, Lecturer, Tag, TelephoneNumber, Email, lecture_tag, Contact
-from app.serializers import LecturerSchema
+from flask_login import *
+from models import db, Lecturer, Tag, TelephoneNumber, Email, lecture_tag, Contact, Rezervation
+from serializers import LecturerSchema
 from flask_migrate import Migrate
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.secret_key = ']pv~x_fKX[U3hCDnfZ,$`olRWpXmb]H^EI+i3jPo<yZ*Yz276=:#N%};St-,GMS'
 db.init_app(app)
 migrate = Migrate(app, db)
+login_manager = LoginManager()
+login_manager.init_app(app)
 
+@login_manager.user_loader
+def load_user(user_id):
+    return Lecturer.query.get(user_id)
 
 # ensure the instance folder exists
 try:
@@ -20,9 +27,36 @@ try:
 except OSError:
     pass
 
-#@app.before_request
-#def before_request():
-#    db.create_all()
+@app.before_request
+def before_request():
+    db.create_all()
+
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('lecturer_admin', uuid=current_user.uuid))
+
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        user = Lecturer.query.filter_by(username=username).first()
+        if user and user.password == password:
+            login_user(user)
+            return redirect(url_for('lecturer_admin', uuid=user.uuid))
+        else:
+            flash('Invalid username or password')
+
+    return render_template('login.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('You have been logged out.')
+    return redirect(url_for('login'))
+
 
 
 @app.route('/', methods = ["GET", "POST"])  # title page
@@ -48,6 +82,8 @@ def title():
                 lecturer_uuid = str(uuid.uuid4())
             new_lecturer = Lecturer(
                 uuid = lecturer_uuid,
+                username = data.get("username"),
+                password = data.get("password"),
                 title_before = data.get("title_before"),
                 first_name = data.get("first_name"),
                 middle_name = data.get("middle_name"),
@@ -238,6 +274,15 @@ def lecturer(uuid1):
             return result, 200
         else:
             return {"message": "Lecturer is not founded"}, 404
+
+@app.route("/lecturer/<uuid>/admin", methods=["GET", "DELETE"])
+@login_required
+def lecturer_admin(uuid):
+    if request.method == "GET":
+        return render_template("lecturer_admin.html"), 200
+    elif request.method == "DELETE":
+        return {'message': 'OK'}, 204
+
 
 if __name__ == '__main__':
     app.run(debug=True)
