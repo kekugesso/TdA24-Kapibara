@@ -1,24 +1,31 @@
+"""
+modules that contains the application
+"""
 import os
-import json
+from datetime import timedelta
 import uuid
-from flask import *
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, render_template, request, redirect, url_for, flash
 from sqlalchemy.exc import IntegrityError, DataError
-from flask_login import *
-from models import db, Lecturer, Tag, TelephoneNumber, Email, lecture_tag, Contact, Rezervation
-from serializers import LecturerSchema
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_migrate import Migrate
+from app.models import db, Lecturer, Tag, TelephoneNumber, Email, lecture_tag, Contact
+from app.serializers import LecturerSchema
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.secret_key = ']pv~x_fKX[U3hCDnfZ,$`olRWpXmb]H^EI+i3jPo<yZ*Yz276=:#N%};St-,GMS'
 db.init_app(app)
 migrate = Migrate(app, db)
+app.permanent_session_lifetime = timedelta(hours=2)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+
 @login_manager.user_loader
 def load_user(user_id):
+    """
+    function that loads a user
+    """
     return Lecturer.query.get(user_id)
 
 # ensure the instance folder exists
@@ -29,12 +36,18 @@ except OSError:
 
 @app.before_request
 def before_request():
+    """
+    funcion that runs before each request
+    """
     db.create_all()
 
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    """
+    function that handles the login
+    """
     if current_user.is_authenticated:
         return redirect(url_for('lecturer_admin', uuid=current_user.uuid))
 
@@ -47,26 +60,30 @@ def login():
             return redirect(url_for('lecturer_admin', uuid=user.uuid))
         else:
             flash('Invalid username or password')
-
     return render_template('login.html')
 
 @app.route('/logout')
 @login_required
 def logout():
+    """
+    function that handles the logout
+    """
     logout_user()
-    flash('You have been logged out.')
     return redirect(url_for('login'))
 
 
 
 @app.route('/', methods = ["GET", "POST"])  # title page
 def title():
+    """
+    function that handles the title
+    """
     if request.method == "GET":
         lecturers = Lecturer.query.all()
         lecturer_schema = LecturerSchema(many=True)
         result = lecturer_schema.dump(lecturers)
-        return render_template('home.html', 
-                           data=result, 
+        return render_template('home.html',
+                           data=result,
                            unique_tags=get_unique_tags(result),
                            unique_locations=get_unique_locations(result)
                            )
@@ -78,7 +95,7 @@ def title():
             lecturer_uuids = []
             for lecturer in lecturers:
                 lecturer_uuids.append(lecturer.uuid)
-            while(lecturer_uuid in lecturer_uuids):
+            while lecturer_uuid in lecturer_uuids:
                 lecturer_uuid = str(uuid.uuid4())
             new_lecturer = Lecturer(
                 uuid = lecturer_uuid,
@@ -156,6 +173,9 @@ def title():
 
 
 def get_unique_tags(data):
+    """
+    function that handles sorting unique tags
+    """
     unique_tags = []
     for lecturer in data:
         tags = lecturer.get('tags', [])
@@ -168,17 +188,23 @@ def get_unique_tags(data):
 
 
 def get_unique_locations(data):
+    """
+    function that handles sorting unique locations
+    """
     unique_locations = []
     for lecturer in data:
         location = lecturer.get('location')
         if location and location not in unique_locations:
-                    unique_locations.append(location)
+            unique_locations.append(location)
     return unique_locations
 
 
 
 @app.route('/lecturer/<uuid1>', methods = ["GET", "DELETE", "PUT"])  # Lecturer - spesific
 def lecturer(uuid1):
+    """
+    function that handles specific cards for lecturers
+    """
     lecturer = Lecturer.query.filter_by(uuid=uuid1).first()
     if request.method == "GET":
         if lecturer:
@@ -277,11 +303,17 @@ def lecturer(uuid1):
 
 @app.route("/lecturer/<uuid>/admin", methods=["GET", "DELETE"])
 @login_required
-def lecturer_admin(uuid):
-    if request.method == "GET":
-        return render_template("lecturer_admin.html"), 200
-    elif request.method == "DELETE":
-        return {'message': 'OK'}, 204
+def lecturer_admin(uuid_lecturer):
+    """
+    function that handles admin page for loginned lecturer
+    """
+    if current_user.uuid == uuid_lecturer:
+        if request.method == "GET":
+            return render_template("lecturer_admin.html"), 200
+        elif request.method == "DELETE":
+            return {'message': 'OK'}, 204
+    else:
+        return {"message": "gl"}, 403
 
 
 if __name__ == '__main__':

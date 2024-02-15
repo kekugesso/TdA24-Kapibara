@@ -1,5 +1,4 @@
 from flask_login import UserMixin
-from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
@@ -27,10 +26,6 @@ class Lecturer(UserMixin, db.Model):
 
     def __repr__(self):
         return f'<Lecturer {self.uuid}>'
-    
-
-    def check_password(self, password):
-        return check_password_hash(self.password, password)
 
     def get_id(self):
         return str(self.uuid)
@@ -86,8 +81,8 @@ class lecture_tag(db.Model):
 class Rezervation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Text, nullable=False)
-    start_time = db.Column(db.Text, nullable=False)
-    end_time = db.Column(db.Text, nullable=False)
+    start_time = db.Column(db.Integer, nullable=False)
+    end_time = db.Column(db.Integer, nullable=False)
     first_name_student = db.Column(db.Text, nullable=True)
     second_name_student = db.Column(db.Text, nullable=True)
     email_student = db.Column(db.Text, nullable=True)
