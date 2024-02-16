@@ -1,13 +1,45 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="cz">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Teacher digital Agency</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
-    <h1>
-        Hello
-    </h1>
+<div class="wrapper">
+    <div class="content">
+        <div class="introduction">
+            <img class="logo" src="{{ url_for('static', filename='img/TdA_LOGO/TeacherDigitalAgency_LOGO_black.png') }}" onclick="location.href='/';" style="cursor: pointer;">
+            <div class="nadpisy text-center p-3 intro-text">Hello TdA!</div> 
+
+            <!-- only log out-->
+            <div class="btn btn-outline-primary login text-center" onclick="location.href='/logout';" style="cursor: pointer;">
+                <img class="icon" src="{{ url_for('static', filename='img/TdA_ikony/300ppi/TdA_ikony_studium_black.png') }}">
+                <div class="text-na-bilem login-text">Logout</div>
+            </div>
+
+        </div>
+        <div class="container rezervace">
+            {% if data %}
+                {% for rezervace in data %}
+                <div class="rezervace" id="{{rezervace['date']}}">
+                {{ data }}
+                </div>
+                {% endfor %}
+            {% else %}
+            <div id="noResultsMessage" class="text-center pd-5 nadpisy" style="margin-top: 10vh;margin-bottom: 10vh;font-size: xx-large;display: none;">No rezervace found.</div>
+            {% endif %}
+        </div>
+
+    <footer class="text-center text-lg-start" style="background-color: #db6930;">
+        <div class="text-center text-white p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+            © 2020 Copyright:
+            <a class="text-white" href="#">Teacher digital Agency</a>
+        </div>
+    </footer>
+</div>
 </body>
 </html>

@@ -303,13 +303,13 @@ def lecturer(uuid1):
 
 @app.route("/lecturer/<uuid>/admin", methods=["GET", "DELETE"])
 @login_required
-def lecturer_admin(uuid_lecturer):
+def lecturer_admin(uuid):
     """
     function that handles admin page for loginned lecturer
     """
-    if current_user.uuid == uuid_lecturer:
+    if current_user.uuid == uuid:
         if request.method == "GET":
-            return render_template("lecturer_admin.html"), 200
+            return render_template("lecturer_admin.html", data='no data parse implemented'), 200
         elif request.method == "DELETE":
             return {'message': 'OK'}, 204
     else:

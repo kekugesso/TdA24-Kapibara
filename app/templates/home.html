@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Teacher digital Agency</title>
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" />
-    <link rel="stylesheet" href="../static/css/bootstrap.min.css">
-    <link rel="stylesheet" href="../static/css/main.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <script type="module">
-        import Tags from "../static/js/tags.js";
+        import Tags from "{{ url_for('static', filename='/js/tags.js') }}";
         Tags.init("select");
     </script>
 </head>
@@ -16,12 +16,20 @@
 <div class="wrapper">
     <div class="content">
         <div class="introduction">
-            <img class="logo" src="../static/img/TdA_LOGO/TeacherDigitalAgency_LOGO_black.png" onclick="location.href='/';" style="cursor: pointer;">
+            <img class="logo" src="{{ url_for('static', filename='img/TdA_LOGO/TeacherDigitalAgency_LOGO_black.png') }}" onclick="location.href='/';" style="cursor: pointer;">
             <div class="nadpisy text-center p-3 intro-text">Hello TdA!</div> 
-            <div class="btn btn-outline-primary login text-center" onclick="location.href='/login';" style="cursor: pointer;">
-                <img class="icon" src="../static/img/TdA_ikony/300ppi/TdA_ikony_nastaveni_black.png">
-                <div class="text-na-bilem login-text">Login</div>
-            </div>
+            
+            {% if current_user.is_authenticated %}
+                <div class="btn btn-outline-primary login text-center" onclick="location.href='/lecturer/{{ current_user.uuid }}/admin';" style="cursor: pointer;">
+                    <img class="icon" src="{{ url_for('static', filename='img/TdA_ikony/300ppi/TdA_ikony_nastaveni_black.png') }}">
+                    <div class="text-na-bilem login-text">Manage</div>
+                </div>
+            {% else %}
+                <div class="btn btn-outline-primary login text-center" onclick="location.href='/login';" style="cursor: pointer;">
+                    <img class="icon" src="{{ url_for('static', filename='img/TdA_ikony/300ppi/TdA_ikony_studium_black.png') }}">
+                    <div class="text-na-bilem login-text">Login</div>
+                </div>
+            {% endif %}
         </div>
         <div class="container search col">
             <div class="input-group row">
@@ -68,7 +76,7 @@
             {% for lecturer in data %}
             <div class="lecturer" id="{{lecturer['uuid']}}">
                 <img class="picture" src="{{lecturer['picture_url']}}"></img>
-                <div class="info text-na-bilem" onclick="location.href='/lecturer/{{lecturer['uuid']}}';" style="cursor: pointer;">
+                <div class="info text-na-bilem" onclick="location.href='/lecturer/{{ lecturer['uuid'] }}';" style="cursor: pointer;">
                     <div class="name nadpisy">{{lecturer['title_before']}} {{lecturer['first_name']}} {{lecturer['middle_name']}} {{lecturer['last_name']}} {{lecturer['title_after']}}</div>
                     <div class="claim text-na-bilem">{{lecturer['claim']}}</div>
                     <div class="cena text-na-bilem">Cena na hodinu: {{lecturer['price_per_hour']}} Kč</div>
@@ -94,7 +102,7 @@
         </div>
     </footer>
 </div>
-<script src="../static/js/search.js"></script>
-<script src="../static/js/rangeSlider.js"></script>
+<script src="{{ url_for('static', filename='/js/search.js') }}"></script>
+<script src="{{ url_for('static', filename='/js/rangeSlider.js') }}"></script>
 </body>
 </html>
