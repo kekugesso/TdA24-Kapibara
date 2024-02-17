@@ -39,7 +39,7 @@
                 <select class="form-select" id="validationTags" name="tags[]" value="" multiple>
                     <option selected disabled hidden value="">Choose a tag...</option>
                     {% for tag in unique_tags %}
-                        <option style="background-color: #FECB2E !important;" data-badge-style="warning" data-badge-class="text-dark" value="{{ tag }}">{{ tag }}</option>
+                        <option style="background-color: #FECB2E !important;" data-badge-style="warning" data-badge-class="text-dark" value="{{ tag['name'] }}">{{ tag['name'] }}</option>
                     {% endfor %}
                 </select>
                 <div class="invalid-feedback">Please select a valid tag.</div>
@@ -77,7 +77,7 @@
                 <div class="tagy text-na-bilem">
                     <div class="nadpisy">Tagy:</div>
                     {% for tag in lecturer['tags'] %}
-                    <div class="tag" name="{{tag}}" onclick="searchByTag('{{tag}}');" style="cursor: pointer;">{{tag}}</div>
+                    <div class="tag" name="{{tag['name']}}" onclick="searchByTag('{{tag}}');" style="cursor: pointer;">{{tag['name']}}</div>
                     {% endfor %}
                 </div>
             </div>
