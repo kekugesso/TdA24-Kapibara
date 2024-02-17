@@ -310,8 +310,6 @@ def lecturer_admin(uuid):
     if current_user.uuid == uuid:
         if request.method == "GET":
             one_lecturer = Lecturer.query.filter_by(uuid=uuid).first()
-            if not one_lecturer:
-                return {"message": "Lecturer is not founded"}, 404
             lecturer_schema = LecturerSchema()
             result = lecturer_schema.dump(one_lecturer)
             data = result.get("rezervation")
