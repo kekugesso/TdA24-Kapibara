@@ -326,20 +326,25 @@ def lecturer_admin(uuid):
     else:
         return {"message": "naaaaaah bro"}, 403
 
-@app.route("/lecturer/<uuid>/rezervace", methods=["GET", "POST"])
-def rezervace(uuid):
+@app.route("/rezervace/<uuid_rezrvace>", methods=["GET"])
+def rezervace(uuid_rezrvace):
     """
     function that handles rezervace
     """
     if request.method == "GET":
-        one_lecturer = Lecturer.query.filter_by(uuid=uuid).first()
-        if not one_lecturer:
-            return {"message": "Lecturer is not founded"}, 404
-        lecturer_schema = LecturerSchema()
-        result = lecturer_schema.dump(one_lecturer)
+        rezervation = Rezervation.query.filter_by(uuid=uuid_rezrvace).first()
+        uuid_lecturer = rezervation.lecturer_uuid
+        one_lecturer = Lecturer.query.filter_by(uuid=uuid_lecturer).first()
+        one_lecturer_schema = LecturerSchema()
+        result = one_lecturer_schema.dump(one_lecturer)
         return render_template("rezervace.html", data=result), 200
-    elif request.method == "POST":
+   
+
+@app.route("/rezervace", methods=["POST"])
+def rezervace_post():
+    if request.method == "POST":
         data = request.data
+        uuids = []
         all_rezervations_lecturer = Rezervation.query.filter_by(lecturer_uuid=uuid).all()
         for one_rezervation in all_rezervations_lecturer:
             if (
@@ -349,8 +354,14 @@ def rezervace(uuid):
             and one_rezervation.end_time < data.get("end_time"))
             and one_rezervation.date == data.get("date")
             ):
-                return {"message": "Rezervace existuje"}, 409
+                return {"message": "Rezervace existuje"}, 400
+            uuids.append(one_rezervation.uuid)
+        while(True):
+            uuid = str(uuid.uuid4())
+            if uuid not in uuids:
+                break
         new_rezervace = Rezervation(
+            uuid = uuid,
             date = data.get('date'),
             start_time = data.get('start_time'),
             end_time = data.get('end_time'),
