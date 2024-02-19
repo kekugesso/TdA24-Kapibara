@@ -8,8 +8,8 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from sqlalchemy.exc import IntegrityError, DataError
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_migrate import Migrate
-from app.models import db, Lecturer, Tag, TelephoneNumber, Email, LectureTag, Contact, Rezervation
-from app.serializers import LecturerSchema
+from models import db, Lecturer, Tag, TelephoneNumber, Email, LectureTag, Contact, Rezervation
+from serializers import LecturerSchema
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
@@ -329,23 +329,31 @@ def lecturer_admin(uuid):
 @app.route("/rezervace/<uuid_rezrvace>", methods=["GET"])
 def rezervace(uuid_rezrvace):
     """
-    function that handles rezervace
+    function that handles show specific rezervation
     """
     if request.method == "GET":
         rezervation = Rezervation.query.filter_by(uuid=uuid_rezrvace).first()
-        uuid_lecturer = rezervation.lecturer_uuid
-        one_lecturer = Lecturer.query.filter_by(uuid=uuid_lecturer).first()
-        one_lecturer_schema = LecturerSchema()
-        result = one_lecturer_schema.dump(one_lecturer)
-        return render_template("rezervace.html", data=result), 200
+        if rezervation:
+            uuid_lecturer = rezervation.lecturer_uuid
+            one_lecturer = Lecturer.query.filter_by(uuid=uuid_lecturer).first()
+            one_lecturer_schema = LecturerSchema()
+            result = one_lecturer_schema.dump(one_lecturer)
+            return render_template("rezervace.html", data=result), 200
+        else:
+            return {"message": "Rezervace is not founded"}, 404
    
 
 @app.route("/rezervace", methods=["POST"])
 def rezervace_post():
+    """
+    function that handles adding rezervation
+    """
     if request.method == "POST":
-        data = request.data
+        data = request.get_json()
         uuids = []
-        all_rezervations_lecturer = Rezervation.query.filter_by(lecturer_uuid=uuid).all()
+        all_rezervations_lecturer = Rezervation.query.filter_by(lecturer_uuid=data.get("lecturer_uuid")).all()
+        if not all_rezervations_lecturer:
+            return {"message": "Lecturer is not founded"}, 400
         for one_rezervation in all_rezervations_lecturer:
             if (
             (one_rezervation.start_time > data.get("start_time")
@@ -357,25 +365,32 @@ def rezervace_post():
                 return {"message": "Rezervace existuje"}, 400
             uuids.append(one_rezervation.uuid)
         while(True):
-            uuid = str(uuid.uuid4())
-            if uuid not in uuids:
+            uuid_rezervace = str(uuid.uuid4())
+            if uuid_rezervace not in uuids:
                 break
-        new_rezervace = Rezervation(
-            uuid = uuid,
-            date = data.get('date'),
-            start_time = data.get('start_time'),
-            end_time = data.get('end_time'),
-            first_name_student = data.get('first_name_student'),
-            last_name_student = data.get('last_name_student'),
-            number_student = data.get('number_student'),
-            email_student = data.get('email_student'),
-            notes = data.get('notes'),
-            subject = data.get('subject'),
-            lecturer_uuid = uuid
-        )
-        db.session.add(new_rezervace)
-        db.session.commit()
-        return {'message': 'OK'}, 200
+        try:
+            new_rezervace = Rezervation(
+                uuid = uuid_rezervace,
+                date = data.get('date'),
+                start_time = data.get('start_time'),
+                end_time = data.get('end_time'),
+                first_name_student = data.get('first_name_student'),
+                last_name_student = data.get('last_name_student'),
+                number_student = data.get('number_student'),
+                email_student = data.get('email_student'),
+                notes = data.get('notes'),
+                subject = data.get('subject'),
+                lecturer_uuid = data.get('lecturer_uuid')
+            )
+            db.session.add(new_rezervace)
+            db.session.commit()
+            one_lecturer = Lecturer.query.filter_by(uuid=data.get('lecturer_uuid')).first()
+            one_lecturer_schema = LecturerSchema()
+            result = one_lecturer_schema.dump(one_lecturer)
+            post_result = result.get("rezervation")
+            return post_result, 200
+        except(IntegrityError, DataError):
+            return {"message": "Something went wrong"}, 400
 
 if __name__ == '__main__':
     app.run(debug=True)
