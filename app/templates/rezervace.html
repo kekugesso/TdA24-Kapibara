@@ -1,50 +1,49 @@
-<!doctype html>
-<html lang="cz">
+<!DOCTYPE html>
+<html>
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Teacher digital Agency</title>
-    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" />
+    <title>Minimum Setup</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-calendar/0.2.5/css/calendar.min.css">
 </head>
 <body>
 
-    https://github.com/Serhioromano/bootstrap-calendar?utm_source=cdnjs&utm_medium=cdnjs_link&utm_campaign=cdnjs_library
-        <div id='calendar'></div>
+    <div id="calendar"></div>
 
-        <!-- FullCalendar JS -->
-        <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js'></script>
-        <script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js'></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                var calendarEl = document.getElementById('calendar');
-                var calendar = new FullCalendar.Calendar(calendarEl, {
-                    // FullCalendar options...
-                    headerToolbar: {
-                        left: 'prev,next today',
-                        center: 'title',
-                        right: 'month,agendaWeek,agendaDay'
-                    },
-                    events: [
-                        {% for rezervace in data %}
-                        {
-                            title: '{{ rezervace.subject }} - {{ rezervace.first_name_student }} {{ rezervace.last_name_student }}',
-                            start: '{{ rezervace.date }}T{{ rezervace.start_time }}:00',
-                            end: '{{ rezervace.date }}T{{ rezervace.end_time }}:00',
-                            description: '{{ rezervace.notes }}',
-                            backgroundColor: '#f0ad4e'
-                        },
-                        {% endfor %}
-                    ],
-                    eventClick: function(info) {
-                        // Handle event click
-                        alert('Rezervace: ' + info.event.title + '\nDescription: ' + info.event.extendedProps.description);
-                    }
-                });
-                calendar.render();
-            });
-        </script>
-</div>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.6/underscore-min.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/calendar/language.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/calendar/calendar.js') }}"></script>
+    <script type="text/javascript">
+		var calendar = $('#calendar').calendar({
+            tmpl_path: "../static/js/calendar/tmpls/",
+            language: 'cs-CZ',
+            views: {
+                year: {
+                    slide_events: 1,
+                    enable: 1
+                },
+                month: {
+                    slide_events: 1,
+                    enable: 1
+                },
+                week: {
+                    enable: 1
+                },
+                day: {
+                    enable: 1
+                }
+            },
+            events_source: [
+            {
+                "id": 1,
+                "title": "Event 1",
+                "url": "http://example.com",
+                "class": "event-important",
+                "start": 1708446760885, // Milliseconds
+                "end": 1708449060885 // Milliseconds
+            },
+        ]
+        })
+	</script>
 </body>
 </html>
