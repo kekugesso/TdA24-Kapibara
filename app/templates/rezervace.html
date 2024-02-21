@@ -1,9 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Minimum Setup</title>
+    <title>Calendar</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-calendar/0.2.5/css/calendar.min.css">
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+	<!--<script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>-->
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.6/underscore-min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='js/calendar/language.js') }}"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='js/calendar/calendar.js') }}"></script>
 </head>
 <body>
     <div class="container">
@@ -31,85 +39,39 @@
                 <ul id="eventlist" class="nav nav-list"></ul>
             </div>
         </div>
-    
-        <div class="modal hide fade" id="events-modal">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h3>Event</h3>
-            </div>
-            <div class="modal-body" style="height: 400px">
-            </div>
-            <div class="modal-footer">
-                <a href="#" data-dismiss="modal" class="btn">Close</a>
-            </div>
-        </div>
-        
-        
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.6/underscore-min.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
-		<script type="text/javascript" src="{{ url_for('static', filename='js/calendar/language.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='js/calendar/calendar.js') }}"></script>
+
+		<div class="modal hide fade" tabindex="-1" id="events-modal">
+			<div class="modal-dialog modal-dialog-centered">
+			  <div class="modal-content">
+				<div class="modal-header">
+					<h3 class="modal-title">Event</h3>
+				</div>
+				<div class="modal-body" style="height: 400px">
+				  <p>Modal body text goes here.</p>
+				</div>
+				<div class="modal-footer">
+					<a href="#" data-dismiss="modal" class="btn">Close</a>
+				</div>
+			  </div>
+			</div>
+		  </div>
+		  
+
 		<script type="text/javascript">
-
-			var options = {
-				tmpl_path: "../static/js/calendar/tmpls/",
-				language: 'cs-CZ',
-				first_day: 1,
-				view: 'month',
-				weekbox: true,
-				display_week_numbers: true,
-				modal: '#events-modal',
-				modal_type: 'iframe',
-				time_split: 60,
-				events_source: [
-				{
-					"id": 1,
-					"title": "Event 1",
-					"url": "http://example.com",
-					"class": "event-important",
-					"start": 1708446760885, // Milliseconds
-					"end": 1708546760885 // Milliseconds
-				},
-				],
-				onAfterEventsLoad: function(events) {
-					if(!events) { return; }
-					var list = $('#eventlist');
-					list.html('');
-					$.each(events, function(key, val) {
-						$(document.createElement('li'))
-							.html('<a href="' + val.url + '">' + val.title + '</a>')
-							.appendTo(list);
-					});
-				},
-				onAfterViewLoad: function(view) {
-					$('.page-header h3').text(this.getTitle());
-					$('.btn-group button').removeClass('active');
-					$('button[data-calendar-view="' + view + '"]').addClass('active');
-				}
-			}
-			var calendarElement = $('#calendar');
-			var calendar = calendarElement.calendar(options);
-
-			$('.btn-group button[data-calendar-nav]').each(function() {
-				var $this = $(this);
-				$this.click(function() {
-					calendar.navigate($this.data('calendar-nav'));
-				});
-			});
-
-			$('.btn-group button[data-calendar-view]').each(function() {
-				var $this = $(this);
-				$this.click(function() {
-					calendar.view($this.data('calendar-view'));
-				});
-			});
-			$('#events-modal .modal-header, #events-modal .modal-footer').click(function(e){
-				e.preventDefault();
-				//e.stopPropagation();
-			});
+			const events_data = function events() {
+				return [
+					{
+						"id": 1, "title": "Event 4", "url": "rezervace/uuid", "class": "event-default", 
+						"start": moment("2024-02-20T08").valueOf(), // Milliseconds
+						"end": moment("2024-02-20T10").valueOf() // Milliseconds
+					},
+					{
+						"id": 1, "title": "Event 2", "url": "http://example.com", "class": "event-default", 
+						"start": moment("2024-02-20T09").valueOf(), // Milliseconds
+						"end": moment("2024-02-20T11").valueOf() // Milliseconds
+					},
+				]};
 		</script>
+		<script type="text/javascript" src="{{ url_for('static', filename='js/calendar/app.js') }}"></script>
 </body>
 </html>
