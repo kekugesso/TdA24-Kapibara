@@ -133,10 +133,10 @@ class Rezervation(db.Model):
     """
     Model database for rezervation
     """
-    uuid = db.Column(db.Text, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Text, nullable=False)
-    start_time = db.Column(db.Integer, nullable=False)
-    end_time = db.Column(db.Integer, nullable=False)
+    start_time = db.Column(db.DateTime, nullable=False)
+    end_time = db.Column(db.DateTime, nullable=False)
     first_name_student = db.Column(db.Text, nullable=False)
     last_name_student = db.Column(db.Text, nullable=False)
     email_student = db.Column(db.Text, nullable=True)

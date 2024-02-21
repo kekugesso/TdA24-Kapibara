@@ -2,7 +2,7 @@
 modules that contains the application
 """
 import os
-from datetime import timedelta
+from datetime import timedelta, datetime
 import uuid
 from flask import Flask, render_template, request, redirect, url_for, flash
 from sqlalchemy.exc import IntegrityError, DataError
@@ -349,28 +349,21 @@ def rezervace_post():
     function that handles adding rezervation
     """
     if request.method == "POST":
-        data = request.get_json()
-        uuids = []
+        data = request.get_data()
+        print(data)
         all_rezervations_lecturer = Rezervation.query.filter_by(lecturer_uuid=data.get("lecturer_uuid")).all()
-        if not all_rezervations_lecturer:
-            return {"message": "Lecturer is not founded"}, 400
+        #if not all_rezervations_lecturer:
+            #return {"message": "Lecturer is not founded"}, 400
         for one_rezervation in all_rezervations_lecturer:
             if (
             (one_rezervation.start_time > data.get("start_time")
             and one_rezervation.start_time < data.get("end_time"))
             or (one_rezervation.end_time > data.get("start_time")
             and one_rezervation.end_time < data.get("end_time"))
-            and one_rezervation.date == data.get("date")
             ):
                 return {"message": "Rezervace existuje"}, 400
-            uuids.append(one_rezervation.uuid)
-        while(True):
-            uuid_rezervace = str(uuid.uuid4())
-            if uuid_rezervace not in uuids:
-                break
         try:
             new_rezervace = Rezervation(
-                uuid = uuid_rezervace,
                 date = data.get('date'),
                 start_time = data.get('start_time'),
                 end_time = data.get('end_time'),
@@ -391,6 +384,8 @@ def rezervace_post():
             return post_result, 200
         except(IntegrityError, DataError):
             return {"message": "Something went wrong"}, 400
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
