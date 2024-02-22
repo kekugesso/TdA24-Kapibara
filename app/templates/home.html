@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <script type="module">
-        import Tags from "{{ url_for('static', filename='/js/tags.js') }}";
+        import Tags from "{{ url_for('static', filename='js/tags.js') }}";
         Tags.init("select");
     </script>
 </head>
@@ -97,12 +97,12 @@
 
     <footer class="text-center text-lg-start" style="background-color: #db6930;">
         <div class="text-center text-white p-3" style="background-color: rgba(0, 0, 0, 0.2);">
-            © 2020 Copyright:
+            © <script>document.write(new Date().getFullYear());</script> Copyright:
             <a class="text-white" href="#">Teacher digital Agency</a>
         </div>
     </footer>
 </div>
-<script src="{{ url_for('static', filename='/js/search.js') }}"></script>
-<script src="{{ url_for('static', filename='/js/rangeSlider.js') }}"></script>
+<script src="{{ url_for('static', filename='js/search.js') }}"></script>
+<script src="{{ url_for('static', filename='js/rangeSlider.js') }}"></script>
 </body>
 </html>

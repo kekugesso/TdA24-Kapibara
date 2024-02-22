@@ -419,8 +419,9 @@ img.logo {
   .login-form {
     margin: 5% 20% 5% 20%;
     padding: 1%;
-    border-radius: 15px;
-    box-shadow: #212529;
+    padding-bottom: 2.5%;
+    border-radius: 3rem;
+    box-shadow: 18px 20px 21px 5px rgba(0,0,0,0.3);
     background-color: #74C7D3;
     align-self: center;
     font-size: large;
@@ -457,7 +458,7 @@ img.logo {
 }
 
 .error {
-    margin-top: -2%;
+    margin-top: -2.5%;
 }
 
 .icon {

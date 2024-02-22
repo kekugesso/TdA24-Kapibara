@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="cz">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Teacher digital Agency</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+	<div class="container rezervace">
+        {% if rezervace %}
+            <div class="rezervace" id="{{rezervace['id']}}">
+                <div class="rezervace-date">{{rezervace['date']}}</div>
+                <div class="rezervace-time">{{rezervace['start_time']}}-{{rezervace['end_time']}}</div>
+                <div class="student">
+                    <div class="rezervace-student-name">{{rezervace['first_name_student']}} {{rezervace['last_name_student']}}</div>
+                    <div class="rezervace-student-kotakt">{{rezervace['email_student']}} {{rezervace['number_student']}}</div>
+                </div>
+                <div class="rezervace-poznamky">{{rezervace['notes']}}</div>
+                <div class="rezervace-tag">{{rezervace['subject']}}</div>
+            </div>
+        {% else %}
+            <div id="noResultsMessage" class="text-center pd-5 nadpisy" style="margin-top: 10vh;margin-bottom: 10vh;font-size: xx-large;display: none;">No rezervace found.</div>
+        {% endif %}
+        </div>
+</body>
+</html>

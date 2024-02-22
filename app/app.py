@@ -8,8 +8,8 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from sqlalchemy.exc import IntegrityError, DataError
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_migrate import Migrate
-from models import db, Lecturer, Tag, TelephoneNumber, Email, LectureTag, Contact, Rezervation
-from serializers import LecturerSchema
+from app.models import db, Lecturer, Tag, TelephoneNumber, Email, LectureTag, Contact, Rezervation
+from app.serializers import LecturerSchema
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
@@ -338,7 +338,7 @@ def rezervace(uuid_rezrvace):
             one_lecturer = Lecturer.query.filter_by(uuid=uuid_lecturer).first()
             one_lecturer_schema = LecturerSchema()
             result = one_lecturer_schema.dump(one_lecturer)
-            return render_template("rezervace.html", data=result), 200
+            return render_template("rezervace.html", rezervace=result), 200
         else:
             return {"message": "Rezervace is not founded"}, 404
    
@@ -384,7 +384,6 @@ def rezervace_post():
             return post_result, 200
         except(IntegrityError, DataError):
             return {"message": "Something went wrong"}, 400
-
 
 
 if __name__ == '__main__':
