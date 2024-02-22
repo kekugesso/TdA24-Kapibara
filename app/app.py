@@ -393,9 +393,5 @@ def rezervace_post():
             return {"message": "Something went wrong"}, 400
 
 
-@app.route("/calendar")
-def calendar():
- return render_template("rezervace.html")
-
 if __name__ == '__main__':
     app.run(debug=True)

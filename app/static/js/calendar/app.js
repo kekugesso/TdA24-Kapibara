@@ -15,9 +15,35 @@ var options = {
 		var list = $('#eventlist');
 		list.html('');
 		$.each(events, function(key, val) {
-			$(document.createElement('li'))
-				.html('<a href="' + val.url + '">' + val.title + '</a>')
-				.appendTo(list);
+			var listItem = $(document.createElement('li'));
+			var link = $('<a>', {
+				href: val.url,
+				text: val.title
+			});
+			var deleteButton = $('<button>', {
+				type: 'button',
+				class: 'btn btn-danger btn-sm ms-2',
+				text: 'Zrušit'
+			}).on('click', function() {
+				// Send DELETE request to delete the event
+				$.ajax({
+					url: '/rezervace/' + val.id, // Replace with the actual endpoint
+					type: 'DELETE',
+					success: function(response) {
+						// Optional: handle success response
+						console.log('Event deleted:', response);
+						// Remove the deleted event from the list
+						listItem.remove();
+					},
+					error: function(xhr, status, error) {
+						// Optional: handle error
+						console.error('Error deleting event:', error);
+					}
+				});
+			});
+	
+			listItem.append(link).append(deleteButton);
+			list.append(listItem);
 		});
 	},
 	onAfterViewLoad: function(view) {
