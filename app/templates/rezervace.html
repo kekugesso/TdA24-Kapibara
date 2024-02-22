@@ -8,7 +8,7 @@
 	<div class="container rezervace">
         {% if data %}
             {% for rezervace in data %}
-            <div class="rezervace" id="{{rezervace['uuid']}}">
+            <div class="rezervace" id="{{rezervace['id']}}">
                 <div class="rezervace-date">{{rezervace['date']}}</div>
                 <div class="rezervace-time">{{rezervace['start_time']}}-{{rezervace['end_time']}}</div>
                 <div class="student">

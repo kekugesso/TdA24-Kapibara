@@ -495,7 +495,7 @@
     background-color: transparent;
   }
   #cal-slide-content a.event-item {
-    color: #ffffff;
+    color: #000;
     font-weight: normal;
     line-height: 22px;
   }

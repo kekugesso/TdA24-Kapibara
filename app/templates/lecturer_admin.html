@@ -71,22 +71,40 @@
           </div>
         </div>
       </div>
-      
+      {% for rezervace in data %}
+      <div class="rezervace" id="{{rezervace['id']}}">
+          <div class="rezervace-date">{{rezervace['date']}}</div>
+          <div class="rezervace-time">{{rezervace['start_time']}}-{{rezervace['end_time']}}</div>
+          <div class="student">
+              <div class="rezervace-student-name">{{rezervace['first_name_student']}} {{rezervace['last_name_student']}}</div>
+              <div class="rezervace-student-kotakt">{{rezervace['email_student']}} {{rezervace['number_student']}}</div>
+          </div>
+          <div class="rezervace-poznamky">{{rezervace['notes']}}</div>
+          <div class="rezervace-tag">{{rezervace['subject']}}</div>
+      </div>
+      {% endfor %}
       
     <script type="text/javascript">
-        const events_data = function events() {
+        function events_data() {
+            {% if data %}
             return [
-                {
-                    "id": 1, "title": "Event 4", "url": "../../rezervace/id", "class": "event-default", 
-                    "start": moment("2024-02-20T08").valueOf(), // Milliseconds
-                    "end": moment("2024-02-20T10").valueOf() // Milliseconds
-                },
-                {
-                    "id": 1, "title": "Event 2", "url": "http://example.com", "class": "event-default", 
-                    "start": moment("2024-02-20T09").valueOf(), // Milliseconds
-                    "end": moment("2024-02-20T11").valueOf() // Milliseconds
-                },
-            ]};
+                {% for rezervace in data %}
+                    {
+                        "id": 1, "title": "{{rezervace['subject']}} - {{rezervace['first_name_student']}} {{rezervace['last_name_student']}}",
+                        "url": "../../rezervace/{{rezervace['id']}}", "class": "event-default", 
+                        "start": moment("{{rezervace['date']}}T{{rezervace['start_time']}}").valueOf(), // Milliseconds
+                        "end": moment("{{rezervace['date']}}T{{rezervace['end_time']}}").valueOf() // Milliseconds
+                    },
+                    {
+                        "id": 1, "title": "Event 2", "url": "http://example.com", "class": "event-default", 
+                        "start": moment("2024-02-20T09").valueOf(), // Milliseconds
+                        "end": moment("2024-02-20T11").valueOf() // Milliseconds
+                    },
+                {% endfor %}
+                ]
+            {% else %}
+            return []        
+        {% endif %}};
     </script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/calendar/app.js') }}"></script>
 </div>

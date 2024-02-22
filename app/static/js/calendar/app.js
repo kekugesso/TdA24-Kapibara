@@ -9,7 +9,7 @@ var options = {
 	modal_type: 'iframe',
 	modal_title: function(event) { return event.title },
 	time_split: 60,
-	events_source: events_data,
+	events_source: events_data(),
 	onAfterEventsLoad: function(events) {
 		if(!events) { return; }
 		var list = $('#eventlist');
