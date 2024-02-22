@@ -7,7 +7,14 @@
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/calendar.css') }}">
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.6/underscore-min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='js/calendar/language.js') }}"></script>
+	<script type="text/javascript" src="{{ url_for('static', filename='js/calendar/calendar.js') }}"></script>
     
 </head>
 <body>
@@ -22,70 +29,66 @@
                 <img class="icon" src="{{ url_for('static', filename='img/TdA_ikony/300ppi/TdA_ikony_studium_black.png') }}">
                 <div class="text-na-bilem login-text">Logout</div>
             </div>
-
         </div>
-        <div class="container rezervace">
-        {% if data %}
-            {% for rezervace in data %}
-            <div class="rezervace" id="{{rezervace['uuid']}}">
-                <div class="rezervace-date">{{rezervace['date']}}</div>
-                <div class="rezervace-time">{{rezervace['start_time']}}-{{rezervace['end_time']}}</div>
-                <div class="student">
-                    <div class="rezervace-student-name">{{rezervace['first_name_student']}} {{rezervace['last_name_student']}}</div>
-                    <div class="rezervace-student-kotakt">{{rezervace['email_student']}} {{rezervace['number_student']}}</div>
-                </div>
-                <div class="rezervace-poznamky">{{rezervace['notes']}}</div>
-                <div class="rezervace-tag">{{rezervace['subject']}}</div>
+
+        <div class="page-header">
+            <div class="btn-group">
+                <button class="btn btn-primary" data-calendar-nav="prev"><< Prev</button>
+                <button class="btn" data-calendar-nav="today">Today</button>
+                <button class="btn btn-primary" data-calendar-nav="next">Next >></button>
             </div>
-            {% endfor %}
-        {% else %}
-            <div id="noResultsMessage" class="text-center pd-5 nadpisy" style="margin-top: 10vh;margin-bottom: 10vh;font-size: xx-large;display: none;">No rezervace found.</div>
-        {% endif %}
+            <div class="btn-group align-items-end justify-content-end">
+                <button class="btn btn-warning" data-calendar-view="year">Year</button>
+                <button class="btn btn-warning active" data-calendar-view="month">Month</button>
+                <button class="btn btn-warning" data-calendar-view="week">Week</button>
+                <button class="btn btn-warning" data-calendar-view="day">Day</button>
+            </div>
+        <h3></h3>
+    </div>
+
+    <div class="row">
+        <div class="span">
+            <div id="calendar"></div>
         </div>
-
-
-        <div id='calendar'></div>
-
-        <!-- FullCalendar JS -->
-        <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js'></script>
-        <script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js'></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                var calendarEl = document.getElementById('calendar');
-                var calendar = new FullCalendar.Calendar(calendarEl, {
-                    // FullCalendar options...
-                    headerToolbar: {
-                        left: 'prev,next today',
-                        center: 'title',
-                        right: 'month,agendaWeek,agendaDay'
-                    },
-                    events: [
-                        {% for rezervace in data %}
-                        {
-                            title: '{{ rezervace.subject }} - {{ rezervace.first_name_student }} {{ rezervace.last_name_student }}',
-                            start: '{{ rezervace.date }}T{{ rezervace.start_time }}:00',
-                            end: '{{ rezervace.date }}T{{ rezervace.end_time }}:00',
-                            description: '{{ rezervace.notes }}',
-                            backgroundColor: '#f0ad4e'
-                        },
-                        {% endfor %}
-                    ],
-                    eventClick: function(info) {
-                        // Handle event click
-                        alert('Rezervace: ' + info.event.title + '\nDescription: ' + info.event.extendedProps.description);
-                    }
-                });
-                calendar.render();
-            });
-        </script>
-
-
-    <footer class="text-center text-lg-start" style="background-color: #db6930;">
-        <div class="text-center text-white p-3" style="background-color: rgba(0, 0, 0, 0.2);">
-            © 2020 Copyright:
-            <a class="text-white" href="#">Teacher digital Agency</a>
+        <div class="span">
+            <h4>Events</h4>
+            <ul id="eventlist" class="nav nav-list"></ul>
         </div>
-    </footer>
+    </div>
+
+    <div class="modal hide fade" tabindex="-1" id="events-modal">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Event</h3>
+            </div>
+            <div class="modal-body" style="height: 400px">
+              <p>Modal body text goes here.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      
+    <script type="text/javascript">
+        const events_data = function events() {
+            return [
+                {
+                    "id": 1, "title": "Event 4", "url": "../../rezervace/id", "class": "event-default", 
+                    "start": moment("2024-02-20T08").valueOf(), // Milliseconds
+                    "end": moment("2024-02-20T10").valueOf() // Milliseconds
+                },
+                {
+                    "id": 1, "title": "Event 2", "url": "http://example.com", "class": "event-default", 
+                    "start": moment("2024-02-20T09").valueOf(), // Milliseconds
+                    "end": moment("2024-02-20T11").valueOf() // Milliseconds
+                },
+            ]};
+    </script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/calendar/app.js') }}"></script>
 </div>
 </body>
 </html>

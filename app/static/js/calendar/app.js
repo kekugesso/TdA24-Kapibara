@@ -1,5 +1,5 @@
 var options = {
-	tmpl_path: "../static/js/calendar/tmpls/",
+	tmpl_path: "../../static/js/calendar/tmpls/",
 	language: 'cs-CZ',
 	first_day: 1,
 	view: 'month',
