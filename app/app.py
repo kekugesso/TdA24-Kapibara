@@ -338,7 +338,7 @@ def rezervace(uuid_rezrvace):
             one_lecturer = Lecturer.query.filter_by(uuid=uuid_lecturer).first()
             one_lecturer_schema = LecturerSchema()
             result = one_lecturer_schema.dump(one_lecturer)
-            return render_template("rezervace.html", data=result), 200
+            return render_template("rezervace.html", rezervace=result), 200
         else:
             return {"message": "Rezervace is not founded"}, 404
    
