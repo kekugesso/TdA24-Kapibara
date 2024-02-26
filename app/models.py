@@ -134,7 +134,6 @@ class Rezervation(db.Model):
     Model database for rezervation
     """
     id = db.Column(db.Integer, primary_key=True)
-    date = db.Column(db.Text, nullable=False)
     start_time = db.Column(db.Text, nullable=False)
     end_time = db.Column(db.Text, nullable=False)
     first_name_student = db.Column(db.Text, nullable=False)
