@@ -4,12 +4,13 @@ modules that contains the application
 import os
 from datetime import timedelta, datetime
 import uuid
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask import Flask, render_template, request, redirect, url_for, flash
 from sqlalchemy.exc import IntegrityError, DataError
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_migrate import Migrate
-from app.models import db, Lecturer, Tag, TelephoneNumber, Email, LectureTag, Contact, Rezervation
-from app.serializers import LecturerSchema
+from models import db, Lecturer, Tag, TelephoneNumber, Email, LectureTag, Contact, Rezervation
+from serializers import LecturerSchema
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
@@ -19,6 +20,7 @@ migrate = Migrate(app, db)
 app.permanent_session_lifetime = timedelta(hours=13)
 login_manager = LoginManager()
 login_manager.init_app(app)
+
 
 
 @login_manager.user_loader
@@ -55,7 +57,7 @@ def login():
         username = request.form['username']
         password = request.form['password']
         user = Lecturer.query.filter_by(username=username).first()
-        if user and user.password == password:
+        if user and check_password_hash(user.password, password):
             login_user(user)
             return redirect(url_for('lecturer_admin', uuid=user.uuid))
         else:
@@ -70,7 +72,6 @@ def logout():
     """
     logout_user()
     return redirect(url_for('login'))
-
 
 
 @app.route('/', methods = ["GET", "POST"])  # title page
@@ -88,6 +89,7 @@ def title():
                            unique_locations=get_unique_locations(result)
                            )
     elif request.method == "POST":
+        if 
         try:
             data = request.get_json()
             lecturer_uuid = str(uuid.uuid4())
@@ -100,7 +102,7 @@ def title():
             new_lecturer = Lecturer(
                 uuid = lecturer_uuid,
                 username = data.get("username"),
-                password = data.get("password"),
+                password = generate_password_hash(data.get("password")),
                 title_before = data.get("title_before"),
                 first_name = data.get("first_name"),
                 middle_name = data.get("middle_name"),
@@ -164,7 +166,7 @@ def title():
                     )
                     db.session.add(new_lecture_tag)
                     db.session.commit()
-        except (IntegrityError, DataError):
+        except (IntegrityError, DataError, AttributeError):
             return {'message' : "This values cant be a null"}, 400
         created_lecturer = Lecturer.query.filter_by(uuid=lecturer_uuid).first()
         lecturer_schema = LecturerSchema()
@@ -285,6 +287,8 @@ def lecturer(uuid1):
                 db.session.add(new_email)
                 db.session.commit()
             one_lecturer.title_before = lecturer_data.get('title_before')
+            one_lecturer.username =  lecturer_data.get('username')
+            one_lecturer.password =  lecturer_data.get('password')
             one_lecturer.first_name = lecturer_data.get('first_name')
             one_lecturer.middle_name = lecturer_data.get('middle_name')
             one_lecturer.last_name = lecturer_data.get('last_name')
@@ -301,7 +305,7 @@ def lecturer(uuid1):
         else:
             return {"message": "Lecturer is not founded"}, 404
 
-@app.route("/lecturer/<uuid>/admin", methods=["GET", "DELETE"])
+@app.route("/lecturer/<uuid>/admin", methods=["GET"])
 @login_required
 def lecturer_admin(uuid):
     """
@@ -314,31 +318,30 @@ def lecturer_admin(uuid):
             result = lecturer_schema.dump(one_lecturer)
             data = result.get("rezervation")
             return render_template("lecturer_admin.html", data=data), 200
-        elif request.method == "DELETE":
-            data = request.data
-            rezervation = Rezervation.query.filter_by(id=data.get("id")).first()
-            if rezervation:
-                db.session.delete(rezervation)
-                db.session.commit()
-                return {"message": "Rezervace has deleted successfully"}, 204
-            else:
-                return {"message": "Rezervace is not founded"}, 404
     else:
         return {"message": "naaaaaah bro"}, 403
 
-@app.route("/rezervace/<uuid_rezrvace>", methods=["GET"])
-def rezervace(uuid_rezrvace):
+@app.route("/rezervace/<id_rezrvace>", methods=["GET", "DELETE"])
+def rezervace(id_rezrvace):
     """
     function that handles show specific rezervation
     """
     if request.method == "GET":
-        rezervation = Rezervation.query.filter_by(uuid=uuid_rezrvace).first()
+        rezervation = Rezervation.query.filter_by(id=id_rezrvace).first()
         if rezervation:
             uuid_lecturer = rezervation.lecturer_uuid
             one_lecturer = Lecturer.query.filter_by(uuid=uuid_lecturer).first()
             one_lecturer_schema = LecturerSchema()
             result = one_lecturer_schema.dump(one_lecturer)
             return render_template("rezervace.html", rezervace=result), 200
+        else:
+            return {"message": "Rezervace is not founded"}, 404
+    elif request.method == "DELETE":
+        rezervation = Rezervation.query.filter_by(id=id_rezrvace).first()
+        if rezervation:
+            db.session.delete(rezervation)
+            db.session.commit()
+            return {"message": "Rezervace has deleted successfully"}, 204
         else:
             return {"message": "Rezervace is not founded"}, 404
    
@@ -349,32 +352,25 @@ def rezervace_post():
     function that handles adding rezervation
     """
     if request.method == "POST":
-        data = request.get_data()
+        data = request.form.to_dict()
         print(data)
         all_rezervations_lecturer = Rezervation.query.filter_by(lecturer_uuid=data.get("lecturer_uuid")).all()
+        start_time = datetime.fromisoformat(data.get("start_time"))
+        end_time = datetime.fromisoformat(data.get("end_time"))
         #if not all_rezervations_lecturer:
             #return {"message": "Lecturer is not founded"}, 400
         for one_rezervation in all_rezervations_lecturer:
+            one_rezervation_start_time = datetime.fromisoformat(one_rezervation.start_time)
+            one_rezervation_end_time = datetime.fromisoformat(one_rezervation.end_time)
             if (
-            (one_rezervation.start_time > data.get("start_time")
-            and one_rezervation.start_time < data.get("end_time"))
-            or (one_rezervation.end_time > data.get("start_time")
-            and one_rezervation.end_time < data.get("end_time"))
+            (one_rezervation_start_time > start_time
+            and one_rezervation_start_time < end_time)
+            or (one_rezervation_end_time > start_time
+            and one_rezervation_end_time < end_time)
             ):
                 return {"message": "Rezervace existuje"}, 400
         try:
-            new_rezervace = Rezervation(
-                date = data.get('date'),
-                start_time = data.get('start_time'),
-                end_time = data.get('end_time'),
-                first_name_student = data.get('first_name_student'),
-                last_name_student = data.get('last_name_student'),
-                number_student = data.get('number_student'),
-                email_student = data.get('email_student'),
-                notes = data.get('notes'),
-                subject = data.get('subject'),
-                lecturer_uuid = data.get('lecturer_uuid')
-            )
+            new_rezervace = Rezervation(**data)
             db.session.add(new_rezervace)
             db.session.commit()
             one_lecturer = Lecturer.query.filter_by(uuid=data.get('lecturer_uuid')).first()
