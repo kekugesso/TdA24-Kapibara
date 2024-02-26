@@ -9,8 +9,8 @@ class RezervationSchema(Schema):
     """
     uuid = fields.String()
     date = fields.String()
-    start_time = fields.Integer()
-    end_time = fields.Integer()
+    start_time = fields.String()
+    end_time = fields.String()
     first_name_student = fields.String()
     last_name_student = fields.String()
     email_student = fields.String()
