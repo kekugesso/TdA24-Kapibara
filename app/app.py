@@ -359,7 +359,7 @@ def rezervace(id_rezrvace):
             return {"message": "Rezervace is not founded"}, 404
    
 
-@app.route("/rezervace", methods=["POST"])
+@app.route("/rezervace", methods=["GET","POST"])
 def rezervace_post():
     """
     function that handles adding rezervation
@@ -397,6 +397,9 @@ def rezervace_post():
                 return post_result, 200
             except(IntegrityError, DataError):
                 return {"message": "Something went wrong"}, 400
+    elif request.method == "GET":
+        return render_template("rezervovani.html"), 200
+
 
 @app.route("/lecturer/<uuid>/download", methods=["GET"])
 def download(uuid):

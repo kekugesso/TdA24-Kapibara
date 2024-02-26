@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="cz">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Teacher digital Agency</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.1/css/all.min.css'>
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/eonasdan-bootstrap-datetimepicker/4.17.49/css/bootstrap-datetimepicker.min.css'>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.js"></script>
+	  <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
+    <script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js'></script>
+    <script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/eonasdan-bootstrap-datetimepicker/4.17.49/js/bootstrap-datetimepicker.min.js'></script>
+    
+  </head>
+<body class="container p-3" style="background-color: #eae7e6">
+    <form method="post" class="rezervovani-form text-na-bilem form-floating">
+      <!--
+
+        INFORMACE STUDENTA
+
+      -->
+      <div class="row g-2">
+        <label class="form-label">Informace studenta</label>
+          <div class="col-md-6">
+            <div class="form-floating">
+              <input type="text" class="form-control" id="firstName" placeholder="Jméno">
+              <label for="firstName">Jméno</label>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-floating">
+              <input type="text" class="form-control" id="lastName" placeholder="Příjmení">
+              <label for="lastName">Příjmení</label>
+            </div>
+          </div>
+      <!--
+
+        KONTAKT STUDENTA
+
+      -->
+        <label class="form-label">Kontakt studenta</label>
+          <div class="col-md-6">
+            <div class="form-floating">
+              <input type="text" class="form-control" id="email" placeholder="Email">
+              <label for="firstName">Email</label>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-floating">
+              <input type="text" class="form-control" id="phone" placeholder="Telefon">
+              <label for="lastName">Telefon</label>
+            </div>
+          </div>
+      <!--
+
+        INFORMACE REZERVACE
+
+      -->
+        <label class="form-label">Informace rezervace</label>
+        <div class="input-group">
+          <span class="input-group-text">Subject</span>
+          <select class="form-select" title="Subject" aria-label="subject">
+            {% if data %}
+              {% for tag in data['tags'] %}
+                <option value="{{tag.uuid}}">{{tag.name}}</option>
+              {% endfor %}
+            {% else %}
+            <option value=""></option>
+            {% endif %}
+          </select>
+        </div>
+        <div class="form-floating">
+          <textarea class="form-control" placeholder="Poznámky pro lektora" id="notes" style="height: 100px"></textarea>
+          <label for="notes">Poznámky pro lektora</label>
+        </div>
+      <!--
+
+        DATUM - ČAS REZERVACE
+
+      -->
+      <label class="form-label">Start time</label>
+        <div class="input-group date" id="StartTime">
+          <span class="input-group-append input-group-addon">
+            <span class="input-group-text">
+              <i class="fa fa-calendar"></i>
+            </span>
+          </span>
+          <input class="form-control" placeholder="YYYY-MM-DD HH"/>
+        </div>
+      <label class="form-label">End time</label>
+        <div class="input-group date" id="EndTime">
+          <span class="input-group-append input-group-addon">
+            <span class="input-group-text">
+              <i class="fa fa-calendar"></i>
+            </span>
+          </span>
+          <input class="form-control" placeholder="YYYY-MM-DD HH"/>
+        </div>
+      
+
+
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for message in messages %}
+          <div class="error danger">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+      <button type="submit" class="btn btn-primary">Rezerovat</button>
+    
+    </form>
+    <script>
+      if (/Mobi/.test(navigator.userAgent)) {
+  // if mobile device, use native pickers
+  $(".date input").attr("type", "date");
+  $(".time input").attr("type", "time");
+} else {
+  $("#StartTime").datetimepicker({
+    locale: 'cs',
+    useCurrent: true,
+    format: "YYYY-MM-DD",
+    showTodayButton: true,
+    minDate: moment().format("YYYY-MM-DD"),
+  });
+  $("#EndTime").datetimepicker({
+    locale: 'cs',
+    useCurrent: true,
+    format: "YYYY-MM-DD",
+    showTodayButton: true,
+    minDate: moment().format("YYYY-MM-DD"),
+  });
+}
+    </script>
+</body>
+</html>
