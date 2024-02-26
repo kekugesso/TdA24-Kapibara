@@ -4,8 +4,9 @@ modules that contains the application
 import os
 from datetime import timedelta, datetime
 import uuid
+import icalendar
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, send_file
 from sqlalchemy.exc import IntegrityError, DataError
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_migrate import Migrate
@@ -344,7 +345,8 @@ def rezervace(id_rezrvace):
             one_lecturer = Lecturer.query.filter_by(uuid=uuid_lecturer).first()
             one_lecturer_schema = LecturerSchema()
             result = one_lecturer_schema.dump(one_lecturer)
-            return render_template("rezervace.html", rezervace=result), 200
+            data = result.get("rezervation")
+            return render_template("rezervace.html", rezervace=data), 200
         else:
             return {"message": "Rezervace is not founded"}, 404
     elif request.method == "DELETE":
@@ -363,6 +365,7 @@ def rezervace_post():
     function that handles adding rezervation
     """
     if request.method == "POST":
+        neexistuje = True
         data = request.form.to_dict()
         all_rezervations_lecturer = Rezervation.query.filter_by(lecturer_uuid=data.get("lecturer_uuid")).all()
         start_time = datetime.fromisoformat(data.get("start_time"))
@@ -380,20 +383,40 @@ def rezervace_post():
             or (start_time == one_rezervation_start_time
             and end_time == one_rezervation_end_time)
             ):
+                neexistuje = False
                 flash("Rezervace existuje")
-                return {}, 400
-        try:
-            new_rezervace = Rezervation(**data)
-            db.session.add(new_rezervace)
-            db.session.commit()
-            one_lecturer = Lecturer.query.filter_by(uuid=data.get('lecturer_uuid')).first()
-            one_lecturer_schema = LecturerSchema()
-            result = one_lecturer_schema.dump(one_lecturer)
-            post_result = result.get("rezervation")
-            return post_result, 200
-        except(IntegrityError, DataError):
-            return {"message": "Something went wrong"}, 400
+        if neexistuje:
+            try:
+                new_rezervace = Rezervation(**data)
+                db.session.add(new_rezervace)
+                db.session.commit()
+                one_lecturer = Lecturer.query.filter_by(uuid=data.get('lecturer_uuid')).first()
+                one_lecturer_schema = LecturerSchema()
+                result = one_lecturer_schema.dump(one_lecturer)
+                post_result = result.get("rezervation")
+                return post_result, 200
+            except(IntegrityError, DataError):
+                return {"message": "Something went wrong"}, 400
 
+@app.route("/lecturer/<uuid>/download", methods=["GET"])
+def download(uuid):
+    """
+    function that handles download calendar
+    """
+    one_lecturer = Lecturer.query.filter_by(uuid=uuid).first()
+    one_lecturer_schema = LecturerSchema()
+    result = one_lecturer_schema.dump(one_lecturer)
+    data = result.get("rezervation")
+    cal = icalendar.Calendar()
+    for rezervace in data:
+        event = icalendar.Event()
+        event.add('summary', rezervace.get("subject"))
+        event.add('dtstart', datetime.fromisoformat(rezervace.get("start_time")))
+        event.add('dtend', datetime.fromisoformat(rezervace.get("end_time")))
+        cal.add_component(event)
+    with open('rezervace.ical', 'wb') as f:
+        f.write(cal.to_ical())
+    return send_file("rezervace.ical", as_attachment=True)
 
 if __name__ == '__main__':
     app.run(debug=True)
