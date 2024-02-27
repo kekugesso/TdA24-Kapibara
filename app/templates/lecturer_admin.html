@@ -101,8 +101,8 @@
                     {
                         "id": {{ loop.index }}, "title": "{{rezervace['subject']}} - {{rezervace['first_name_student']}} {{rezervace['last_name_student']}}",
                         "url": "../../rezervace/{{rezervace['uuid']}}", "class": "event-default", 
-                        "start": moment("{{rezervace['date']}}T0{{rezervace['start_time']}}").valueOf(), // Milliseconds
-                        "end": moment("{{rezervace['date']}}T{{rezervace['end_time']}}").valueOf() // Milliseconds
+                        "start": moment("{{rezervace['start_time']}}").valueOf(), // Milliseconds
+                        "end": moment("{{rezervace['end_time']}}").valueOf() // Milliseconds
                     },
                 {% endfor %}
                 ]
