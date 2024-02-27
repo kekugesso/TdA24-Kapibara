@@ -440,9 +440,9 @@ def download(uuid):
         event.add("attendee", rezervace.get("email_student"))
         event.add('location', rezervace.get("location"))
         cal.add_component(event)
-    with open('rezervace.ical', 'wb') as f:
+    with open('instance/rezervace.ical', 'wb') as f:
         f.write(cal.to_ical())
-    return send_file("rezervace.ical", as_attachment=True)
+    return send_file("../instance/rezervace.ical", as_attachment=True)
 
 @app.route('/import/<id_rezervace>', methods=["GET"])
 @login_required
