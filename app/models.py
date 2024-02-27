@@ -140,6 +140,7 @@ class Rezervation(db.Model):
     last_name_student = db.Column(db.Text, nullable=False)
     email_student = db.Column(db.Text, nullable=False)
     number_student = db.Column(db.Text, nullable=False)
+    location = db.Column(db.Text, nullable=False)
     notes = db.Column(db.Text, nullable=True)
     subject = db.Column(db.Text, nullable=False)
     lecturer_uuid = db.Column(

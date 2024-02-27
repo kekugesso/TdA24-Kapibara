@@ -15,6 +15,7 @@ class RezervationSchema(Schema):
     last_name_student = fields.String()
     email_student = fields.String()
     number_student = fields.String()
+    location = fields.String()
     notes = fields.String()
     subject = fields.String()
     lecturer_uuid = fields.String()
