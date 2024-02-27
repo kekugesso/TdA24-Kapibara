@@ -379,7 +379,7 @@ def rezervace_post():
     """
     if request.method == "POST":
         neexistuje = True
-        data = request.get_json()
+        data = request.form.to_dict()
         all_rezervations_lecturer = Rezervation.query.filter_by(lecturer_uuid=data.get("lecturer_uuid")).all()
         start_time = datetime.fromisoformat(data.get("start_time"))
         end_time = datetime.fromisoformat(data.get("end_time"))
@@ -415,7 +415,12 @@ def rezervace_post():
         else:
             return {"message": "Rezervace existuje"}, 400
     elif request.method == "GET":
-        return render_template("rezervovani.html"), 200
+        data = request.args.get("lecturer")
+        one_lecturer = Lecturer.query.filter_by(uuid=data).first()
+        one_lecturer_schema = LecturerSchema()
+        result = one_lecturer_schema.dump(one_lecturer)
+        tags = result.get("tags")
+        return render_template("rezervovani.html", tags=tags), 200
 
 
 @app.route("/lecturer/<uuid>/download", methods=["GET"])
