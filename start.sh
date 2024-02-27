@@ -1,12 +1,16 @@
 #!/bin/sh
 
-
-if [[ "$1" == "pipx" ]]; then
-pipx install -r requirements.txt
-else
+# install requirements
 pip install -r requirements.txt
+
+# init db
+python3 -m flask --app app/app.py init-db
+
+# run
+if [ "$1" = "prod" ]]; then
+	python3 -m flask --app app/app.py run --debug --host=0.0.0.0 --port=80
+else
+	python3 -m flask --app app/app.py run --debug
 fi
 
-python3 -m flask --app app/app.py init-db
-python3 -m flask --app app/app.py run --debug #--host=0.0.0.0 --port=80 
 
