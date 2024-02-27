@@ -17,5 +17,7 @@ RUN chmod +x start.sh
 
 EXPOSE 80
 
-CMD ["./start.sh prod"]
+ENTRYPOINT ["./start.sh"] 
+
+CMD ["prod"]
 
