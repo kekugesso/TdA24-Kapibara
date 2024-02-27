@@ -298,7 +298,7 @@ def edit_lecturer(uuid1):
                 db.session.commit()
             one_lecturer.title_before = lecturer_data.get('title_before')
             one_lecturer.username =  lecturer_data.get('username')
-            one_lecturer.password =  lecturer_data.get('password')
+            one_lecturer.password =  generate_password_hash(lecturer_data.get('password'))
             one_lecturer.first_name = lecturer_data.get('first_name')
             one_lecturer.middle_name = lecturer_data.get('middle_name')
             one_lecturer.last_name = lecturer_data.get('last_name')
