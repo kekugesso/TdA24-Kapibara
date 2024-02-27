@@ -13,7 +13,7 @@
     <div class="content">
         <div class="introduction">
             <img class="logo" src="{{ url_for('static', filename='img/TdA_LOGO/TeacherDigitalAgency_LOGO_black.png') }}" onclick="location.href='/';" style="cursor: pointer;">
-            <div class="nadpisy text-center p-3 intro-text">Hello TdA!</div> 
+            <!--<div class="nadpisy text-center p-3 intro-text">Hello TdA!</div> -->
             
             {% if current_user.is_authenticated %}
                 <div class="btn btn-outline-primary login text-center" onclick="location.href='/lecturer/{{ current_user.uuid }}/admin';" style="cursor: pointer;">

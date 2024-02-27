@@ -7,7 +7,7 @@ class RezervationSchema(Schema):
     """
     Schema for the rezervation model
     """
-    uuid = fields.String()
+    id = fields.String()
     date = fields.String()
     start_time = fields.String()
     end_time = fields.String()

@@ -5,16 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Teacher digital Agency</title>
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" />
+    <!-- FONT AWESOME FONT-->
+    <link rel="preload" as="font" href="{{ url_for('static', filename='fonts/fontawesome-webfont.eot?v=4.4.0') }}" type="font/woff2" crossorigin="anonymous">
+    <link rel="preload" as="font" href="{{ url_for('static', filename='fonts/fontawesome-webfont.woff2?v=4.4.0') }}" type="font/woff2" crossorigin="anonymous">
+    <link rel="preload" as="font" href="{{ url_for('static', filename='fonts/fontawesome-webfont.woff?v=4.4.0') }}" type="font/woff" crossorigin="anonymous">
+    <link rel="preload" as="font" href="{{ url_for('static', filename='fonts/fontawesome-webfont.ttf?v=4.4.0') }}" type="font/ttf" crossorigin="anonymous">
+    <link rel="preload" as="font" href="{{ url_for('static', filename='fonts/fontawesome-webfont.svg?v=4.4.0') }}" type="image/svg+xml" crossorigin="anonymous">
+
     <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
+    <!-- FONT AWESOME END-->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
 </head>
 <body>
 <div class="wrapper">
     <div class="content">
         <div class="introduction">
             <img class="logo" src="{{ url_for('static', filename='img/TdA_LOGO/TeacherDigitalAgency_LOGO_black.png') }}" onclick="location.href='/';" style="cursor: pointer;">
-            <div class="nadpisy text-center p-3 intro-text">Hello TdA!</div> 
+            <!--<div class="nadpisy text-center p-3 intro-text">Hello TdA!</div> -->
             
             {% if current_user.is_authenticated %}
                 <div class="btn btn-outline-primary login text-center" onclick="location.href='/lecturer/{{ current_user.uuid }}/admin';" style="cursor: pointer;">
@@ -30,7 +40,7 @@
         </div>
         
         <button class="btn btn-lg text-center back" type="button" onclick="history.back();"><span><i class="fa fa-arrow-left fa-3x"></i></span></button>
-        <div class="container lecturerFull" id="{{uuid}}">
+        <div class="container lecturerFull" id="{{data['uuid']}}">
             <div class="LeftSide">
                 <div class="Basic-info text-na-bilem">
                     <div class="Name nadpisy">{{data['title_before']}} {{data['first_name']}} {{data['middle_name']}} {{data['last_name']}} {{data['title_after']}}</div>
@@ -61,7 +71,7 @@
                 </div>
             </div>
             <!--Mobile Side-->
-            <div class="MobileView">
+            <div class="MobileView" id="{{data['uuid']}}">
                 <img class="Profile-pic" src="{{data['picture_url']}}"></img>
                 <div class="Basic-info text-na-bilem">
                     <div class="Name nadpisy">{{data['title_before']}} {{data['first_name']}} {{data['middle_name']}} {{data['last_name']}} {{data['title_after']}}</div>
@@ -88,6 +98,9 @@
                     {% endfor %}
                 </div>
             </div>
+            <button type="button" class="zarezervovani btn text-center text-na-bilem" data-bs-toggle="modal" data-bs-target="#zarezervovani-modal">
+                Zarezervovat lekci
+            </button>
         </div>
     </div>
     <footer class="text-center text-lg-start" style="background-color: #db6930;">
@@ -97,6 +110,23 @@
         </div>
     </footer>
 </div>
-<script src="{{ url_for('static', filename='/js/bio.conventor.js') }}"></script>
+
+<!-- MODAL -->
+<div class="modal hide fade text-na-bilem" tabindex="-1" id="zarezervovani-modal">
+    <div class="modal-dialog modal-xl modal-dialog-centered ">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Rezervace</h3>
+        </div>
+        <div class="modal-body" style="height: 80vh;">
+            <iframe src="/rezervace?lecturer={{data['uuid']}}" style="width: 100%; height: 100%; border: none;"></iframe>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+    </div>
+    </div>
+</div>
+<script src="{{ url_for('static', filename='js/bio.conventor.js') }}"></script>
 </body>
 </html>

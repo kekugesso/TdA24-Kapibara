@@ -13,7 +13,7 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from flask_migrate import Migrate
 from flask_httpauth import HTTPBasicAuth
 from app.models import db, Lecturer, Tag, TelephoneNumber, Email, LectureTag, Contact, Rezervation
-from app.serializers import LecturerSchema
+from app.serializers import LecturerSchema, RezervationSchema
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
@@ -354,14 +354,11 @@ def rezervace(id_rezrvace):
     if request.method == "GET":
         rezervation = Rezervation.query.filter_by(id=id_rezrvace).first()
         if rezervation:
-            uuid_lecturer = rezervation.lecturer_uuid
-            one_lecturer = Lecturer.query.filter_by(uuid=uuid_lecturer).first()
-            one_lecturer_schema = LecturerSchema()
-            result = one_lecturer_schema.dump(one_lecturer)
-            data = result.get("rezervation")
-            return render_template("rezervace.html", rezervace=data), 200
+            rezervace_schema = RezervationSchema()
+            result = rezervace_schema.dump(rezervation)
+            return render_template("rezervace.html", rezervace=result), 200
         else:
-            return {"message": "Rezervace is not founded"}, 404
+            return render_template("rezervace.html"), 404
     elif request.method == "DELETE":
         rezervation = Rezervation.query.filter_by(id=id_rezrvace).first()
         if rezervation:
@@ -379,7 +376,7 @@ def rezervace_post():
     """
     if request.method == "POST":
         neexistuje = True
-        data = request.form.to_dict()
+        data = request.get_json()
         all_rezervations_lecturer = Rezervation.query.filter_by(lecturer_uuid=data.get("lecturer_uuid")).all()
         start_time = datetime.fromisoformat(data.get("start_time"))
         end_time = datetime.fromisoformat(data.get("end_time"))

@@ -47,7 +47,7 @@
       
         <div class="text-na-bilem"id="calendar"></div>
         <button type="button" class="btn btn-primary eventslist-button text-na-cernem" data-bs-toggle="modal" data-bs-target="#exampleModal">
-            Otevřít list zrušení lekcí
+            Otevřít list rezervací
         </button>
         
         <!-- Event list modal -->
@@ -55,16 +55,19 @@
             <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Lekce</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Rezervace</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body text-na-bilem">
                 <ul id="eventlist" class="list-group">
                     
                 </ul>
                 </div>
                 <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="import btn text-center text-na-bilem" onclick="location.href='./download';">
+                        Stáhnout všechny rezervace
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zavřít</button>
                 </div>
             </div>
             </div>
@@ -81,7 +84,10 @@
                 <p>Modal body text goes here.</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="import btn text-center text-na-bilem" onclick="location.href='/import/';">
+                        Importovat do Google kalendáře
+                    </button>
+                    <button type="button" class="btn btn-secondary text-na-cernem" data-bs-dismiss="modal">Zavřít</button>
                 </div>
             </div>
             </div>
@@ -99,8 +105,8 @@
             return [
                 {% for rezervace in data %}
                     {
-                        "id": {{ loop.index }}, "title": "{{rezervace['subject']}} - {{rezervace['first_name_student']}} {{rezervace['last_name_student']}}",
-                        "url": "../../rezervace/{{rezervace['uuid']}}", "class": "event-default", 
+                        "id": {{rezervace['id']}}, "title": "{{rezervace['subject']}} - {{rezervace['first_name_student']}} {{rezervace['last_name_student']}}",
+                        "url": "/rezervace/{{rezervace['id']}}", "class": "event-default", 
                         "start": moment("{{rezervace['start_time']}}").valueOf(), // Milliseconds
                         "end": moment("{{rezervace['end_time']}}").valueOf() // Milliseconds
                     },
