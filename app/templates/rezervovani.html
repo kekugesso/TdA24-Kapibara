@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="cz">
-<head>
+  <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Teacher digital Agency</title>
@@ -14,162 +14,210 @@
 	  <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
     <script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js'></script>
     <script type="text/javascript" src='https://cdnjs.cloudflare.com/ajax/libs/eonasdan-bootstrap-datetimepicker/4.17.49/js/bootstrap-datetimepicker.min.js'></script>
-    
+    <script type="text/javascript" src="{{ url_for('static', filename='js/calendar/cs.js') }}"></script>
   </head>
-<body class="p-3">
-    <form method="post" class="rezervovani-form text-na-bilem form-floating">
+  <body class="p-3">
+    <form class="rezervovani-form text-na-bilem form-floating">
       <!--
-
+        
         INFORMACE STUDENTA
-
+        
       -->
       <div class="row g-2">
         <label class="form-label">Informace studenta</label>
-          <div class="col-md-6">
-            <div class="form-floating">
-              <input type="text" class="form-control" id="firstName" placeholder="Jméno">
-              <label for="firstName">Jméno</label>
+        <div class="col-md-6">
+          <div class="form-floating">
+            <input type="text" class="form-control" id="firstName" placeholder="Jméno" required>
+            <label for="firstName">Jméno</label>
+            <div class="valid-feedback">
+              Vše vpořádku!
             </div>
+            <div class="invalid-feedback">
+              Prosím zadejte jméno.
+            </div>      
           </div>
-          <div class="col-md-6">
-            <div class="form-floating">
-              <input type="text" class="form-control" id="lastName" placeholder="Příjmení">
-              <label for="lastName">Příjmení</label>
+        </div>
+        <div class="col-md-6">
+          <div class="form-floating">
+            <input type="text" class="form-control" id="lastName" placeholder="Příjmení" required>
+            <label for="lastName">Příjmení</label>
+            <div class="valid-feedback">
+              Vše vpořádku!
             </div>
+            <div class="invalid-feedback">
+              Prosím zadejte příjmení.
+            </div>  
           </div>
-      <!--
-
-        KONTAKT STUDENTA
-
-      -->
+        </div>
+        <!--
+          
+          KONTAKT STUDENTA
+          
+        -->
         <label class="form-label">Kontakt studenta</label>
-          <div class="col-md-6">
-            <div class="form-floating">
-              <input type="text" class="form-control" id="email" placeholder="Email">
-              <label for="firstName">Email</label>
+        <div class="col-md-6">
+          <div class="form-floating">
+            <input type="text" class="form-control" id="email" placeholder="Email" required>
+            <label for="firstName">Email</label>
+            <div class="valid-feedback">
+              Vše vpořádku!
             </div>
+            <div class="invalid-feedback">
+              Prosím zadejte validní email.
+            </div>  
           </div>
-          <div class="col-md-6">
-            <div class="form-floating">
-              <input type="text" class="form-control" id="phone" placeholder="Telefon">
-              <label for="lastName">Telefon</label>
+        </div>
+        <div class="col-md-6">
+          <div class="form-floating">
+            <input type="text" class="form-control" id="phone" placeholder="Telefon" required>
+            <label for="lastName">Telefon</label>
+            <div class="valid-feedback">
+              Vše vpořádku!
             </div>
+            <div class="invalid-feedback">
+              Prosím zadej validní telefon.
+            </div>  
           </div>
-      <!--
-
-        INFORMACE REZERVACE
-
-      -->
+        </div>
+        <!--
+          
+          INFORMACE REZERVACE
+          
+        -->
         <label class="form-label">Informace rezervace</label>
-        <div class="form-floating">
-          <input class="form-control" placeholder="Lokace" id="location">
-          <label for="notes">Lokace</label>
+        <div class="input-group">
+          <span class="input-group-text">Lokace</span>
+          <select class="form-select text-na-bilem" title="Lokace" aria-label="location" id="location" required>
+            <option value="online" class="text-na-bilem" selected>Online</option>
+            <option value="offline" class="text-na-bilem">Offline</option>
+          </select>
+          <div class="valid-feedback">
+            Vše vpořádku!
+          </div>
+          <div class="invalid-feedback">
+            Prosím zadej lokaci.
+          </div>  
         </div>
         <div class="input-group">
           <span class="input-group-text">Předmět</span>
-          <select class="form-select" title="Předmět" aria-label="subject" id="subject">
+          <select class="form-select" title="Předmět" aria-label="subject" id="subject" required>
             {% if tags %}
               {% for tag in tags %}
-                <option value="{{tag.uuid}}">{{tag.name}}</option>
+                <option value="{{tag.name}}">{{tag.name}}</option>
               {% endfor %}
             {% else %}
-            <option value=""></option>
+              <option value=""></option>
             {% endif %}
           </select>
+          <div class="valid-feedback">
+            Vše vpořádku!
+          </div>
+          <div class="invalid-feedback">
+            Prosím zadej předmět.
+          </div>  
         </div>
         <div class="form-floating">
           <textarea class="form-control" placeholder="Poznámky pro lektora" id="notes" style="height: 100px"></textarea>
           <label for="notes">Poznámky pro lektora</label>
         </div>
-      <!--
-
-        DATUM - ČAS REZERVACE
-
-      -->
-      <label class="form-label">Start time</label>
+        <!--
+          
+          DATUM - ČAS REZERVACE
+          
+        -->
+        <label class="form-label">Čas začátku</label>
         <div class="input-group date">
-          <input class="form-control" placeholder="YYYY-MM-DD HH" id="StartTime"/>
+          <input class="form-control" placeholder="YYYY-MM-DD HH" id="StartTime" required/>
+          <div class="valid-feedback">
+            Vše vpořádku!
+          </div>
+          <div class="invalid-feedback">
+            Prosím zadej začátek lekce.
+          </div>  
         </div>
-      <label class="form-label">End time</label>
+        <label class="form-label">Čas konce</label>
         <div class="input-group date">
-          <input class="form-control" placeholder="YYYY-MM-DD HH" id="EndTime"/>
+          <input class="form-control" placeholder="YYYY-MM-DD HH" id="EndTime" required/>
+          <div class="valid-feedback">
+            Vše vpořádku!
+          </div>
+          <div class="invalid-feedback">
+            Prosím zadej konec lekce.
+          </div>  
         </div>
-      
-
-
-      {% with messages = get_flashed_messages() %}
-        {% if messages %}
-          {% for message in messages %}
-          <div class="error danger">{{ message }}</div>
-          {% endfor %}
-        {% endif %}
-      {% endwith %}
-      <button type="submit" id="submit-button" class="btn btn-primary">Rezerovat</button>
-    
+        
+        
+        
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <div class="error danger">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+        <button id="submit-button" class="btn btn-primary" onclick="send()">Rezerovat</button>
+      </div>
     </form>
     <script>
       if (/Mobi/.test(navigator.userAgent)) {
-  // if mobile device, use native pickers
-  $(".date input").attr("type", "date");
-  $(".time input").attr("type", "time");
-} else {
-  $("#StartTime").datetimepicker({
-    locale: 'cs',
-    useCurrent: true,
-    format: "YYYY-MM-DD HH",
-    date: moment().format("YYYY-MM-DD HH"),
-    sideBySide: true,
-    showTodayButton: true,
-    minDate: moment().add(1, 'hours').format("YYYY-MM-DD HH"),
-  });
-  $("#EndTime").datetimepicker({
-    locale: 'cs',
-    useCurrent: true,
-    format: "YYYY-MM-DD HH",
-    date: moment().format("YYYY-MM-DD HH"),
-    sideBySide: true,
-    showTodayButton: true,
-    minDate: moment().add(2, 'hours').format("YYYY-MM-DD HH"),
-  });
-}
+          // if mobile device, use native pickers
+          $(".date input").attr("type", "date");
+          $(".time input").attr("type", "time");
+        } else {
+          $("#StartTime").datetimepicker({
+        locale: 'cs',
+        format: "YYYY-MM-DD HH",
+        minDate: moment().add(1, 'days').format("YYYY-MM-DD HH"),
+        //useCurrent: true,
+        //date: moment().add(1, 'days').format("YYYY-MM-DD HH"),
+        daysOfWeekDisabled: [0,6],
+        disabledHours: [0, 1, 2, 3, 4, 5, 6, 7, 21, 22, 23, 24],
+        enabledHours: [8, 9, 10, 11, 12, 13, 14, 15, 16, 17,18, 19, 20],
+        sideBySide: true,
+        showTodayButton: true,
+      });
+      $("#EndTime").datetimepicker({
+        locale: 'cs',
+        format: "YYYY-MM-DD HH",
+        minDate: moment().add(1, 'days').add(1, 'hours').format("YYYY-MM-DD HH"),
+        //useCurrent: true,
+        //date: moment().add(1, 'days').add(1, 'hours').format("YYYY-MM-DD HH"),
+        daysOfWeekDisabled: [0,6],
+        disabledHours: [0, 1, 2, 3, 4, 5, 6, 7, 21, 22, 23, 24],
+        enabledHours: [8, 9, 10, 11, 12, 13, 14, 15, 16, 17,18, 19, 20],
+        sideBySide: true,
+        showTodayButton: true,
+      });
+      }
     </script>
     <script>
-      document.getElementById('submit-button').addEventListener('click', function() {
-            // Collect form data
-            const formData = {
-                first_name_student: document.getElementById('firstName').value,
-                last_name_student: document.getElementById('lastName').value,
-                email_student: document.getElementById('email').value,
-                number_student: document.getElementById('phone').value,
-                location: document.getElementById('location').value,
-                notes: document.getElementById('notes').value,
-                start_time: document.getElementById('StartTime').value,
-                end_time: document.getElementById('EndTime').value,
-                subject: document.querySelector('subject').value,
-                lecturer_uuid: new URLSearchParams(window.location.search).get('lecturer') // Assuming uuid is a template variable
-            };
-
-            // Send POST request
-            fetch('/your-post-endpoint', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData),
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
+      function send() {
+        event.preventDefault();
+        const formData = {
+            lecturer_uuid: new URLSearchParams(window.location.search).get('lecturer'),
+            first_name_student: $('#firstName').val(),
+            last_name_student: $('#lastName').val(),
+            email_student: $('#email').val(),
+            number_student: $('#phone').val(),
+            location: $('#location').val(),
+            subject: $('#subject').val(),
+            notes: $('#notes').val(),
+            start_time: $('#StartTime').val(),
+            end_time: $('#EndTime').val(),
+        };
+        $.ajax({
+            url: '/rezervace',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(formData),
+            success: function(data) {
                 console.log(data); // Handle successful response
-            })
-            .catch(error => {
+            },
+            error: function(xhr, status, error) {
                 console.error('There was an error!', error);
-            });
+            }
         });
+      };
     </script>
-</body>
+  </body>
 </html>
