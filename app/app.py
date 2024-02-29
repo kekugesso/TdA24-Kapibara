@@ -12,6 +12,7 @@ from sqlalchemy.exc import IntegrityError, DataError
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_migrate import Migrate
 from flask_httpauth import HTTPBasicAuth
+from flask_basicauth import BasicAuth
 from app.models import db, Lecturer, Tag, TelephoneNumber, Email, LectureTag, Contact, Rezervation
 from app.serializers import LecturerSchema, RezervationSchema
 
@@ -24,6 +25,11 @@ app.permanent_session_lifetime = timedelta(hours=13)
 login_manager = LoginManager()
 login_manager.init_app(app)
 auth = HTTPBasicAuth()
+
+app.config['BASIC_AUTH_USERNAME'] = 'TdA'
+app.config['BASIC_AUTH_PASSWORD'] = 'd8Ef6!dGG_pv'
+
+basic_auth = BasicAuth(app)
 
 users = {
     "TdA": "d8Ef6!dGG_pv",
@@ -86,7 +92,7 @@ def logout():
 
 
 @app.route('/api/lecturers', methods = ["GET, POST"])
-#@auth.login_required
+@basic_auth.required
 def title_post():
     """
     function that handles adding lecturers
@@ -221,7 +227,7 @@ def get_unique_locations(data):
 
 
 @app.route('/api/lecturer/<uuid1>', methods = ["GET", "DELETE", "PUT"])
-#@auth.login_required
+@basic_auth.required
 def edit_lecturer(uuid1):
     """
     function that handles editing lecturers
