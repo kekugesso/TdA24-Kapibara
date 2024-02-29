@@ -13,8 +13,8 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from flask_migrate import Migrate
 from flask_httpauth import HTTPBasicAuth
 from flask_basicauth import BasicAuth
-from models import db, Lecturer, Tag, TelephoneNumber, Email, LectureTag, Contact, Rezervation
-from serializers import LecturerSchema, RezervationSchema
+from app.models import db, Lecturer, Tag, TelephoneNumber, Email, LectureTag, Contact, Rezervation
+from app.serializers import LecturerSchema, RezervationSchema
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
