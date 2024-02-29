@@ -31,7 +31,7 @@ users = {
 
 @auth.verify_password
 def verify_password(username, password):
-    if username in users and users.get(username) == password:
+    if username in users and check_password_hash(users.get(username), password):
         return username
 
 @login_manager.user_loader
@@ -85,7 +85,7 @@ def logout():
     return redirect(url_for('login'))
 
 
-@app.route('/api/lecturers', methods = ["POST"])
+@app.route('/api/lecturers', methods = ["GET, POST"])
 @auth.login_required
 def title_post():
     """
@@ -168,6 +168,11 @@ def title_post():
         lecturer_schema = LecturerSchema()
         result = lecturer_schema.dump(created_lecturer)
         return result, 200
+    elif request.method == "GET":
+        lecturers = Lecturer.query.all()
+        lecturer_schema = LecturerSchema(many=True)
+        result = lecturer_schema.dump(lecturers)
+        return result, 200
 
 
 @app.route('/', methods = ["GET"])  # title page
@@ -215,7 +220,7 @@ def get_unique_locations(data):
 
 
 
-@app.route('/api/lecturer/<uuid1>', methods = ["DELETE", "PUT"])
+@app.route('/api/lecturer/<uuid1>', methods = ["GET", "DELETE", "PUT"])
 @auth.login_required
 def edit_lecturer(uuid1):
     """
@@ -306,6 +311,14 @@ def edit_lecturer(uuid1):
             one_lecturer.claim = lecturer_data.get('claim')
             one_lecturer.price_per_hour = lecturer_data.get('price_per_hour')
             db.session.commit()
+            lecturer_schema = LecturerSchema()
+            result = lecturer_schema.dump(one_lecturer)
+            return result, 200
+        else:
+            return {"message": "Lecturer is not founded"}, 404
+    elif request.method == "GET":
+        one_lecturer = Lecturer.query.filter_by(uuid=uuid1).first()
+        if one_lecturer:
             lecturer_schema = LecturerSchema()
             result = lecturer_schema.dump(one_lecturer)
             return result, 200
