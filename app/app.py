@@ -85,7 +85,7 @@ def logout():
     return redirect(url_for('login'))
 
 
-@app.route('api/lecturers', methods = ["POST"])
+@app.route('/api/lecturers', methods = ["POST"])
 @auth.login_required
 def title_post():
     """
@@ -215,7 +215,7 @@ def get_unique_locations(data):
 
 
 
-@app.route('api/lecturer/<uuid1>', methods = ["DELETE", "PUT"])
+@app.route('/api/lecturer/<uuid1>', methods = ["DELETE", "PUT"])
 @auth.login_required
 def edit_lecturer(uuid1):
     """
