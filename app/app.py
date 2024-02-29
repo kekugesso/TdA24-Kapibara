@@ -117,10 +117,8 @@ def title_post():
                 price_per_hour = data.get("price_per_hour"),
             )
             db.session.add(new_lecturer)
-            db.session.commit()
             new_contact = Contact(lecturer_uuid = lecturer_uuid)
             db.session.add(new_contact)
-            db.session.commit()
             contact = Contact.query.filter_by(lecturer_uuid = lecturer_uuid).first()
             contacts = data.get("contact")
             emails = contacts.get('emails')
@@ -131,36 +129,32 @@ def title_post():
                     contact_id = contact.id,
                 )
                 db.session.add(new_email)
-                db.session.commit()
             for telephone_number in telephone_numbers:
                 new_number = TelephoneNumber(
                     phone = telephone_number,
                     contact_id = contact.id,
                 )
                 db.session.add(new_number)
-                db.session.commit()
             for tag in data.get("tags"):
                 tags = Tag.query.all()
                 tags_name = []
                 for tag1 in tags:
                     tags_name.append(tag1.name)
-                if tag.get('name') not in tags_name:
+                if tag not in tags_name:
                     tag_uuid = str(uuid.uuid4())
                     new_tag = Tag(
                         uuid = tag_uuid,
-                        name = tag.get('name'),
+                        name = tag,
                     )
                     db.session.add(new_tag)
-                    db.session.commit()
                     new_lecture_tag = LectureTag(
                         lecturer_uuid = lecturer_uuid,
                         tag_uuid = tag_uuid,
                     )
                     db.session.add(new_lecture_tag)
-                    db.session.commit()
                 else:
                     for tag2 in tags:
-                        if tag.get('name') == tag2.name:
+                        if tag == tag2.name:
                             tag_uuid = tag2.uuid
                     new_lecture_tag = LectureTag(
                         lecturer_uuid = lecturer_uuid,
