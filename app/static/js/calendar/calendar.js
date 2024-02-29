@@ -1093,6 +1093,25 @@ if(!String.prototype.formatNum) {
 				$('.modal-body', modal).html(ifrm);
 			}
 
+			
+			$('#import').data('event-id', id);
+			$('#import').click(function() {window.location.href = "/import/"+$('#zrusit').data("event-id");});
+			$('#zrusit').data('event-id', id);
+			$('#zrusit').click(function() {
+				$.ajax({
+					url: '/rezervace/' + $('#zrusit').data("event-id"),
+					type: 'DELETE',
+					success: function(response) {
+						console.log('Event deleted:', response);
+						location.reload()
+					},
+					error: function(xhr, status, error) {
+						console.error('Error deleting event:', error);
+					}
+				});
+			});
+
+
 			if(!modal.data('handled.bootstrap-calendar') || (modal.data('handled.bootstrap-calendar') && modal.data('handled.event-id') != event.id)) {
 				modal.off('show.bs.modal')
 					.off('shown.bs.modal')

@@ -51,11 +51,12 @@ var options = {
 		$('.btn-group button').removeClass('active');
 		$('button[data-calendar-view="' + view + '"]').addClass('active');
 	},
+	onAfterModalHidden: console.log("hidden"),
 	classes: {
 		months: {
 			general: 'label'
 		}
-	}
+	},
 }
 var calendarElement = $('#calendar');
 var calendar = calendarElement.calendar(options);
@@ -72,9 +73,4 @@ $('.btn-group button[data-calendar-view]').each(function() {
 	$this.click(function() {
 		calendar.view($this.data('calendar-view'));
 	});
-});
-
-$('#events-modal .modal-header, #events-modal .modal-footer').click(function(e){
-	//e.preventDefault();
-	//e.stopPropagation();
 });
