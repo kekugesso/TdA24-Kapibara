@@ -13,8 +13,8 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from flask_migrate import Migrate
 from flask_httpauth import HTTPBasicAuth
 from flask_basicauth import BasicAuth
-from app.models import db, Lecturer, Tag, TelephoneNumber, Email, LectureTag, Contact, Rezervation
-from app.serializers import LecturerSchema, RezervationSchema
+from models import db, Lecturer, Tag, TelephoneNumber, Email, LectureTag, Contact, Rezervation
+from serializers import LecturerSchema, RezervationSchema
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
@@ -91,7 +91,7 @@ def logout():
     return redirect(url_for('login'))
 
 
-@app.route('/api/lecturers', methods = ["GET, POST"])
+@app.route('/api/lecturers', methods = ["GET", "POST"])
 @basic_auth.required
 def title_post():
     """
