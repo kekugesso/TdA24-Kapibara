@@ -17,7 +17,9 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/calendar/cs.js') }}"></script>
   </head>
   <body class="p-3">
-    <form class="rezervovani-form text-na-bilem form-floating">
+    <h1 class="text-center pd-5 nadpisy message" id="success-message" style="display: none;">Rezervace byla úspěšně vytvořena!</h1>
+    <h1 class="text-center pd-5 nadpisy message" id="error-message" style="display: none;">Error: Lecturer not found.</h1>
+    <form class="rezervovani-form text-na-bilem form-floating needs-validation" style="display: none;" novalidate id="rezervacni-formular">
       <!--
         
         INFORMACE STUDENTA
@@ -29,24 +31,14 @@
           <div class="form-floating">
             <input type="text" class="form-control" id="firstName" placeholder="Jméno" required>
             <label for="firstName">Jméno</label>
-            <div class="valid-feedback">
-              Vše vpořádku!
-            </div>
-            <div class="invalid-feedback">
-              Prosím zadejte jméno.
-            </div>      
+              <div class="invalid-feedback">Prosím zadejte jméno.</div>      
           </div>
         </div>
         <div class="col-md-6">
           <div class="form-floating">
             <input type="text" class="form-control" id="lastName" placeholder="Příjmení" required>
             <label for="lastName">Příjmení</label>
-            <div class="valid-feedback">
-              Vše vpořádku!
-            </div>
-            <div class="invalid-feedback">
-              Prosím zadejte příjmení.
-            </div>  
+              <div class="invalid-feedback">Prosím zadejte příjmení.</div>  
           </div>
         </div>
         <!--
@@ -59,24 +51,14 @@
           <div class="form-floating">
             <input type="text" class="form-control" id="email" placeholder="Email" required>
             <label for="firstName">Email</label>
-            <div class="valid-feedback">
-              Vše vpořádku!
-            </div>
-            <div class="invalid-feedback">
-              Prosím zadejte validní email.
-            </div>  
+              <div class="invalid-feedback">Prosím zadejte validní email.</div>  
           </div>
         </div>
         <div class="col-md-6">
           <div class="form-floating">
             <input type="text" class="form-control" id="phone" placeholder="Telefon" required>
             <label for="lastName">Telefon</label>
-            <div class="valid-feedback">
-              Vše vpořádku!
-            </div>
-            <div class="invalid-feedback">
-              Prosím zadej validní telefon.
-            </div>  
+              <div class="invalid-feedback">Prosím zadej validní telefon.</div>  
           </div>
         </div>
         <!--
@@ -91,12 +73,7 @@
             <option value="online" class="text-na-bilem" selected>Online</option>
             <option value="offline" class="text-na-bilem">Offline</option>
           </select>
-          <div class="valid-feedback">
-            Vše vpořádku!
-          </div>
-          <div class="invalid-feedback">
-            Prosím zadej lokaci.
-          </div>  
+          <div class="invalid-feedback">Prosím zadej lokaci.</div>  
         </div>
         <div class="input-group">
           <span class="input-group-text">Předmět</span>
@@ -109,12 +86,7 @@
               <option value=""></option>
             {% endif %}
           </select>
-          <div class="valid-feedback">
-            Vše vpořádku!
-          </div>
-          <div class="invalid-feedback">
-            Prosím zadej předmět.
-          </div>  
+          <div class="invalid-feedback">Prosím zadej předmět.</div>  
         </div>
         <div class="form-floating">
           <textarea class="form-control" placeholder="Poznámky pro lektora" id="notes" style="height: 100px"></textarea>
@@ -128,96 +100,27 @@
         <label class="form-label">Čas začátku</label>
         <div class="input-group date">
           <input class="form-control" placeholder="YYYY-MM-DD HH" id="StartTime" required/>
-          <div class="valid-feedback">
-            Vše vpořádku!
-          </div>
-          <div class="invalid-feedback">
-            Prosím zadej začátek lekce.
-          </div>  
+          <div class="invalid-feedback">Prosím zadej začátek lekce.</div>  
         </div>
         <label class="form-label">Čas konce</label>
         <div class="input-group date">
           <input class="form-control" placeholder="YYYY-MM-DD HH" id="EndTime" required/>
-          <div class="valid-feedback">
-            Vše vpořádku!
-          </div>
-          <div class="invalid-feedback">
-            Prosím zadej konec lekce.
-          </div>  
+          <div class="invalid-feedback">Prosím zadej konec lekce.</div>  
         </div>
-        
-        
-        
+      
+
         {% with messages = get_flashed_messages() %}
           {% if messages %}
             {% for message in messages %}
-              <div class="error danger">{{ message }}</div>
+              <div class="danger">{{ message }}</div>
             {% endfor %}
           {% endif %}
         {% endwith %}
-        <button id="submit-button" class="btn btn-primary" onclick="send()">Rezerovat</button>
+        <button type="submit" id="submit-button" class="btn btn-primary">Rezerovat</button>
       </div>
     </form>
-    <script>
-      if (/Mobi/.test(navigator.userAgent)) {
-          // if mobile device, use native pickers
-          $(".date input").attr("type", "date");
-          $(".time input").attr("type", "time");
-        } else {
-          $("#StartTime").datetimepicker({
-        locale: 'cs',
-        format: "YYYY-MM-DD HH",
-        minDate: moment().add(1, 'days').format("YYYY-MM-DD HH"),
-        //useCurrent: true,
-        //date: moment().add(1, 'days').format("YYYY-MM-DD HH"),
-        daysOfWeekDisabled: [0,6],
-        disabledHours: [0, 1, 2, 3, 4, 5, 6, 7, 21, 22, 23, 24],
-        enabledHours: [8, 9, 10, 11, 12, 13, 14, 15, 16, 17,18, 19, 20],
-        sideBySide: true,
-        showTodayButton: true,
-      });
-      $("#EndTime").datetimepicker({
-        locale: 'cs',
-        format: "YYYY-MM-DD HH",
-        minDate: moment().add(1, 'days').add(1, 'hours').format("YYYY-MM-DD HH"),
-        //useCurrent: true,
-        //date: moment().add(1, 'days').add(1, 'hours').format("YYYY-MM-DD HH"),
-        daysOfWeekDisabled: [0,6],
-        disabledHours: [0, 1, 2, 3, 4, 5, 6, 7, 21, 22, 23, 24],
-        enabledHours: [8, 9, 10, 11, 12, 13, 14, 15, 16, 17,18, 19, 20],
-        sideBySide: true,
-        showTodayButton: true,
-      });
-      }
-    </script>
-    <script>
-      function send() {
-        event.preventDefault();
-        const formData = {
-            lecturer_uuid: new URLSearchParams(window.location.search).get('lecturer'),
-            first_name_student: $('#firstName').val(),
-            last_name_student: $('#lastName').val(),
-            email_student: $('#email').val(),
-            number_student: $('#phone').val(),
-            location: $('#location').val(),
-            subject: $('#subject').val(),
-            notes: $('#notes').val(),
-            start_time: $('#StartTime').val(),
-            end_time: $('#EndTime').val(),
-        };
-        $.ajax({
-            url: '/rezervace',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(formData),
-            success: function(data) {
-                console.log(data); // Handle successful response
-            },
-            error: function(xhr, status, error) {
-                console.error('There was an error!', error);
-            }
-        });
-      };
-    </script>
+    <script src="{{ url_for('static', filename='js/datetime.config.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/rezervovani.formsend.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/show.logic.js') }}"></script>
   </body>
 </html>

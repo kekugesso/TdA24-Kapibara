@@ -33,27 +33,27 @@
         </div>
         <div class="container search col">
             <div class="input-group row">
-                <label for="validationTags" class="form-label nadpisy">Locations: </label>
+                <label for="validationTags" class="form-label nadpisy">Lokace: </label>
                 <select class="form-select" id="validationLocations" name="tags[]" value="" multiple>
-                    <option selected disabled hidden value="">Choose a tag...</option>
+                    <option selected disabled hidden value="">Vyber lokaci...</option>
                     {% for location in unique_locations %}
                         <option value="{{ loop.index }}">{{ location }}</option>
                     {% endfor %}
                 </select>
-                <div class="invalid-feedback">Please select a valid tag.</div>
+                <div class="invalid-feedback">Prosím vyber validní lokaci.</div>
             </div>
             <div class="input-group row">
-                <label for="validationTags" class="form-label nadpisy">Tags: </label>
+                <label for="validationTags" class="form-label nadpisy">Tagy: </label>
                 <select class="form-select" id="validationTags" name="tags[]" value="" multiple>
-                    <option selected disabled hidden value="">Choose a tag...</option>
+                    <option selected disabled hidden value="">Vyber tag...</option>
                     {% for tag in unique_tags %}
                         <option style="background-color: #FECB2E !important;" data-badge-style="warning" data-badge-class="text-dark" value="{{ tag['name'] }}">{{ tag['name'] }}</option>
                     {% endfor %}
                 </select>
-                <div class="invalid-feedback">Please select a valid tag.</div>
+                <div class="invalid-feedback">Prosím vyber validní tag.</div>
             </div>
             <div class="price-range">
-                <label for="range_container" class="form-label nadpisy">Price: </label>
+                <label for="range_container" class="form-label nadpisy">Cena: </label>
                 <div class="range_container">
                     <div class="sliders_control">
                        <input id="fromSlider" type="range" min="0" max="100"/>
@@ -61,11 +61,11 @@
                     </div>
                     <div class="form_control text-center">
                         <div>
-                            <div>Min</div>
+                            <div>Mimální</div>
                             <input type="number" id="fromInput" min="0" max="100"/>
                         </div>
                         <div>
-                            <div>Max</div>
+                            <div>Maximální</div>
                             <input type="number" id="toInput" min="0" max="100"/>
                         </div>
                     </div>
@@ -95,8 +95,8 @@
         <div class="text-center" id="pagination"></div>
     </div> 
 
-    <footer class="text-center text-lg-start" style="background-color: #db6930;">
-        <div class="text-center text-white p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+    <footer class="text-center text-lg-start footer">
+        <div class="text-center text-white p-3">
             © <script>document.write(new Date().getFullYear());</script> Copyright:
             <a class="text-white" href="#">Teacher digital Agency</a>
         </div>

@@ -18,7 +18,7 @@ function filterLecturers() {
     
     // Iterate through each lecturer
     var lecturers = document.getElementsByClassName("lecturer");
-    for (var i = 0; i < lecturers.length; i++) {
+    for (let i = 0; i < lecturers.length; i++) {
         var lecturer = lecturers[i];
 
         // Check if any filters are selected

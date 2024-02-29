@@ -6,11 +6,11 @@
     <title>Teacher digital Agency</title>
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" />
     <!-- FONT AWESOME FONT-->
-    <link rel="preload" as="font" href="{{ url_for('static', filename='fonts/fontawesome-webfont.eot?v=4.4.0') }}" type="font/woff2" crossorigin="anonymous">
-    <link rel="preload" as="font" href="{{ url_for('static', filename='fonts/fontawesome-webfont.woff2?v=4.4.0') }}" type="font/woff2" crossorigin="anonymous">
-    <link rel="preload" as="font" href="{{ url_for('static', filename='fonts/fontawesome-webfont.woff?v=4.4.0') }}" type="font/woff" crossorigin="anonymous">
-    <link rel="preload" as="font" href="{{ url_for('static', filename='fonts/fontawesome-webfont.ttf?v=4.4.0') }}" type="font/ttf" crossorigin="anonymous">
-    <link rel="preload" as="font" href="{{ url_for('static', filename='fonts/fontawesome-webfont.svg?v=4.4.0') }}" type="image/svg+xml" crossorigin="anonymous">
+    <link rel="preload" as="font" href="{{ url_for('static', filename='fonts/fontawesome-webfont.eot') }}" type="font/eot" crossorigin="anonymous">
+    <link rel="preload" as="font" href="{{ url_for('static', filename='fonts/fontawesome-webfont.woff2') }}" type="font/woff2" crossorigin="anonymous">
+    <link rel="preload" as="font" href="{{ url_for('static', filename='fonts/fontawesome-webfont.woff') }}" type="font/woff" crossorigin="anonymous">
+    <link rel="preload" as="font" href="{{ url_for('static', filename='fonts/fontawesome-webfont.ttf') }}" type="font/ttf" crossorigin="anonymous">
+    <link rel="preload" as="font" href="{{ url_for('static', filename='fonts/fontawesome-webfont.svg') }}" type="image/svg+xml" crossorigin="anonymous">
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
     <!-- FONT AWESOME END-->
@@ -39,7 +39,7 @@
             {% endif %}
         </div>
         
-        <button class="btn btn-lg text-center back" type="button" onclick="history.back();"><span><i class="fa fa-arrow-left fa-3x"></i></span></button>
+        <button class="btn btn-lg text-center back" type="button" onclick="history.back();"><span><</span></button>
         <div class="container lecturerFull" id="{{data['uuid']}}">
             <div class="LeftSide">
                 <div class="Basic-info text-na-bilem">
@@ -103,8 +103,8 @@
             </button>
         </div>
     </div>
-    <footer class="text-center text-lg-start" style="background-color: #db6930;">
-        <div class="text-center text-white p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+    <footer class="text-center text-lg-start footer">
+        <div class="text-center text-white p-3">
             © <script>document.write(new Date().getFullYear());</script> Copyright:
             <a class="text-white" href="#">Teacher digital Agency</a>
         </div>

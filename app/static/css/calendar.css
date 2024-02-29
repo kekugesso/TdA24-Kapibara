@@ -267,6 +267,7 @@
   }
   #cal-day-box #cal-day-panel {
     position: relative;
+    width: 100%;
     padding-left: 60px;
   }
   #cal-day-box #cal-day-panel-hour {
@@ -275,9 +276,8 @@
     margin-left: -60px;
   }
   #cal-day-box .day-event {
-    position: relative;
-    max-width: 200px;
-    overflow: hidden;
+    position: absolute;
+
   }
   #cal-day-box .day-highlight {
     line-height: 30px;
@@ -299,6 +299,14 @@
   }
   #cal-day-box .day-highlight.dh-event-info {
     border: 1px solid #1e90ff;
+  }
+  #cal-day-box .day-highlight.dh-online {
+    background-color: #FECB2E;
+    border: 1px solid #FECB2E;
+  }
+  #cal-day-box .day-highlight.dh-offline {
+    background-color: #74C7D3;
+    border: 1px solid #74C7D3;
   }
   #cal-day-box .day-highlight.dh-event-inverse {
     border: 1px solid #1b1b1b;
@@ -345,6 +353,12 @@
   }
   .event-success {
     background-color: #006400;
+  }
+  .online {
+    background-color: #FECB2E;
+  }
+  .offline {
+    background-color: #74C7D3;
   }
   .event-special {
     background-color: #800080;

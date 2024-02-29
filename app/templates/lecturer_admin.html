@@ -32,16 +32,16 @@
 
         <div class="page-header">
             <div class="btn-group navigations">
-                <button class="btn btn-primary text-na-cernem" data-calendar-nav="prev"><< Prev</button>
-                <button class="btn text-na-bilem" data-calendar-nav="today">Today</button>
-                <button class="btn btn-primary text-na-cernem" data-calendar-nav="next">Next >></button>
+                <button class="btn btn-primary text-na-cernem" data-calendar-nav="prev"><< Předchozí</button>
+                <button class="btn text-na-bilem" data-calendar-nav="today">Dnes</button>
+                <button class="btn btn-primary text-na-cernem" data-calendar-nav="next">Další >></button>
             </div>
             <h3 class="nadpisy day"></h3>
             <div class="btn-group text-na-bilem view">
-                <button class="btn btn-warning" data-calendar-view="year">Year</button>
-                <button class="btn btn-warning active" data-calendar-view="month">Month</button>
-                <button class="btn btn-warning" data-calendar-view="week">Week</button>
-                <button class="btn btn-warning" data-calendar-view="day">Day</button>
+                <button class="btn btn-warning" data-calendar-view="year">Rok</button>
+                <button class="btn btn-warning active" data-calendar-view="month">Měsíc</button>
+                <button class="btn btn-warning" data-calendar-view="week">Týden</button>
+                <button class="btn btn-warning" data-calendar-view="day">Den</button>
             </div>
         </div>
       
@@ -84,17 +84,18 @@
                 <p>Modal body text goes here.</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="import btn text-center text-na-bilem" onclick="location.href='/import/';">
+                    <button type="button" class="zrusit btn text-center text-na-cernem" id="zrusit">Zrušit</button>
+                    <button type="button" class="import btn text-center text-na-bilem" id="import">
                         Importovat do Google kalendáře
                     </button>
-                    <button type="button" class="btn btn-secondary text-na-cernem" data-bs-dismiss="modal">Zavřít</button>
+                    <button type="button" class="zavrit btn text-center text-na-cernem" data-bs-dismiss="modal">Zavřít</button>
                 </div>
             </div>
             </div>
         </div>
     </div>
-    <footer class="text-center text-lg-start" style="background-color: #db6930;">
-        <div class="text-center text-white p-3" style="background-color: rgba(0, 0, 0, 0.2);">
+    <footer class="text-center text-lg-start footer">
+        <div class="text-center text-white p-3">
             © <script>document.write(new Date().getFullYear());</script> Copyright:
             <a class="text-white" href="#">Teacher digital Agency</a>
         </div>
@@ -106,7 +107,7 @@
                 {% for rezervace in data %}
                     {
                         "id": {{rezervace['id']}}, "title": "{{rezervace['subject']}} - {{rezervace['first_name_student']}} {{rezervace['last_name_student']}}",
-                        "url": "/rezervace/{{rezervace['id']}}", "class": "event-default", 
+                        "url": "/rezervace/{{rezervace['id']}}", "class": "{{rezervace['location']}}", 
                         "start": moment("{{rezervace['start_time']}}").valueOf(), // Milliseconds
                         "end": moment("{{rezervace['end_time']}}").valueOf() // Milliseconds
                     },

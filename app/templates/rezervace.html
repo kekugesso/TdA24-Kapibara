@@ -12,18 +12,18 @@
 	<div class="container rezervace">
         {% if rezervace %}
             <div class="rezervace" id="{{rezervace['id']}}">
-                <div class="rezervace-time">čas: {{rezervace['start_time']}} - {{rezervace['end_time']}}</div>
+                <div class="rezervace-time">Čas: {{rezervace['start_time'][-2:]}} - {{rezervace['end_time'][-2:]}}</div>
                 <div class="student">
-                    <div class="rezervace-student-name">jmeno: {{rezervace['first_name_student']}} {{rezervace['last_name_student']}}</div>
-                    <div class="rezervace-student-kotakt">kontakt: {{rezervace['email_student']}} {{rezervace['number_student']}}</div>
+                    <div class="rezervace-student-name">Jméno studenta: {{rezervace['first_name_student']}} {{rezervace['last_name_student']}}</div>
+                    <div class="rezervace-student-kotakt">Kontakt: {{rezervace['email_student']}}, {{rezervace['number_student']}}</div>
                 </div>
-                <div class="rezervace-tag">lokace: {{rezervace['location']}}</div>
-                <div class="rezervace-tag">predmet: {{rezervace['subject']}}</div>
+                <div class="rezervace-lokace">Lokace: {{rezervace['location']}}</div>
+                <div class="rezervace-tag">Předmět: {{rezervace['subject']}}</div>
                 <div class="rezervace-poznamky">Poznámky: {{rezervace['notes']}}</div>
             </div>
             </div>
         {% else %}
-            <div id="noResultsMessage" class="text-center pd-5 nadpisy" style="margin-top: 10vh;margin-bottom: 10vh;font-size: xx-large;">No rezervace found.</div>
+            <div id="noResultsMessage" class="text-center pd-5 nadpisy message" >No rezervace found.</div>
         {% endif %}
         </div>
 </body>

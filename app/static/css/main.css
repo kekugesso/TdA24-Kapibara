@@ -15,8 +15,8 @@
 }        
 .text-na-cernem {
     color: #ffffff;
-    font-family: "Light 300", 'Open Sans', "Regular 400", 'Open Sans';
-    font-size: 15px;
+    font-family: "Regular 400", 'Open Sans', "Regular 400", 'Open Sans';
+    font-size: 18px;
 }
 /* Lecturer */
 img.logo {
@@ -425,7 +425,7 @@ img.logo {
     margin: 5% 20% 5% 20%;
     padding: 1%;
     padding-bottom: 2.5%;
-    border-radius: 3rem;
+    border-radius: 1.4rem;
     box-shadow: 18px 20px 21px 5px rgba(0,0,0,0.3);
     background-color: #74C7D3;
     align-self: center;
@@ -489,4 +489,19 @@ img.logo {
 
 .import {
     background-color: #74C7D3; 
+}
+
+.footer {
+    background-color: #00384D;  
+}
+.zavrit {
+    background-color: #333333;
+}
+.zrusit {
+    background-color: red;
+}
+.message {
+    margin-top: 10vh;
+    margin-bottom: 10vh;
+    font-size: xx-large;
 }
