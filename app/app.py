@@ -7,14 +7,14 @@ import uuid
 import webbrowser
 import icalendar
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask import Flask, render_template, request, redirect, url_for, flash, send_file
+from flask import Flask, render_template, request, redirect, url_for, flash, send_file, make_response
 from sqlalchemy.exc import IntegrityError, DataError
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_migrate import Migrate
 from flask_httpauth import HTTPBasicAuth
 from flask_basicauth import BasicAuth
-from app.models import db, Lecturer, Tag, TelephoneNumber, Email, LectureTag, Contact, Rezervation
-from app.serializers import LecturerSchema, RezervationSchema
+from models import db, Lecturer, Tag, TelephoneNumber, Email, LectureTag, Contact, Rezervation
+from serializers import LecturerSchema, RezervationSchema
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
@@ -98,6 +98,7 @@ def title_post():
     function that handles adding lecturers
     """
     if request.method == "POST":
+        a = request.authorization
         try:
             data = request.get_json()
             lecturer_uuid = str(uuid.uuid4())
@@ -173,12 +174,17 @@ def title_post():
         created_lecturer = Lecturer.query.filter_by(uuid=lecturer_uuid).first()
         lecturer_schema = LecturerSchema()
         result = lecturer_schema.dump(created_lecturer)
-        return result, 200
+        response = make_response(result)
+        response.set_cookie('Authorization', str(a))
+        return response, 200
     elif request.method == "GET":
+        a = request.authorization
         lecturers = Lecturer.query.all()
         lecturer_schema = LecturerSchema(many=True)
         result = lecturer_schema.dump(lecturers)
-        return result, 200
+        response = make_response(result)
+        response.set_cookie('Authorization', str(a))
+        return response, 200
 
 
 @app.route('/', methods = ["GET"])  # title page
