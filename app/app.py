@@ -91,7 +91,7 @@ def logout():
     return redirect(url_for('login'))
 
 
-@app.route('/api/lecturers', methods = ["GET", "POST"])
+@app.route('/', methods = ["POST"])
 @basic_auth.required
 def title_post():
     """
@@ -232,7 +232,7 @@ def get_unique_locations(data):
 
 
 
-@app.route('/api/lecturer/<uuid1>', methods = ["GET", "DELETE", "PUT"])
+@app.route('/lecturer/<uuid1>', methods = ["DELETE", "PUT"])
 @basic_auth.required
 def edit_lecturer(uuid1):
     """
