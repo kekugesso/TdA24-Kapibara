@@ -241,76 +241,80 @@ def edit_lecturer(uuid1):
             return {'message': "Lecturer is not founded"}, 404
     elif request.method == "PUT":
         if one_lecturer:
-            data = request.get_json()
-            lecturer_schema = LecturerSchema()
-            lecturer_data = lecturer_schema.dump(one_lecturer)
-            print(lecturer_data)
-            for key in data:
-                if key in lecturer_data:
-                    lecturer_data[key] = data.get(key)
-            lecture_tags = LectureTag.query.filter_by(lecturer_uuid=uuid1).all()
-            for delete in lecture_tags:
-                db.session.delete(delete)
-            tags = lecturer_data.get('tags')
-            for tag in tags:
-                tagsdb = Tag.query.all()
-                for tagdb in tagsdb:
-                    if tag['name'] == tagdb.name:
+            try:
+                data = request.get_json()
+                lecturer_schema = LecturerSchema()
+                lecturer_data = lecturer_schema.dump(one_lecturer)
+                print(lecturer_data)
+                for key in data:
+                    if key in lecturer_data:
+                        lecturer_data[key] = data.get(key)
+                lecture_tags = LectureTag.query.filter_by(lecturer_uuid=uuid1).all()
+                for delete in lecture_tags:
+                    db.session.delete(delete)
+                tags = lecturer_data.get('tags')
+                print(tags)
+                for tag in tags:
+                    tagsdb = Tag.query.all()
+                    for tagdb in tagsdb:
+                        if tag == tagdb.name:
+                            new_lecture_tag = LectureTag(
+                                lecturer_uuid = uuid1,
+                                tag_uuid = tagdb.uuid,
+                            )
+                            db.session.add(new_lecture_tag)
+                            tags.remove(tag)
+                if tags != []:
+                    for tag in tags:
+                        tag_uuid = str(uuid.uuid4())
+                        new_tag = Tag(
+                            uuid = tag_uuid,
+                            name = tag
+                        )
+                        db.session.add(new_tag)
                         new_lecture_tag = LectureTag(
                             lecturer_uuid = uuid1,
-                            tag_uuid = tagdb.uuid,
+                            tag_uuid = tag_uuid
                         )
                         db.session.add(new_lecture_tag)
-                        tags.remove(tag)
-            if tags != []:
-                for tag in tags:
-                    tag_uuid = str(uuid.uuid4())
-                    new_tag = Tag(
-                        uuid = tag_uuid,
-                        name = tag["name"]
+                contact = Contact.query.filter_by(lecturer_uuid=uuid1).first()
+                emails = Email.query.filter_by(contact_id=contact.id).all()
+                for email in emails:
+                    db.session.delete(email)
+                numbers = TelephoneNumber.query.filter_by(contact_id=contact.id).all()
+                for number in numbers:
+                    db.session.delete(number)
+                contacts = lecturer_data.get('contact')
+                for number in contacts.get('telephone_numbers'):
+                    new_number = TelephoneNumber(
+                        phone = number,
+                        contact_id=contact.id
                     )
-                    db.session.add(new_tag)
-                    new_lecture_tag = LectureTag(
-                        lecturer_uuid = uuid1,
-                        tag_uuid = tag_uuid
+                    db.session.add(new_number)
+                for email in contacts.get('emails'):
+                    new_email = Email(
+                        email = email,
+                        contact_id = contact.id
                     )
-                    db.session.add(new_lecture_tag)
-            contact = Contact.query.filter_by(lecturer_uuid=uuid1).first()
-            emails = Email.query.filter_by(contact_id=contact.id).all()
-            for email in emails:
-                db.session.delete(email)
-            numbers = TelephoneNumber.query.filter_by(contact_id=contact.id).all()
-            for number in numbers:
-                db.session.delete(number)
-            contacts = lecturer_data.get('contact')
-            for number in contacts.get('telephone_numbers'):
-                new_number = TelephoneNumber(
-                    phone = number,
-                    contact_id=contact.id
-                )
-                db.session.add(new_number)
-            for email in contacts.get('emails'):
-                new_email = Email(
-                    email = email,
-                    contact_id = contact.id
-                )
-                db.session.add(new_email)
-            one_lecturer.title_before = lecturer_data.get('title_before')
-            one_lecturer.username =  lecturer_data.get('username')
-            one_lecturer.password =  generate_password_hash(lecturer_data.get('password'))
-            one_lecturer.first_name = lecturer_data.get('first_name')
-            one_lecturer.middle_name = lecturer_data.get('middle_name')
-            one_lecturer.last_name = lecturer_data.get('last_name')
-            one_lecturer.title_after = lecturer_data.get('title_after')
-            one_lecturer.picture_url = lecturer_data.get('picture_url')
-            one_lecturer.location = lecturer_data.get('location')
-            one_lecturer.bio = lecturer_data.get('bio')
-            one_lecturer.claim = lecturer_data.get('claim')
-            one_lecturer.price_per_hour = lecturer_data.get('price_per_hour')
-            db.session.commit()
-            lecturer_schema = LecturerSchema()
-            result = lecturer_schema.dump(one_lecturer)
-            return result, 200
+                    db.session.add(new_email)
+                one_lecturer.title_before = lecturer_data.get('title_before')
+                one_lecturer.username =  lecturer_data.get('username')
+                one_lecturer.password =  generate_password_hash(lecturer_data.get('password'))
+                one_lecturer.first_name = lecturer_data.get('first_name')
+                one_lecturer.middle_name = lecturer_data.get('middle_name')
+                one_lecturer.last_name = lecturer_data.get('last_name')
+                one_lecturer.title_after = lecturer_data.get('title_after')
+                one_lecturer.picture_url = lecturer_data.get('picture_url')
+                one_lecturer.location = lecturer_data.get('location')
+                one_lecturer.bio = lecturer_data.get('bio')
+                one_lecturer.claim = lecturer_data.get('claim')
+                one_lecturer.price_per_hour = lecturer_data.get('price_per_hour')
+                db.session.commit()
+                lecturer_schema = LecturerSchema()
+                result = lecturer_schema.dump(one_lecturer)
+                return result, 200
+            except(IntegrityError,DataError):
+                return {"message": "Some values cant be null"}, 400
         else:
             return {"message": "Lecturer is not founded"}, 404
     elif request.method == "GET":
