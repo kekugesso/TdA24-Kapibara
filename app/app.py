@@ -225,7 +225,7 @@ def get_unique_locations(data):
 
 
 
-@app.route('/api/lecturer/<uuid1>', methods = ["GET", "DELETE", "PUT"])
+@app.route('/api/lecturers/<uuid1>', methods = ["GET", "DELETE", "PUT"])
 @auth_required
 def edit_lecturer(uuid1):
     """
