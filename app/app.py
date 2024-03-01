@@ -11,8 +11,6 @@ from flask import Flask, render_template, request, redirect, url_for, flash, sen
 from sqlalchemy.exc import IntegrityError, DataError
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_migrate import Migrate
-from flask_httpauth import HTTPBasicAuth
-from flask_basicauth import BasicAuth
 from app.models import db, Lecturer, Tag, TelephoneNumber, Email, LectureTag, Contact, Rezervation
 from app.serializers import LecturerSchema, RezervationSchema
 from app.utils import auth_required
@@ -25,17 +23,9 @@ migrate = Migrate(app, db)
 app.permanent_session_lifetime = timedelta(hours=13)
 login_manager = LoginManager()
 login_manager.init_app(app)
-#auth = HTTPBasicAuth()
 
 app.config['AUTH_USERNAME'] = 'TdA'
 app.config['AUTH_PASSWORD'] = 'd8Ef6!dGG_pv'
-
-#basic_auth = BasicAuth(app)
-
-users = {
-    "TdA": "d8Ef6!dGG_pv",
-}
-
 
 @login_manager.user_loader
 def load_user(user_id):
