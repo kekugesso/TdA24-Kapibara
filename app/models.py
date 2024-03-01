@@ -11,7 +11,7 @@ class Lecturer(UserMixin, db.Model):
     Model database for lecturers
     """
     uuid = db.Column(db.Text, nullable = False, primary_key=True, unique=True)
-    username = db.Column(db.Text, index=True, unique=True)
+    username = db.Column(db.Text, index=True, unique=True, nullable=False)
     password = db.Column(db.Text, nullable=False)
     title_before = db.Column(db.Text, nullable=True)
     first_name = db.Column(db.Text, nullable=False)

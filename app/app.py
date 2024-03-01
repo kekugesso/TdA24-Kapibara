@@ -97,6 +97,7 @@ def title_post():
     if request.method == "POST":
         try:
             data = request.get_json()
+            print(data)
             lecturer_uuid = str(uuid.uuid4())
             lecturers = Lecturer.query.all()
             lecturer_uuids = []
@@ -122,7 +123,11 @@ def title_post():
             db.session.add(new_lecturer)
             new_contact = Contact(lecturer_uuid = lecturer_uuid)
             db.session.add(new_contact)
-            contact = Contact.query.filter_by(lecturer_uuid = lecturer_uuid).first()
+            db.session.commit()
+        except (DataError, IntegrityError):
+            return {'message': "Data Error"}, 400
+        try:
+            contact = Contact.query.filter_by(lecturer_uuid=lecturer_uuid).first()
             contacts = data.get("contact")
             emails = contacts.get('emails')
             telephone_numbers = contacts.get('telephone_numbers')
@@ -138,8 +143,8 @@ def title_post():
                     contact_id = contact.id,
                 )
                 db.session.add(new_number)
+            tags = Tag.query.all()
             for tag in data.get("tags"):
-                tags = Tag.query.all()
                 tags_name = []
                 for tag1 in tags:
                     tags_name.append(tag1.name)
@@ -164,20 +169,20 @@ def title_post():
                         tag_uuid = tag_uuid,
                     )
                     db.session.add(new_lecture_tag)
-                    db.session.commit()
         except (IntegrityError, DataError, AttributeError):
+            db.session.delete(new_lecturer)
+            db.session.commit()
             return {'message' : "This values cant be a null"}, 400
+        db.session.commit()
         created_lecturer = Lecturer.query.filter_by(uuid=lecturer_uuid).first()
         lecturer_schema = LecturerSchema()
         result = lecturer_schema.dump(created_lecturer)
-        response = make_response(result, 200)
-        return response, 200
+        return result, 200
     elif request.method == "GET":
         lecturers = Lecturer.query.all()
         lecturer_schema = LecturerSchema(many=True)
         result = lecturer_schema.dump(lecturers)
-        response = make_response(result, 200)
-        return response, 200
+        return result, 200
 
 
 @app.route('/', methods = ["GET"])  # title page
@@ -249,11 +254,12 @@ def edit_lecturer(uuid1):
                 for key in data:
                     if key in lecturer_data:
                         lecturer_data[key] = data.get(key)
+                tags = lecturer_data.get('tags')
+                if tags is None or None in tags:
+                    return {'message': "Data Error"}, 400
                 lecture_tags = LectureTag.query.filter_by(lecturer_uuid=uuid1).all()
                 for delete in lecture_tags:
                     db.session.delete(delete)
-                tags = lecturer_data.get('tags')
-                print(tags)
                 for tag in tags:
                     tagsdb = Tag.query.all()
                     for tagdb in tagsdb:
@@ -264,6 +270,8 @@ def edit_lecturer(uuid1):
                             )
                             db.session.add(new_lecture_tag)
                             tags.remove(tag)
+                            if tags == []:
+                                break
                 if tags != []:
                     for tag in tags:
                         tag_uuid = str(uuid.uuid4())
@@ -313,7 +321,7 @@ def edit_lecturer(uuid1):
                 lecturer_schema = LecturerSchema()
                 result = lecturer_schema.dump(one_lecturer)
                 return result, 200
-            except(IntegrityError,DataError):
+            except(IntegrityError, DataError, AttributeError):
                 return {"message": "Some values cant be null"}, 400
         else:
             return {"message": "Lecturer is not founded"}, 404
