@@ -97,35 +97,33 @@ def title_post():
     if request.method == "POST":
         try:
             data = request.get_json()
-            print(data)
             lecturer_uuid = str(uuid.uuid4())
-            lecturers = Lecturer.query.all()
-            lecturer_uuids = []
-            for one_lecturer in lecturers:
-                lecturer_uuids.append(one_lecturer.uuid)
+
+            lecturer_uuids = [lecturer.uuid for lecturer in Lecturer.query.all()]
             while lecturer_uuid in lecturer_uuids:
                 lecturer_uuid = str(uuid.uuid4())
-            new_lecturer = Lecturer(
-                uuid = lecturer_uuid,
-                username = data.get("username"),
-                password = generate_password_hash(data.get("password")),
-                title_before = data.get("title_before"),
-                first_name = data.get("first_name"),
-                middle_name = data.get("middle_name"),
-                last_name = data.get("last_name"),
-                title_after = data.get("title_after"),
-                picture_url = data.get("picture_url"),
-                location = data.get("location"),
-                claim = data.get("claim"),
-                bio = data.get("bio"),
-                price_per_hour = data.get("price_per_hour"),
-            )
+
+            data["password"] = generate_password_hash(data.get("password"))
+            new_lecturer = Lecturer(uuid=lecturer_uuid,
+                                username=data["username"],
+                                password=data["password"],
+                                first_name=data["first_name"],
+                                middle_name=data["middle_name"],
+                                last_name=data["last_name"],
+                                title_before=data["title_before"],
+                                title_after=data["title_after"],
+                                picture_url=data["picture_url"],
+                                location=data["location"],
+                                claim=data["claim"],
+                                bio=data["bio"],
+                                price_per_hour=data["price_per_hour"])
             db.session.add(new_lecturer)
-            new_contact = Contact(lecturer_uuid = lecturer_uuid)
+            new_contact = Contact(lecturer_uuid=lecturer_uuid)
             db.session.add(new_contact)
             db.session.commit()
-        except (DataError, IntegrityError):
+        except (DataError, IntegrityError) as e:
             return {'message': "Data Error"}, 400
+
         try:
             contact = Contact.query.filter_by(lecturer_uuid=lecturer_uuid).first()
             contacts = data.get("contact")
@@ -143,37 +141,27 @@ def title_post():
                     contact_id = contact.id,
                 )
                 db.session.add(new_number)
-            tags = Tag.query.all()
-            for tag in data.get("tags"):
-                tags_name = []
-                for tag1 in tags:
-                    tags_name.append(tag1.name)
-                if tag not in tags_name:
-                    tag_uuid = str(uuid.uuid4())
-                    new_tag = Tag(
-                        uuid = tag_uuid,
-                        name = tag,
-                    )
-                    db.session.add(new_tag)
+            for tag_name in data.get("tags"):
+                tag_db = Tag.query.filter_by(name=tag_name).first()
+                if tag_db:
                     new_lecture_tag = LectureTag(
-                        lecturer_uuid = lecturer_uuid,
-                        tag_uuid = tag_uuid,
+                        tag_uuid=tag_db.uuid, lecturer_uuid=lecturer_uuid
                     )
                     db.session.add(new_lecture_tag)
                 else:
-                    for tag2 in tags:
-                        if tag == tag2.name:
-                            tag_uuid = tag2.uuid
+                    tag_uuid = str(uuid.uuid4())
+                    new_tag = Tag(uuid=tag_uuid, name=tag_name)
+                    db.session.add(new_tag)
                     new_lecture_tag = LectureTag(
-                        lecturer_uuid = lecturer_uuid,
-                        tag_uuid = tag_uuid,
+                        tag_uuid=tag_uuid, lecturer_uuid=lecturer_uuid
                     )
                     db.session.add(new_lecture_tag)
+            db.session.commit()
+            
         except (IntegrityError, DataError, AttributeError):
             db.session.delete(new_lecturer)
             db.session.commit()
             return {'message' : "This values cant be a null"}, 400
-        db.session.commit()
         created_lecturer = Lecturer.query.filter_by(uuid=lecturer_uuid).first()
         lecturer_schema = LecturerSchema()
         result = lecturer_schema.dump(created_lecturer)
@@ -199,7 +187,7 @@ def title():
                            unique_tags=get_unique_tags(result),
                            unique_locations=get_unique_locations(result)
                            )
-    
+
 
 
 def get_unique_tags(data):
@@ -250,7 +238,6 @@ def edit_lecturer(uuid1):
                 data = request.get_json()
                 lecturer_schema = LecturerSchema()
                 lecturer_data = lecturer_schema.dump(one_lecturer)
-                print(lecturer_data)
                 for key in data:
                     if key in lecturer_data:
                         lecturer_data[key] = data.get(key)
@@ -260,29 +247,19 @@ def edit_lecturer(uuid1):
                 lecture_tags = LectureTag.query.filter_by(lecturer_uuid=uuid1).all()
                 for delete in lecture_tags:
                     db.session.delete(delete)
-                for tag in tags:
-                    tagsdb = Tag.query.all()
-                    for tagdb in tagsdb:
-                        if tag == tagdb.name:
-                            new_lecture_tag = LectureTag(
-                                lecturer_uuid = uuid1,
-                                tag_uuid = tagdb.uuid,
-                            )
-                            db.session.add(new_lecture_tag)
-                            tags.remove(tag)
-                            if tags == []:
-                                break
-                if tags != []:
-                    for tag in tags:
-                        tag_uuid = str(uuid.uuid4())
-                        new_tag = Tag(
-                            uuid = tag_uuid,
-                            name = tag
+                for tag_name in data.get("tags"):
+                    tag_db = Tag.query.filter_by(name=tag_name).first()
+                    if tag_db:
+                        new_lecture_tag = LectureTag(
+                            tag_uuid=tag_db.uuid, lecturer_uuid=uuid1
                         )
+                        db.session.add(new_lecture_tag)
+                    else:
+                        tag_uuid = str(uuid.uuid4())
+                        new_tag = Tag(uuid=tag_uuid, name=tag_name)
                         db.session.add(new_tag)
                         new_lecture_tag = LectureTag(
-                            lecturer_uuid = uuid1,
-                            tag_uuid = tag_uuid
+                            tag_uuid=tag_uuid, lecturer_uuid=uuid1
                         )
                         db.session.add(new_lecture_tag)
                 contact = Contact.query.filter_by(lecturer_uuid=uuid1).first()
