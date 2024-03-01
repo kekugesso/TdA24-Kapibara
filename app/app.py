@@ -15,6 +15,7 @@ from flask_httpauth import HTTPBasicAuth
 from flask_basicauth import BasicAuth
 from app.models import db, Lecturer, Tag, TelephoneNumber, Email, LectureTag, Contact, Rezervation
 from app.serializers import LecturerSchema, RezervationSchema
+from app.utils import auth_required
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
@@ -24,21 +25,17 @@ migrate = Migrate(app, db)
 app.permanent_session_lifetime = timedelta(hours=13)
 login_manager = LoginManager()
 login_manager.init_app(app)
-auth = HTTPBasicAuth()
+#auth = HTTPBasicAuth()
 
-app.config['BASIC_AUTH_USERNAME'] = 'TdA'
-app.config['BASIC_AUTH_PASSWORD'] = 'd8Ef6!dGG_pv'
+app.config['AUTH_USERNAME'] = 'TdA'
+app.config['AUTH_PASSWORD'] = 'd8Ef6!dGG_pv'
 
-basic_auth = BasicAuth(app)
+#basic_auth = BasicAuth(app)
 
 users = {
     "TdA": "d8Ef6!dGG_pv",
 }
 
-@auth.verify_password
-def verify_password(username, password):
-    if username in users and users.get(username):
-        return username
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -91,14 +88,13 @@ def logout():
     return redirect(url_for('login'))
 
 
-@app.route('/', methods = ["POST"])
-@basic_auth.required
+@app.route('/api/lecturers', methods = ["GET", "POST"])
+@auth_required
 def title_post():
     """
     function that handles adding lecturers
     """
     if request.method == "POST":
-        a = request.authorization
         try:
             data = request.get_json()
             lecturer_uuid = str(uuid.uuid4())
@@ -174,16 +170,13 @@ def title_post():
         created_lecturer = Lecturer.query.filter_by(uuid=lecturer_uuid).first()
         lecturer_schema = LecturerSchema()
         result = lecturer_schema.dump(created_lecturer)
-        response = make_response(result)
-        response.set_cookie('Authorization', str(a))
+        response = make_response(result, 200)
         return response, 200
     elif request.method == "GET":
-        a = request.authorization
         lecturers = Lecturer.query.all()
         lecturer_schema = LecturerSchema(many=True)
         result = lecturer_schema.dump(lecturers)
-        response = make_response(result)
-        response.set_cookie('Authorization', str(a))
+        response = make_response(result, 200)
         return response, 200
 
 
@@ -232,8 +225,8 @@ def get_unique_locations(data):
 
 
 
-@app.route('/lecturer/<uuid1>', methods = ["DELETE", "PUT"])
-@basic_auth.required
+@app.route('/api/lecturer/<uuid1>', methods = ["GET", "DELETE", "PUT"])
+@auth_required
 def edit_lecturer(uuid1):
     """
     function that handles editing lecturers
@@ -258,7 +251,6 @@ def edit_lecturer(uuid1):
             lecture_tags = LectureTag.query.filter_by(lecturer_uuid=uuid1).all()
             for delete in lecture_tags:
                 db.session.delete(delete)
-                db.session.commit()
             tags = lecturer_data.get('tags')
             for tag in tags:
                 tagsdb = Tag.query.all()
@@ -269,7 +261,6 @@ def edit_lecturer(uuid1):
                             tag_uuid = tagdb.uuid,
                         )
                         db.session.add(new_lecture_tag)
-                        db.session.commit()
                         tags.remove(tag)
             if tags != []:
                 for tag in tags:
@@ -279,22 +270,18 @@ def edit_lecturer(uuid1):
                         name = tag["name"]
                     )
                     db.session.add(new_tag)
-                    db.session.commit()
                     new_lecture_tag = LectureTag(
                         lecturer_uuid = uuid1,
                         tag_uuid = tag_uuid
                     )
                     db.session.add(new_lecture_tag)
-                    db.session.commit()
             contact = Contact.query.filter_by(lecturer_uuid=uuid1).first()
             emails = Email.query.filter_by(contact_id=contact.id).all()
             for email in emails:
                 db.session.delete(email)
-                db.session.commit()
             numbers = TelephoneNumber.query.filter_by(contact_id=contact.id).all()
             for number in numbers:
                 db.session.delete(number)
-                db.session.commit()
             contacts = lecturer_data.get('contact')
             for number in contacts.get('telephone_numbers'):
                 new_number = TelephoneNumber(
@@ -302,14 +289,12 @@ def edit_lecturer(uuid1):
                     contact_id=contact.id
                 )
                 db.session.add(new_number)
-                db.session.commit()
             for email in contacts.get('emails'):
                 new_email = Email(
                     email = email,
                     contact_id = contact.id
                 )
                 db.session.add(new_email)
-                db.session.commit()
             one_lecturer.title_before = lecturer_data.get('title_before')
             one_lecturer.username =  lecturer_data.get('username')
             one_lecturer.password =  generate_password_hash(lecturer_data.get('password'))
