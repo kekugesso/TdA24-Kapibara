@@ -121,7 +121,7 @@ def title_post():
             new_contact = Contact(lecturer_uuid=lecturer_uuid)
             db.session.add(new_contact)
             db.session.commit()
-        except (DataError, IntegrityError) as e:
+        except:
             return {'message': "Data Error"}, 400
 
         try:
@@ -158,7 +158,7 @@ def title_post():
                     db.session.add(new_lecture_tag)
             db.session.commit()
             
-        except (IntegrityError, DataError, AttributeError):
+        except:
             db.session.delete(new_lecturer)
             db.session.commit()
             return {'message' : "This values cant be a null"}, 400
@@ -298,7 +298,7 @@ def edit_lecturer(uuid1):
                 lecturer_schema = LecturerSchema()
                 result = lecturer_schema.dump(one_lecturer)
                 return result, 200
-            except(IntegrityError, DataError, AttributeError):
+            except:
                 return {"message": "Some values cant be null"}, 400
         else:
             return {"message": "Lecturer is not founded"}, 404
