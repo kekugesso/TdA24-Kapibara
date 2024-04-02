@@ -48,37 +48,7 @@ def before_request():
     db.create_all()
 
 
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    """
-    function that handles the login
-    """
-    if current_user.is_authenticated:
-        return redirect(url_for('lecturer_admin', uuid=current_user.uuid))
-
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        user = Lecturer.query.filter_by(username=username).first()
-        if user and check_password_hash(user.password, password):
-            login_user(user)
-            return redirect(url_for('lecturer_admin', uuid=user.uuid))
-        else:
-            flash('Invalid username or password')
-    return render_template('login.html')
-
-@app.route('/logout')
-@login_required
-def logout():
-    """
-    function that handles the logout
-    """
-    logout_user()
-    return redirect(url_for('login'))
-
-
-@app.route('/api/lecturers', methods = ["GET", "POST"])
+@app.route('/api/lecturer', methods = ["POST"])
 @auth_required
 def title_post():
     """
@@ -156,6 +126,13 @@ def title_post():
         lecturer_schema = LecturerSchema()
         result = lecturer_schema.dump(created_lecturer)
         return result, 200
+
+@app.route('/api/lecturers', methods = ["GET"])
+@auth_required
+def title_get():
+    """
+    function that handles adding lecturers
+    """
     elif request.method == "GET":
         lecturers = Lecturer.query.all()
         lecturer_schema = LecturerSchema(many=True)
@@ -163,52 +140,7 @@ def title_post():
         return result, 200
 
 
-@app.route('/', methods = ["GET"])  # title page
-def title():
-    """
-    function that handles the title
-    """
-    if request.method == "GET":
-        lecturers = Lecturer.query.all()
-        lecturer_schema = LecturerSchema(many=True)
-        result = lecturer_schema.dump(lecturers)
-        return render_template('home.html',
-                           data=result,
-                           unique_tags=get_unique_tags(result),
-                           unique_locations=get_unique_locations(result)
-                           )
-
-
-
-def get_unique_tags(data):
-    """
-    function that handles sorting unique tags
-    """
-    unique_tags = []
-    for one_lecturer in data:
-        tags = one_lecturer.get('tags', [])
-        if isinstance(tags, list):
-            for tag in tags:
-                tag_name = tag
-                if tag_name and tag_name not in unique_tags:
-                    unique_tags.append(tag_name)
-    return unique_tags
-
-
-def get_unique_locations(data):
-    """
-    function that handles sorting unique locations
-    """
-    unique_locations = []
-    for one_lecturer in data:
-        location = one_lecturer.get('location')
-        if location and location not in unique_locations:
-            unique_locations.append(location)
-    return unique_locations
-
-
-
-@app.route('/api/lecturers/<uuid1>', methods = ["GET", "DELETE", "PUT"])
+@app.route('/api/lecturer/<uuid1>', methods = ["GET", "DELETE", "PUT"])
 @auth_required
 def edit_lecturer(uuid1):
     """
@@ -300,162 +232,6 @@ def edit_lecturer(uuid1):
             return result, 200
         else:
             return {"message": "Lecturer is not founded"}, 404
-
-@app.route('/lecturer/<uuid1>', methods = ["GET"])  # Lecturer - spesific
-def lecturer(uuid1):
-    """
-    function that handles specific cards for lecturers
-    """
-    one_lecturer = Lecturer.query.filter_by(uuid=uuid1).first()
-    if request.method == "GET":
-        if one_lecturer:
-            lecturer_schema = LecturerSchema()
-            result = lecturer_schema.dump(one_lecturer)
-            return render_template('lecturer.html', data=result)
-        else:
-            return {'message': "Lector is not founded"}, 404
-    
-
-@app.route("/lecturer/<uuid>/admin", methods=["GET"])
-@login_required
-def lecturer_admin(uuid):
-    """
-    function that handles admin page for loginned lecturer
-    """
-    if current_user.uuid == uuid:
-        if request.method == "GET":
-            one_lecturer = Lecturer.query.filter_by(uuid=uuid).first()
-            lecturer_schema = LecturerSchema()
-            result = lecturer_schema.dump(one_lecturer)
-            data = result.get("rezervation")
-            return render_template("lecturer_admin.html", data=data), 200
-    else:
-        return {"message": "naaaaaah bro"}, 403
-
-@app.route("/rezervace/<id_rezrvace>", methods=["GET", "DELETE"])
-def rezervace(id_rezrvace):
-    """
-    function that handles show specific rezervation
-    """
-    if request.method == "GET":
-        rezervation = Rezervation.query.filter_by(id=id_rezrvace).first()
-        if rezervation:
-            rezervace_schema = RezervationSchema()
-            result = rezervace_schema.dump(rezervation)
-            return render_template("rezervace.html", rezervace=result), 200
-        else:
-            return render_template("rezervace.html"), 404
-    elif request.method == "DELETE":
-        rezervation = Rezervation.query.filter_by(id=id_rezrvace).first()
-        if rezervation:
-            db.session.delete(rezervation)
-            db.session.commit()
-            return {"message": "Rezervace has deleted successfully"}, 204
-        else:
-            return {"message": "Rezervace is not founded"}, 404
-   
-
-@app.route("/rezervace", methods=["GET","POST"])
-def rezervace_post():
-    """
-    function that handles adding rezervation
-    """
-    if request.method == "POST":
-        neexistuje = True
-        data = request.get_json()
-        all_rezervations_lecturer = Rezervation.query.filter_by(lecturer_uuid=data.get("lecturer_uuid")).all()
-        start_time = datetime.fromisoformat(data.get("start_time"))
-        end_time = datetime.fromisoformat(data.get("end_time"))
-        if start_time > end_time:
-            return {"message": "Start time is bigger than end time"}, 400
-        #if not all_rezervations_lecturer:
-            #return {"message": "Lecturer is not founded"}, 400
-        for one_rezervation in all_rezervations_lecturer:
-            one_rezervation_start_time = datetime.fromisoformat(one_rezervation.start_time)
-            one_rezervation_end_time = datetime.fromisoformat(one_rezervation.end_time)
-            if (
-            (start_time > one_rezervation_start_time
-            and start_time < one_rezervation_end_time)
-            or (end_time > one_rezervation_start_time
-            and end_time < one_rezervation_end_time)
-            or (start_time == one_rezervation_start_time
-            and end_time == one_rezervation_end_time)
-            ):
-                neexistuje = False
-                flash("Rezervace existuje")
-        if neexistuje:
-            try:
-                new_rezervace = Rezervation(**data)
-                db.session.add(new_rezervace)
-                db.session.commit()
-                one_lecturer = Lecturer.query.filter_by(uuid=data.get('lecturer_uuid')).first()
-                one_lecturer_schema = LecturerSchema()
-                result = one_lecturer_schema.dump(one_lecturer)
-                post_result = result.get("rezervation")
-                return post_result, 200
-            except(IntegrityError, DataError):
-                return {"message": "Something went wrong"}, 400
-        else:
-            return {"message": "Rezervace existuje"}, 400
-    elif request.method == "GET":
-        data = request.args.get("lecturer")
-        one_lecturer = Lecturer.query.filter_by(uuid=data).first()
-        one_lecturer_schema = LecturerSchema()
-        result = one_lecturer_schema.dump(one_lecturer)
-        tags = result.get("tags")
-        return render_template("rezervovani.html", tags=tags), 200
-
-
-@app.route("/lecturer/<uuid>/download", methods=["GET"])
-def download(uuid):
-    """
-    function that handles download calendar
-    """
-    one_lecturer = Lecturer.query.filter_by(uuid=uuid).first()
-    one_lecturer_schema = LecturerSchema()
-    result = one_lecturer_schema.dump(one_lecturer)
-    data = result.get("rezervation")
-    cal = icalendar.Calendar()
-    for rezervace in data:
-        event = icalendar.Event()
-        event.add('summary', rezervace.get("subject"))
-        event.add('dtstart', datetime.fromisoformat(rezervace.get("start_time")))
-        event.add('dtend', datetime.fromisoformat(rezervace.get("end_time")))
-        event.add("description", rezervace.get("notes"))
-        event.add('organizer', result.get("email"))
-        event.add("attendee", rezervace.get("email_student"))
-        event.add('location', rezervace.get("location"))
-        cal.add_component(event)
-    with open('instance/rezervace.ical', 'wb') as f:
-        f.write(cal.to_ical())
-    return send_file("../instance/rezervace.ical", as_attachment=True)
-
-@app.route('/import/<id_rezervace>', methods=["GET"])
-@login_required
-def import_google_calendar(id_rezervace):
-    """
-    function that handles import google calendar
-    """
-    one_rezervace = Rezervation.query.filter_by(id=id_rezervace).first()
-    if current_user.uuid == one_rezervace.lecturer_uuid:
-        base_url = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
-        start_time = one_rezervace.start_time.replace('-', '', 2)
-        start_time = start_time.replace(":", "", 2)
-        end_time = one_rezervace.end_time.replace('-', '', 2)
-        end_time = end_time.replace(":", "", 2)
-        parameters = {
-            'text': one_rezervace.subject,
-            'dates': f'{start_time}/{end_time}',
-            'details': one_rezervace.notes,
-            'add': one_rezervace.email_student,
-            'location': one_rezervace.location,
-            'ctz': 'Europe/Prague'
-        }
-        url = base_url + '&' + '&'.join([f'{key}={value}' for key, value in parameters.items()])
-        webbrowser.open(url)
-        return render_template("redirect.html", url=url_for(f"/lecturer/{one_rezervace.lecturer_uuid}/admin")), 200
-    else:
-        return {"message": "naaaaaaaah bro"}, 401
 
 if __name__ == '__main__':
     app.run(debug=True)
