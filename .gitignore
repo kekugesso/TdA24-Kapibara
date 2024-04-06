@@ -1,2 +1,3 @@
 .*
-app/test.py
+front/node_modules/*
+!front/.env.local
