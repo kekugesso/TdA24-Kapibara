@@ -1,9 +1,8 @@
 'use client'
 import { useEffect, useState } from 'react';
-import getLecturers from './get-lecturers';
+import getLecturers from '../get-lecturers';
 
-
-export default function Home() {
+export default function Test() {
   const [lecturers, setLecturers] = useState([]);
 
   useEffect(() => {
@@ -23,7 +22,13 @@ export default function Home() {
 
   return (
     <section className="flex min-h-screen bg-white dark:bg-jet text-black dark:text-white flex-col items-center justify-between p-24">
-      <h1>Hello world!</h1>
+      <h1>Just a testing site for server components: F12</h1>
+      {/* Render your fetched data here */}
+      <ul>
+        {lecturers.map((lecturer, index) => (
+          <li key={index} data-uuid={lecturer.uuid}>{index+1}: {lecturer.title_before} {lecturer.first_name} {lecturer.last_name} {lecturer.title_after}</li>
+        ))}
+      </ul>
     </section>
   );
 }
