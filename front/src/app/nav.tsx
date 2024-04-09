@@ -48,23 +48,24 @@ export default function Nav({ bgColor } : { bgColor: string }) {
                 <reactDropdownMenu.DropdownMenuItem>
                   <Link 
                     className="block px-4 py-2 text-jet hover:bg-blue"
-                    href="/profile" 
+                    href="/admin/edit-profile" 
                   >
-                    Profile
+                    Edit your profile
                   </Link>
                 </reactDropdownMenu.DropdownMenuItem>
                 <reactDropdownMenu.DropdownMenuItem>
                   <Link 
                     className="block px-4 py-2 text-jet hover:bg-blue"
-                    href="/settings"
+                    href="/admin/calendar"
                   >
-                    Settings
+                    Calendar
                   </Link>
                 </reactDropdownMenu.DropdownMenuItem>
                 <reactDropdownMenu.DropdownMenuItem>
                   <button
                     onClick={() => {
                       // Handle logout functionality
+                      throw new Error("Not implemented logout functionality");
                     }}
                     className="block w-full text-left px-4 py-2 text-jet hover:bg-blue"
                   >

@@ -8,6 +8,30 @@ const nextConfig = {
             source: '/api/:path*',
             destination: `http://${IP}:${API_PORT}/api/:path*`,
         },
+        {
+            source: '/lecturer/:uuid',
+            destination: '/lecturer/[uuid]',
+        },
+        {
+            source: '/reservation/:uuid',
+            destination: '/reservation/[uuid]',
+        },
+        {
+            source: '/login',
+            destination: '/admin',
+        },
+        {
+            source: '/calendar',
+            destination: '/admin/calendar',
+        },
+        {
+            source: '/edit-profile',
+            destination: '/admin/edit-profile',
+        },
+        {
+            source: '/logout',
+            destination: '/admin?logout=true',
+        }
     ]
 },};
 
