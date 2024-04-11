@@ -30,7 +30,7 @@ class Lecturer_Full {
         public last_name: string,
         public title_before: string,
         public title_after: string,
-        public lokace: string,
+        public location: string,
         public picture_url: string,
         public price_per_hour: number,
         public claim: string,

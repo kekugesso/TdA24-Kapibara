@@ -53,7 +53,7 @@ export default function Home() {
   //console.log(lecturers);
 
   return (
-    <section className="flex min-h-screen bg-white dark:bg-jet text-black dark:text-white flex-col items-center justify-between p-24">
+    <section className="grid grid-cols-1 md:grid-cols-2 gap-4 min-h-screen bg-white dark:bg-jet text-black dark:text-white items-center justify-between p-6 sm:px-12 lg:px-24">
       {/* Render fetched data here */}
       {lecturers.map((lecturer, index) => (
         <Card key={index} lecturer={lecturer} />
