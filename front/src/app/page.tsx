@@ -1,8 +1,8 @@
 'use client'
 import { useEffect, useState } from 'react';
-import getLecturers from './get-lecturers';
-import { Lecturer_Card, tag } from './lecturer';
-import Card from './Card';
+import getLecturers from '@/components/get-lecturers';
+import { Lecturer_Card, tag } from '@/components/lecturer';
+import Card from '@/components/card';
 
 
 export default function Home() {
@@ -18,35 +18,35 @@ export default function Home() {
       }
     };
     const convertToLecturerObject = (
-      data: { 
-        tags: any[]; 
-        UUID: string; 
-        title_before: string; 
-        first_name: string; 
-        last_name: string; 
-        title_after: string; 
-        picture_url: string; 
-        location: string; 
-        claim: string; 
-        price_per_hour: number; 
+      data: {
+        tags: any[];
+        UUID: string;
+        title_before: string;
+        first_name: string;
+        last_name: string;
+        title_after: string;
+        picture_url: string;
+        location: string;
+        claim: string;
+        price_per_hour: number;
       }
     ) => {
-        const tags = data.tags.map(tagData => new tag(tagData.uuid, tagData.name));
-        const lecturer = new Lecturer_Card(
-          data.UUID,
-          data.title_before,
-          data.first_name,
-          data.last_name,
-          data.title_after,
-          data.picture_url,
-          data.location,
-          data.claim,
-          tags,
-          data.price_per_hour
-        );
-        return lecturer;
+      const tags = data.tags.map(tagData => new tag(tagData.uuid, tagData.name));
+      const lecturer = new Lecturer_Card(
+        data.UUID,
+        data.title_before,
+        data.first_name,
+        data.last_name,
+        data.title_after,
+        data.picture_url,
+        data.location,
+        data.claim,
+        tags,
+        data.price_per_hour
+      );
+      return lecturer;
     };
-    
+
     fetchLecturers();
   }, []);
 

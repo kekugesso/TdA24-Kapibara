@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Theme } from "@radix-ui/themes";
-import Nav from "./nav";
-import Footer from "./footer";
 import "./globals.css";
+import Nav from "@/components/nav";
+import Footer from "@/components/footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,10 +21,10 @@ export default function RootLayout({
     <html lang="cz">
       <body className={inter.className + 'flex flex-col h-screen justify-between'}>
         <Theme>
-          <Nav bgColor="bg-blue dark:bg-dark_blue"/>
+          <Nav bgColor="bg-blue dark:bg-dark_blue" />
           <main className="mb-auto">{children}</main>
-          <Footer bgColor="bg-dark_blue"/>
-        </Theme>    
+          <Footer bgColor="bg-dark_blue" />
+        </Theme>
       </body>
     </html>
   );
