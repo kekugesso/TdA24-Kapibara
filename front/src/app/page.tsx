@@ -56,7 +56,7 @@ export default function Home() {
     <section className="grid grid-cols-1 md:grid-cols-2 gap-4 min-h-screen bg-white dark:bg-jet text-black dark:text-white items-center justify-between p-6 sm:px-12 lg:px-24">
       {/* Render fetched data here */}
       {lecturers.map((lecturer, index) => (
-        <Card key={index} lecturer={lecturer} />
+        <Card key={"Card_" + index} lecturer={lecturer} index={index} />
       ))}
     </section>
   );
