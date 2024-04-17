@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react';
-import getLecturers from '@/components/get-lecturers';
+import getLecturers from '@/components/getLecturers';
 import { Lecturer_Card, tag } from '@/components/lecturer';
 import Card from '@/components/card';
 
@@ -17,25 +17,13 @@ export default function Home() {
         console.error('Error fetching lecturers:', error);
       }
     };
-    const convertToLecturerObject = (
-      data: {
-        tags: any[];
-        UUID: string;
-        title_before: string;
-        first_name: string;
-        last_name: string;
-        title_after: string;
-        picture_url: string;
-        location: string;
-        claim: string;
-        price_per_hour: number;
-      }
-    ) => {
-      const tags = data.tags.map(tagData => new tag(tagData.uuid, tagData.name));
+    const convertToLecturerObject = (data: any) => {
+      const tags = data.tags.map((tagData: { uuid: string; name: string; }) => new tag(tagData.uuid, tagData.name));
       const lecturer = new Lecturer_Card(
         data.UUID,
         data.title_before,
         data.first_name,
+        data.middle_name,
         data.last_name,
         data.title_after,
         data.picture_url,
