@@ -48,19 +48,13 @@
     "telephone_numbers": ["+420 722 482 974"],
     "emails": ["placha@scg.cz", "predseda@scg.cz"]
   },
-  "rezervations": 
+  "reservations": 
   [
     {
       "uuid": "td8a4v8a-2bca-41ef-9caf-039cc5c8dd69",
       "status": "reserved",
       "start_time": "2024-05-01T10:00:00+02:00",
       "end_time": "2024-05-01T11:00:00+02:00",
-      "student": {
-        "first_name": "Andrej",
-        "last_name": "Jirásek",
-        "email": "andrej.jiresek@seznam.cz",
-        "phone": "+420 840 123 456"
-      },
       "location": "Online",
       "subject": [
         {
@@ -75,20 +69,13 @@
           "uuid": "ba65a665-e141-40ab-bbd2-f4b1f2b01e42",
           "name": "Fundraising pro neziskové studentské projekty"
         }
-      ],
-      "description": "Dobrý den potřeboval bych pomoct s dopilováním mojí školní akcí."
+      ]
     },
     {
       "uuid": "a843ab6b-3c35-4d7f-9e8f-1f2b3c4d5e6f",
       "status": "reserved",
       "start_time": "2024-05-01T15:00:00+02:00",
       "end_time": "2024-05-01T18:00:00+02:00",
-      "student": {
-        "first_name": "Jirka",
-        "last_name": "Zelenský",
-        "email": "zelensky12@gmail.com",
-        "phone": "+420 486 123 456"
-      },
       "location": "Online",
       "subjects": [
         {
@@ -99,9 +86,7 @@
           "uuid": "fa23bea1-489f-4cb2-b64c-7b3cd7079951",
           "name": "Mimoškolní aktivity"
         }
-      ],
-      "description": "Dobrý den potřeboval bych pomoct s přípravou dobrovolnické akce."
-    
+      ]
     },
     {
       "uuid": "a843ab6b-3c35-4d7f-9e8f-1f2b3c4d5e6f",
