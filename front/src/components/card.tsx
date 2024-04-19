@@ -12,7 +12,7 @@ export default function Card({ lecturer, index }: { lecturer: Lecturer_Card, ind
   const isVisible = IsVisible(ref);
 
   return (
-    <Link href={"/lecturer/" + lecturer.uuid} className="transition ease-in-out delay-100 hover:scale-105 duration-300">
+    <Link href={"/lecturer/" + lecturer.uuid} className="transition ease-in-out delay-100 hover:scale-105 xl:hover:scale-[1.03] duration-300">
       <div ref={ref} className={"grid grid-cols-1 h-96 bg-jet/15 dark:bg-jet rounded-xl p-8 border-2 border-jet dark:border-white overflow-hidden" + (isVisible ? " opacity-100 animate-fade-up animate-ease-in-out animate-alternate " + (isOdd(index) ? "animate-delay-[100ms]" : "") : " opacity-0")}>
         <div className="p-2 text-center space-y-2">
           <img className="w-36 h-36 rounded-full mx-auto items-center align-middle border-2 border-white" src={lecturer.picture_url} alt={"picture of " + lecturer.fullName} />
