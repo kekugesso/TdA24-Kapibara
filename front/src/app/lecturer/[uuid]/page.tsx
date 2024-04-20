@@ -37,10 +37,10 @@ export default function lecturer() {
       }) : [];
       return new Lecturer_Full(
         data.UUID,
+        data.title_before,
         data.first_name,
         data.middle_name,
         data.last_name,
-        data.title_before,
         data.title_after,
         data.location,
         data.picture_url,
@@ -59,8 +59,10 @@ export default function lecturer() {
   console.log(lecturer);
 
   return (
-    <section className="grid grid-cols-1 min-h-screen bg-white dark:bg-jet text-black dark:text-white items-center justify-between p-6 sm:px-12 lg:px-24">
-      {lecturer && <Profile key={"profile_" + uuid} lecturer={lecturer} />}
-    </section>
+    lecturer ?
+      (<Profile key={"profile_" + uuid} lecturer={lecturer} />) :
+      (<section className="flex min-h-screen bg-white dark:bg-jet text-black dark:text-white items-center justify-center">
+        <h1 className="text-6xl">Loading ...</h1>
+      </section>)
   )
 }
