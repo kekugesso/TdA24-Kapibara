@@ -2,29 +2,22 @@
 
 import Image from "next/image";
 import Link from "next/link"
-import { useState } from "react";
 import * as reactDropdownMenu from "@radix-ui/react-dropdown-menu";
 
-export default function Nav({ bgColor } : { bgColor: string }) {
-  const [showUserMenu, setShowUserMenu] = useState(false);
-
-  const toggleUserMenu = () => {
-    setShowUserMenu(!showUserMenu);
-  };
-
+export default function Nav({ bgColor }: { bgColor: string }) {
   return (
     <header className={bgColor + " grid min-h-10 place-items-center px-6 py-6"}>
       <nav className="container px-4">
         <div className="flex justify-between items-center">
           <Link className="flex items-center font-semibold" href="/">
-          <Image
+            <Image
               src="/TdA_LOGO/TeacherDigitalAgency_LOGO_black.svg"
               alt="Teacher digital Agency"
               className="dark:invert"
               width={80}
               height={50}
               priority
-              />
+            />
           </Link>
           <div className="flex items-center space-x-4">
             <reactDropdownMenu.DropdownMenu>
@@ -46,15 +39,15 @@ export default function Nav({ bgColor } : { bgColor: string }) {
               </reactDropdownMenu.DropdownMenuTrigger>
               <reactDropdownMenu.DropdownMenuContent className="w-56 mt-2 bg-white border border-jet-200 rounded-md shadow-lg">
                 <reactDropdownMenu.DropdownMenuItem>
-                  <Link 
+                  <Link
                     className="block px-4 py-2 text-jet hover:bg-blue"
-                    href="/admin/edit-profile" 
+                    href="/admin/edit-profile"
                   >
                     Edit your profile
                   </Link>
                 </reactDropdownMenu.DropdownMenuItem>
                 <reactDropdownMenu.DropdownMenuItem>
-                  <Link 
+                  <Link
                     className="block px-4 py-2 text-jet hover:bg-blue"
                     href="/admin/calendar"
                   >
@@ -81,4 +74,3 @@ export default function Nav({ bgColor } : { bgColor: string }) {
     </header>
   );
 }
-  
