@@ -1,6 +1,6 @@
 import { Lecturer_Full } from "@/components/lecturer";
 import Link from "next/link";
-import Calendar from "@/components/calendar";
+import CalendarFrame from "@/components/calendar";
 
 export default function Profile({ lecturer }: { lecturer: Lecturer_Full }) {
   return (
@@ -34,7 +34,7 @@ export default function Profile({ lecturer }: { lecturer: Lecturer_Full }) {
 
           <div className="flex md:block flex-wrap md:flex-none text-center text-black/55 dark:text-white/25">
             {lecturer.tags.map((tag) => (
-              <Link href={"/?tag=" + tag.uuid}><div className="mx-1 hover:animate-pulse hover:animate-once">#{tag.name}</div></Link>
+              <Link key={"tag_" + tag.uuid} href={"/?tag=" + tag.uuid}><div className="mx-1 hover:animate-pulse hover:animate-once">#{tag.name}</div></Link>
             ))}
           </div>
         </div>
@@ -42,7 +42,7 @@ export default function Profile({ lecturer }: { lecturer: Lecturer_Full }) {
 
         <div className="col-span-3 my-4 md:my-0">
           <div>{lecturer.bio}</div>
-          <Calendar reservations={lecturer.reservations} classes="border-white border-2 text-black" />
+          <CalendarFrame reservations={lecturer.reservations} classes="border-white border-2 text-black" />
         </div>
       </div>
 
