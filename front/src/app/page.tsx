@@ -1,8 +1,8 @@
 'use client'
 import { useEffect, useState } from 'react';
-import getLecturers from '@/components/getLecturers';
-import { Lecturer_Card, tag } from '@/components/lecturer';
-import Card from '@/components/card';
+import getLecturers from '@/components/fetch/getLecturers';
+import { Lecturer_Card, tag } from '@/components/basic/lecturer';
+import Card from '@/components/sections/card';
 
 
 export default function Home() {

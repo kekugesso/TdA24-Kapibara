@@ -38,14 +38,14 @@ export default function Nav({ bgColor }: { bgColor: string }) {
                 </button>
               </reactDropdownMenu.DropdownMenuTrigger>
               <reactDropdownMenu.DropdownMenuContent className="w-56 mt-2 bg-white border border-jet-200 rounded-md shadow-lg">
-                <reactDropdownMenu.DropdownMenuItem>
+                {/*<reactDropdownMenu.DropdownMenuItem>
                   <Link
                     className="block px-4 py-2 text-jet hover:bg-blue"
                     href="/admin/edit-profile"
                   >
                     Edit your profile
                   </Link>
-                </reactDropdownMenu.DropdownMenuItem>
+                </reactDropdownMenu.DropdownMenuItem>*/}
                 <reactDropdownMenu.DropdownMenuItem>
                   <Link
                     className="block px-4 py-2 text-jet hover:bg-blue"

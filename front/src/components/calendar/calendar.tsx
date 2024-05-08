@@ -1,10 +1,8 @@
 import React, { useRef, useEffect } from "react";
-import Calendar from '@toast-ui/react-calendar';
-import '@toast-ui/calendar/dist/toastui-calendar.min.css';
-import moment from 'moment';
-import { reservation } from "./lecturer";
+import { reservation } from "@/components/basic/lecturer";
+import CalendarGrid from "@/components/calendar/calendarGrid";
 
-export default function CalendarFrame({ classes, reservations }: { classes: string, reservations: reservation[] }) {
+export default function Calendar({ reservations }: { reservations: reservation[] }) {
   const calendarRef = useRef<any>(null);
 
   useEffect(() => {
@@ -62,7 +60,7 @@ export default function CalendarFrame({ classes, reservations }: { classes: stri
   };
 
   return (
-    <div className={classes}>
+    <div className="border-white border-2 text-black">
       <div className="flex-1">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold text-black" id="CalendarTitle"></h2>
@@ -75,7 +73,7 @@ export default function CalendarFrame({ classes, reservations }: { classes: stri
             </button>
           </div>
         </div>
-        <Calendar ref={calendarRef} {...calendarOptions} />
+        <CalendarGrid ref={calendarRef} />
       </div>
     </div>
   );

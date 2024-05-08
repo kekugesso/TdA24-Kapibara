@@ -1,9 +1,9 @@
 'use client'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react';
-import getLecturer from '@/components/getLecturer';
-import { Lecturer_Full, tag, contact, reservation, location_reservation, status } from '@/components/lecturer';
-import Profile from '@/components/profile';
+import getLecturer from '@/components/fetch/getLecturer';
+import { Lecturer_Full, tag, contact, reservation, location_reservation, status } from '@/components/basic/lecturer';
+import Profile from '@/components/sections/profile';
 
 export default function lecturer() {
   const pathname = usePathname()

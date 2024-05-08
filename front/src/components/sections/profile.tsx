@@ -1,6 +1,6 @@
-import { Lecturer_Full } from "@/components/lecturer";
+import { Lecturer_Full } from "@/components/basic/lecturer";
 import Link from "next/link";
-import CalendarFrame from "@/components/calendar";
+import Calendar from "@/components/calendar/calendar";
 
 export default function Profile({ lecturer }: { lecturer: Lecturer_Full }) {
   return (
@@ -42,7 +42,7 @@ export default function Profile({ lecturer }: { lecturer: Lecturer_Full }) {
 
         <div className="col-span-3 my-4 md:my-0">
           <div>{lecturer.bio}</div>
-          <CalendarFrame reservations={lecturer.reservations} classes="border-white border-2 text-black" />
+          <Calendar reservations={lecturer.reservations} />
         </div>
       </div>
 

@@ -1,6 +1,6 @@
-import { Lecturer_Card } from "@/components/lecturer";
+import { Lecturer_Card } from "@/components/basic/lecturer";
 import Link from 'next/link'
-import { IsVisible } from "./isVisible";
+import { IsVisible } from "@/components/functions/isVisible";
 import { useRef } from "react";
 
 function isOdd(num: number) {
