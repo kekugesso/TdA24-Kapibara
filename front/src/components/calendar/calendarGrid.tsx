@@ -17,8 +17,8 @@ dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 dayjs.extend(minMax);
 
-const timeSlots = Array.from({ length: 27 }, (_, i) => {
-  const hour = Math.floor(i / 2) + 9;
+const timeSlots = Array.from({ length: 25 }, (_, i) => {
+  const hour = Math.floor(i / 2) + 8;
   const minute = i % 2 === 0 ? '00' : '30';
   return `${hour.toString().padStart(2, '0')}:${minute}`;
 });
@@ -86,7 +86,7 @@ export default function CalendarGrid<Route extends string>(props: Props<Route>) 
       return twMerge(
         'flex max-h-full flex-col break-words rounded p-[7px_6px_5px] text-[13px] leading-[20px] no-underline transition-[background-color] hover:z-10 hover:h-min hover:max-h-none hover:min-h-full',
         generateColStartClass(timeSlotColCount + dateIndex),
-        event.isMultiDay &&
+        /*event.isMultiDay &&
         generateColSpanClass(
           Math.min(
             props.dates.length - dateIndex,
@@ -95,9 +95,9 @@ export default function CalendarGrid<Route extends string>(props: Props<Route>) 
               'days',
             ),
           )
-        ),
+        ),*/
         generateRowStartClass(
-          (event.isMultiDay
+          (/*event.isMultiDay
             ? previousMultiDayEvents.reduce((rowStart, multiDayEvent) => {
               // Move the event down a row if it overlaps with a previous event
               if (
@@ -108,16 +108,27 @@ export default function CalendarGrid<Route extends string>(props: Props<Route>) 
               }
               return rowStart;
             }, 1)
-            : timeSlots.indexOf(
-              dayjs(event.start).format(
-                'HH:mm',
-              ) as (typeof timeSlots)[number],
-            ))
+            : */timeSlots.indexOf(
+            dayjs(event.start).format(
+              'HH:mm',
+            ) as (typeof timeSlots)[number],
+          ))
         ),
-        !event.isMultiDay &&
+        /*!event.isMultiDay &&*/
         generateRowSpanClass(
-          (event.end.diff(event.start, 'minute') /
-            30)
+          (() => {
+            let rowSpan = event.end.diff(event.start, 'minute') / 30;
+            // Check if the event is multi-day
+            if (event.isMultiDay) {
+              // Calculate the number of additional days the event spans
+              const additionalDays = dayjs(event.end).diff(dayjs(event.start), 'days');
+
+              // Add 12 hours for each additional day
+              rowSpan += additionalDays * 12;
+            }
+            if (rowSpan > 130) rowSpan = 130;
+            return rowSpan;
+          })()
         ),
         !event.isSecondary
           ? 'bg-blue text-white hover:bg-yellow'
@@ -131,13 +142,13 @@ export default function CalendarGrid<Route extends string>(props: Props<Route>) 
 
   return (
     <div className="p-3 min-w-[650px]">
-      <div className="grid auto-rows-[32px] grid-cols-[60px_repeat(5,_1fr)] gap-1 col-end-[span_1]">
+      <div className="grid auto-rows-[32px] grid-cols-[60px_repeat(5,_1fr)] gap-1">
         {props.dates.map((date, index) => {
           return (
             <div
               key={`date-${date}`}
               className={twMerge(
-                'text-darkGray col-span-1 p-2 text-center text-[13px] text-xs',
+                'text-white col-span-1 p-2 text-center text-[13px] text-xs',
                 generateColStartClass(timeSlotColCount + index)
                 ,
               )}
@@ -147,7 +158,7 @@ export default function CalendarGrid<Route extends string>(props: Props<Route>) 
           );
         })}
 
-        {events
+        {/*events
           .filter(({ isMultiDay }) => isMultiDay)
           .map((event) => {
             return (
@@ -167,17 +178,17 @@ export default function CalendarGrid<Route extends string>(props: Props<Route>) 
                 {event.title}
               </Link>
             );
-          })}
+          })*/}
       </div>
 
-      <div className="mt-1 grid grid-cols-[60px_repeat(5,_1fr)] grid-rows-[repeat(24,32px)] gap-1">
+      <div className="mt-1 grid grid-flow-col grid-cols-[60px_repeat(5,_1fr)] grid-rows-[repeat(24,32px)] gap-1">
         {timeSlots.map((time, index) => {
           return (
             <div
               key={`time-slot-${time}`}
               className={twMerge(
                 generateRowStartClass(index),
-                'text-darkGray translate-y-[-16px] text-xs leading-[30px]',
+                'text-white translate-y-[-16px] text-xs leading-[30px]',
               )}
             >
               {time.endsWith('30') ? <>&nbsp;</> : time}
@@ -186,10 +197,10 @@ export default function CalendarGrid<Route extends string>(props: Props<Route>) 
         })}
 
         {events
-          .filter((event) => {
+          /*.filter((event) => {
             const hours = event.end.diff(event.start, 'hour');
             return hours < 24;
-          })
+          })*/
           .map((event) => {
             return (
               <Link
