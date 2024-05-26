@@ -2,9 +2,9 @@ import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter.js';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore.js';
 import minMax from 'dayjs/plugin/minMax.js';
-import { Route } from 'next';
 import Link from 'next/link';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
+import { start } from 'repl';
 import { twMerge } from 'tailwind-merge';
 
 declare module 'react' {
@@ -22,11 +22,10 @@ const timeSlots = Array.from({ length: 25 }, (_, i) => {
   const minute = i % 2 === 0 ? '00' : '30';
   return `${hour.toString().padStart(2, '0')}:${minute}`;
 });
-console.log(timeSlots);
+
 const generateColStartClass = (index: number) => `col-start-[${index + 1}]`;
-const generateColSpanClass = (index: number) => `col-end-[span_${index}]`;
 const generateRowStartClass = (index: number) => `row-start-[${index + 1}]`;
-const generateRowSpanClass = (index: number) => `row-end-[span_${index}]`;
+const generateRowSpanClass = (span: number) => `row-end-[span_${span}]`;
 
 type Props<RouteInferred extends string> = {
   dates: `${number}${number}${number}${number}-${number}${number}-${number}${number}`[];
@@ -35,7 +34,7 @@ type Props<RouteInferred extends string> = {
     start: Date;
     end: Date;
     title: string;
-    href: Route<RouteInferred>;
+    href: string;
     isSecondary?: boolean;
   }[];
 };
@@ -43,183 +42,125 @@ type Props<RouteInferred extends string> = {
 export default function CalendarGrid<Route extends string>(props: Props<Route>) {
   const timeSlotColCount = 1;
 
-  const events = props.events.map((event) => {
-    const end = dayjs(event.end);
-    return {
-      ...event,
-      start: dayjs(event.start),
-      end: end,
-      isMultiDay: end.diff(event.start, 'hour') >= 24,
-    };
-  });
+  const splitEvents = useCallback((events) => {
+    const result = [];
+    events.forEach((event) => {
+      const start = dayjs(event.start);
+      const end = dayjs(event.end);
+      const totalDays = Math.max(
+        1,
+        props.dates.findIndex((date) =>
+          date.startsWith(end.format('YYYY-MM-DD'))) -
+        Math.max(0,
+          props.dates.findIndex((date) => date.startsWith(start.format('YYYY-MM-DD')))
+        ) + 1
+      );
+
+      for (let day = 0; day < totalDays; day++) {
+        const currentStart = start.add(day, 'day').startOf('day').isAfter(start) ? start.add(day, 'day').startOf('day') : start;
+        const currentEnd = day === totalDays - 1 ? end : currentStart.endOf('day');
+        result.push({
+          ...event,
+          start: currentStart.toDate(),
+          end: currentEnd.toDate(),
+          isMultiDay: totalDays > 1,
+        });
+      }
+    });
+    return result;
+  }, []);
+
+  const events = splitEvents(props.events);
 
   const getEventClassNames = useCallback(
-    (event: (typeof events)[number]) => {
-      const previousMultiDayEvents = events.filter(
-        ({ isMultiDay }, index) => isMultiDay && index < events.indexOf(event),
-      );
-      const previousNonMultiDayEvents = events.filter(
-        ({ isMultiDay }, index) => !isMultiDay && index < events.indexOf(event),
-      );
-      const isOverlappingNonMultiDay =
-        !event.isMultiDay &&
-        previousNonMultiDayEvents.reduce(
-          (isEventOverlappingPreviousEvents, otherAppointment) => {
-            return (
-              isEventOverlappingPreviousEvents ||
-              (event.start.isBefore(dayjs(otherAppointment.end)) &&
-                event.end.isAfter(dayjs(otherAppointment.start)))
-            );
-          },
-          false,
-        );
-
-      // Disallow negative index (if date outside of range, the
-      // event should start at the first date in props.dates)
+    (event) => {
+      const startDate = dayjs(event.start);
+      const endDate = dayjs(event.end);
       const dateIndex = Math.max(
         0,
         props.dates.findIndex((date) =>
-          date.startsWith(event.start.format('YYYY-MM-DD')),
-        ),
+          date.startsWith(startDate.format('YYYY-MM-DD'))
+        )
       );
+
+      const startTimeIndex = timeSlots.indexOf(startDate.format('HH:mm'));
+      const durationInHours = endDate.diff(startDate, 'hour', true);
+      const totalRows = (() => {
+        let start = 0;
+        let end = 0;
+        if (startDate.hour() < 8) {
+          start = 8 * 2;
+        } else {
+          start = startDate.hour() * 2 + (startDate.minute() === 30 ? 1 : 0);
+        }
+        if (endDate.hour() > 20) {
+          end = 20 * 2 + (endDate.minute() > 30 ? 1 : 0);
+        } else {
+          end = endDate.hour() * 2 + (endDate.minute() === 30 ? 1 : 0);
+        }
+        return Math.max(end - start, 1);
+      })();
+
+      Math.max(Math.ceil(durationInHours * 2), 1);
 
       return twMerge(
         'flex max-h-full flex-col break-words rounded p-[7px_6px_5px] text-[13px] leading-[20px] no-underline transition-[background-color] hover:z-10 hover:h-min hover:max-h-none hover:min-h-full',
         generateColStartClass(timeSlotColCount + dateIndex),
-        /*event.isMultiDay &&
-        generateColSpanClass(
-          Math.min(
-            props.dates.length - dateIndex,
-            event.end.diff(
-              dayjs.max(event.start, dayjs(props.dates[0])),
-              'days',
-            ),
-          )
-        ),*/
-        generateRowStartClass(
-          (/*event.isMultiDay
-            ? previousMultiDayEvents.reduce((rowStart, multiDayEvent) => {
-              // Move the event down a row if it overlaps with a previous event
-              if (
-                event.start.isBefore(dayjs(multiDayEvent.end)) &&
-                event.end.isAfter(dayjs(multiDayEvent.start))
-              ) {
-                rowStart++;
-              }
-              return rowStart;
-            }, 1)
-            : */timeSlots.indexOf(
-            dayjs(event.start).format(
-              'HH:mm',
-            ) as (typeof timeSlots)[number],
-          ))
-        ),
-        /*!event.isMultiDay &&*/
-        generateRowSpanClass(
-          (() => {
-            let rowSpan = event.end.diff(event.start, 'minute') / 30;
-            // Check if the event is multi-day
-            if (event.isMultiDay) {
-              // Calculate the number of additional days the event spans
-              const additionalDays = dayjs(event.end).diff(dayjs(event.start), 'days');
-
-              // Add 12 hours for each additional day
-              rowSpan += additionalDays * 12;
-            }
-            if (rowSpan > 130) rowSpan = 130;
-            return rowSpan;
-          })()
-        ),
-        !event.isSecondary
-          ? 'bg-blue text-white hover:bg-yellow'
-          : 'bg-dark_blue text-white hover:bg-yellow',
-        isOverlappingNonMultiDay &&
-        'w-[75%] ml-[25%] border border-white text-right z-20 hover:z-30',
+        generateRowStartClass(startTimeIndex),
+        generateRowSpanClass(totalRows),
+        !event.isSecondary ? 'bg-blue text-black' : 'bg-dark_blue text-white',
       );
     },
-    [props.dates, events, timeSlotColCount],
+    [props.dates]
   );
+
+  let [eventHovered, setEventHovered] = useState(0);
 
   return (
     <div className="p-3 min-w-[650px]">
       <div className="grid auto-rows-[32px] grid-cols-[60px_repeat(5,_1fr)] gap-1">
-        {props.dates.map((date, index) => {
-          return (
-            <div
-              key={`date-${date}`}
-              className={twMerge(
-                'text-white col-span-1 p-2 text-center text-[13px] text-xs',
-                generateColStartClass(timeSlotColCount + index)
-                ,
-              )}
-            >
-              {date}
-            </div>
-          );
-        })}
-
-        {/*events
-          .filter(({ isMultiDay }) => isMultiDay)
-          .map((event) => {
-            return (
-              <Link
-                key={`event-${event.id}`}
-                href={event.href}
-                className={twMerge(
-                  getEventClassNames(event),
-                  dayjs(props.dates[0]).startOf('day').isAfter(event.start) &&
-                  'rounded-l-none ',
-                  dayjs(props.dates[props.dates.length - 1])
-                    .add(1, 'day')
-                    .startOf('day')
-                    .isBefore(event.end) && 'rounded-r-none ',
-                )}
-              >
-                {event.title}
-              </Link>
-            );
-          })*/}
+        {props.dates.map((date, index) => (
+          <div
+            key={`date-${date}`}
+            className={twMerge(
+              'text-white col-span-1 p-2 text-center text-[13px] text-xs',
+              generateColStartClass(timeSlotColCount + index)
+            )}
+          >
+            {date}
+          </div>
+        ))}
       </div>
-
-      <div className="mt-1 grid grid-flow-col grid-cols-[60px_repeat(5,_1fr)] grid-rows-[repeat(24,32px)] gap-1">
-        {timeSlots.map((time, index) => {
-          return (
-            <div
-              key={`time-slot-${time}`}
-              className={twMerge(
-                generateRowStartClass(index),
-                'text-white translate-y-[-16px] text-xs leading-[30px]',
-              )}
-            >
-              {time.endsWith('30') ? <>&nbsp;</> : time}
-            </div>
-          );
-        })}
-
-        {events
-          /*.filter((event) => {
-            const hours = event.end.diff(event.start, 'hour');
-            return hours < 24;
-          })*/
-          .map((event) => {
-            return (
-              <Link
-                key={`time-slot-event-${event.id}`}
-                href={event.href}
-                className={getEventClassNames(event)}
-              >
-                <div className="min-h-0 overflow-hidden">{event.title}</div>
-                {event.end.diff(event.start, 'minute') / 30 > 1 && (
-                  <div className="pt-1 text-[10px]">
-                    {dayjs(event.start).format('HH:mm')} -{' '}
-                    {dayjs(event.end).format('HH:mm')}
-                  </div>
-                )}
-              </Link>
-            );
-          })}
+      <div className="mt-1 grid grid-flow-col grid-cols-[60px_repeat(5,_1fr)] grid-rows-[repeat(25,32px)] gap-1">
+        {timeSlots.map((time, index) => (
+          <div
+            key={`time-slot-${time}`}
+            className={twMerge(
+              generateRowStartClass(index),
+              'text-white translate-y-[-16px] text-xs leading-[30px]'
+            )}
+          >
+            {time.endsWith('30') ? <>&nbsp;</> : time}
+          </div>
+        ))}
+        {events.map((event) => (
+          <Link
+            onMouseEnter={() => { setEventHovered(event.id) }}
+            onMouseLeave={() => { setEventHovered(0) }}
+            style={{ backgroundColor: eventHovered === event.id ? 'yellow' : '', color: eventHovered === event.id ? 'black' : '' }}
+            key={`time-slot-event-${event.id}-${dayjs(event.start).toISOString()}`}
+            href={event.href}
+            className={getEventClassNames(event)}
+          >
+            <div className="min-h-0 overflow-hidden">{event.title}</div>
+            {dayjs(event.end).diff(dayjs(event.start), 'minute') / 30 > 1 && (
+              <div className="pt-1 text-[10px]">
+                {dayjs(props.events.find(e => e.id === event.id).start).format('HH:mm DD-MM-YYYY')} - {dayjs(props.events.find(e => e.id === event.id).end).format('HH:mm DD-MM-YYYY')}
+              </div>
+            )}
+          </Link>
+        ))}
       </div>
     </div>
   );
 }
-

@@ -62,7 +62,7 @@ export default function Calendar({ reservations }: { reservations: reservation[]
     {
       id: 1,
       start: new Date('2023-09-04T09:00:00'),
-      end: new Date('2023-09-04T09:30:00'),
+      end: new Date('2023-09-04T10:00:00'),
       title: 'Project Kickoff Meeting',
       href: '/project/meeting/1',
     },
@@ -90,8 +90,8 @@ export default function Calendar({ reservations }: { reservations: reservation[]
     // Day 3 (2023-09-06)
     {
       id: 9,
-      start: new Date('2023-09-06T09:00:00'),
-      end: new Date('2023-09-06T09:30:00'),
+      start: new Date('2023-09-05T15:00:00'),
+      end: new Date('2023-09-05T16:30:00'),
       title: 'Team Meeting',
       href: '/meeting/team',
     },
@@ -120,7 +120,7 @@ export default function Calendar({ reservations }: { reservations: reservation[]
   ];
 
   return (
-    <div className="border-white rounded-lg border-2 text-black">
+    <div className="mt-4 border-white rounded-lg border-2 text-black">
       <div className="flex-1">
         {/*<div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold text-black" id="CalendarTitle"></h2>
