@@ -4,7 +4,6 @@ import isSameOrBefore from 'dayjs/plugin/isSameOrBefore.js';
 import minMax from 'dayjs/plugin/minMax.js';
 import Link from 'next/link';
 import { useCallback, useState } from 'react';
-import { start } from 'repl';
 import { twMerge } from 'tailwind-merge';
 
 declare module 'react' {
@@ -30,12 +29,12 @@ const generateRowSpanClass = (span: number) => `row-end-[span_${span}]`;
 type Props<RouteInferred extends string> = {
   dates: `${number}${number}${number}${number}-${number}${number}-${number}${number}`[];
   events: {
-    id: number;
+    uuid: string;
     start: Date;
     end: Date;
     title: string;
     href: string;
-    isSecondary?: boolean;
+    isUnavailable?: boolean;
   }[];
 };
 
@@ -70,7 +69,18 @@ export default function CalendarGrid<Route extends string>(props: Props<Route>) 
     return result;
   }, []);
 
-  const events = splitEvents(props.events);
+  const removeExeciveEveats = useCallback((events) => {
+    const result = [];
+    events.forEach((event) => {
+      const date = dayjs(event.start).format('YYYY-MM-DD') as `${number}${number}${number}${number}-${number}${number}-${number}${number}`;
+      if (props.dates.includes(date)) {
+        result.push(event);
+      }
+    });
+    return result;
+  }, []);
+
+  const events = removeExeciveEveats(splitEvents(props.events));
 
   const getEventClassNames = useCallback(
     (event) => {
@@ -101,20 +111,20 @@ export default function CalendarGrid<Route extends string>(props: Props<Route>) 
         return Math.max(end - start, 1);
       })();
 
-      Math.max(Math.ceil(durationInHours * 2), 1);
-
       return twMerge(
-        'flex max-h-full flex-col break-words rounded p-[7px_6px_5px] text-[13px] leading-[20px] no-underline transition-[background-color] hover:z-10 hover:h-min hover:max-h-none hover:min-h-full',
+        'flex max-h-full flex-col break-words p-[7px_6px_5px] text-[13px] leading-[20px] no-underline transition-[background-color] hover:z-10 hover:h-min hover:max-h-none hover:min-h-full',
         generateColStartClass(timeSlotColCount + dateIndex),
         generateRowStartClass(startTimeIndex),
         generateRowSpanClass(totalRows),
-        !event.isSecondary ? 'bg-blue text-black' : 'bg-dark_blue text-white',
+        !event.isUnavailable ? 'bg-blue text-black' : 'bg-dark_blue text-white',
+        props.events.find(e => e.uuid === event.uuid).start.toUTCString() === event.start.toUTCString() ? 'rounded-t' : '',
+        props.events.find(e => e.uuid === event.uuid).end.toUTCString() === event.end.toUTCString() ? 'rounded-b' : ''
       );
     },
     [props.dates]
   );
 
-  let [eventHovered, setEventHovered] = useState(0);
+  let [eventHovered, setEventHovered] = useState("");
 
   return (
     <div className="p-3 min-w-[650px]">
@@ -145,17 +155,17 @@ export default function CalendarGrid<Route extends string>(props: Props<Route>) 
         ))}
         {events.map((event) => (
           <Link
-            onMouseEnter={() => { setEventHovered(event.id) }}
-            onMouseLeave={() => { setEventHovered(0) }}
-            style={{ backgroundColor: eventHovered === event.id ? 'yellow' : '', color: eventHovered === event.id ? 'black' : '' }}
-            key={`time-slot-event-${event.id}-${dayjs(event.start).toISOString()}`}
+            onMouseEnter={() => { setEventHovered(event.uuid) }}
+            onMouseLeave={() => { setEventHovered("") }}
+            style={{ backgroundColor: eventHovered === event.uuid ? 'yellow' : '', color: eventHovered === event.id ? 'black' : '' }}
+            key={`time-slot-event-${event.uuid}-${dayjs(event.start).toISOString()}`}
             href={event.href}
             className={getEventClassNames(event)}
           >
             <div className="min-h-0 overflow-hidden">{event.title}</div>
             {dayjs(event.end).diff(dayjs(event.start), 'minute') / 30 > 1 && (
               <div className="pt-1 text-[10px]">
-                {dayjs(props.events.find(e => e.id === event.id).start).format('HH:mm DD-MM-YYYY')} - {dayjs(props.events.find(e => e.id === event.id).end).format('HH:mm DD-MM-YYYY')}
+                {dayjs(props.events.find(e => e.uuid === event.uuid).start).format('HH:mm DD-MM-YYYY')} - {dayjs(props.events.find(e => e.uuid === event.uuid).end).format('HH:mm DD-MM-YYYY')}
               </div>
             )}
           </Link>
