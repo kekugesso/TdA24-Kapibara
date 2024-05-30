@@ -56,7 +56,7 @@
       "start_time": "2024-05-01T10:00:00+02:00",
       "end_time": "2024-05-01T11:00:00+02:00",
       "location": "Online",
-      "subject": [
+      "subjects": [
         {
           "uuid": "824cfe88-8a70-4ffb-bcb8-d45670226207",
           "name": "Marketing pro neziskové studentské projekty"
