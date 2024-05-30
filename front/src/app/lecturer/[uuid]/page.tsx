@@ -1,6 +1,6 @@
 'use client'
 import { usePathname } from 'next/navigation'
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import getLecturer from '@/components/fetch/getLecturer';
 import { Lecturer_Full, tag, contact, reservation, location_reservation, status } from '@/components/basic/lecturer';
 import Profile from '@/components/sections/profile';
@@ -8,55 +8,53 @@ import Profile from '@/components/sections/profile';
 export default function lecturer() {
   const pathname = usePathname()
   const uuid = pathname.split("/")[2]
-  const [lecturer, setLecturer] = useState<Lecturer_Full>();
+  const [lecturer, setLecturer] = useState<Lecturer_Full | null>(null);
 
-  useEffect(() => {
-    const fetchLecturer = async () => {
-      try {
-        const lecturerData = await getLecturer(uuid);
-        console.log(lecturerData);
-        setLecturer(convertToLecturerObject(lecturerData));
-        console.log(lecturer);
-      } catch (error) {
-        console.error('Error fetching lecturer:', error);
-      }
-    };
-    const convertToLecturerObject = (data: any) => {
-      const tags = data.tags.map((tagData: any) => new tag(tagData.uuid, tagData.name));
-      const contactInfo = new contact(data.contact.telephone_numbers, data.contact.emails);
-      const reservations = data.reservations ? data.reservations.map((reservationData: any) => {
-        const subjects = reservationData.subjects ? reservationData.subjects.map((subjectData: any) => new tag(subjectData.uuid, subjectData.name)) : [];
-        return new reservation(
-          reservationData.uuid,
-          new Date(reservationData.start_time),
-          new Date(reservationData.end_time),
-          reservationData.location as location_reservation,
-          reservationData.status as status,
-          subjects
-        )
-      }) : [];
-      return new Lecturer_Full(
-        data.UUID,
-        data.title_before,
-        data.first_name,
-        data.middle_name,
-        data.last_name,
-        data.title_after,
-        data.location,
-        data.picture_url,
-        data.price_per_hour,
-        data.claim,
-        tags,
-        data.bio,
-        contactInfo,
-        reservations
-      );
-    };
-
-    fetchLecturer();
+  const fetchLecturer = useCallback(async () => {
+    try {
+      const lecturerData = await getLecturer(uuid);
+      // console.log(lecturerData);
+      setLecturer(convertToLecturerObject(lecturerData));
+    } catch (error) {
+      console.error('Error fetching lecturer:', error);
+    }
   }, [uuid]);
 
-  console.log(lecturer);
+  const convertToLecturerObject = useCallback((data: any) => {
+    const tags = data.tags.map((tagData: any) => new tag(tagData.uuid, tagData.name));
+    const contactInfo = new contact(data.contact.telephone_numbers, data.contact.emails);
+    const reservations = data.reservations ? data.reservations.map((reservationData: any) => {
+      const subjects = reservationData.subjects ? reservationData.subjects.map((subjectData: any) => new tag(subjectData.uuid, subjectData.name)) : [];
+      return new reservation(
+        reservationData.uuid,
+        new Date(reservationData.start_time),
+        new Date(reservationData.end_time),
+        reservationData.location as location_reservation,
+        reservationData.status as status,
+        subjects
+      )
+    }) : [];
+    return new Lecturer_Full(
+      data.UUID,
+      data.title_before,
+      data.first_name,
+      data.middle_name,
+      data.last_name,
+      data.title_after,
+      data.location,
+      data.picture_url,
+      data.price_per_hour,
+      data.claim,
+      tags,
+      data.bio,
+      contactInfo,
+      reservations
+    );
+  }, [fetchLecturer]);
+
+  useEffect(() => {
+    fetchLecturer();
+  }, [uuid]);
 
   return (
     lecturer ?
