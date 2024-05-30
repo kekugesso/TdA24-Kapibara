@@ -41,7 +41,7 @@ export default function Profile({ lecturer }: { lecturer: Lecturer_Full }) {
 
 
         <div className="col-span-3 my-4 md:my-0">
-          <div>{lecturer.bio}</div>
+          <div dangerouslySetInnerHTML={{ __html: lecturer.bio }}></div>
           <Calendar reservations={lecturer.reservations} lecturer_uuid={lecturer.uuid} />
         </div>
       </div>
