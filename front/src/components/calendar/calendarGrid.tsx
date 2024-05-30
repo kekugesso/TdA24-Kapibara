@@ -3,7 +3,7 @@ import isSameOrAfter from 'dayjs/plugin/isSameOrAfter.js';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore.js';
 import minMax from 'dayjs/plugin/minMax.js';
 import Link from 'next/link';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 declare module 'react' {
@@ -33,9 +33,9 @@ type Props<RouteInferred extends string> = {
     start: Date;
     end: Date;
     title: string;
-    href: string;
     isUnavailable?: boolean;
   }[];
+  lecturer_uuid: string;
 };
 
 export default function CalendarGrid<Route extends string>(props: Props<Route>) {
@@ -46,14 +46,16 @@ export default function CalendarGrid<Route extends string>(props: Props<Route>) 
     events.forEach((event) => {
       const start = dayjs(event.start);
       const end = dayjs(event.end);
-      const totalDays = Math.max(
-        1,
-        props.dates.findIndex((date) =>
-          date.startsWith(end.format('YYYY-MM-DD'))) -
-        Math.max(0,
-          props.dates.findIndex((date) => date.startsWith(start.format('YYYY-MM-DD')))
-        ) + 1
-      );
+      // const totalDays2 = Math.max(
+      //   1,
+      //   props.dates.findIndex((date) =>
+      //     date.startsWith(end.format('YYYY-MM-DD'))) -
+      //   Math.max(0,
+      //     props.dates.findIndex((date) => date.startsWith(start.format('YYYY-MM-DD')))
+      //   ) + 1
+      // );
+      // const totalDays3 = end.diff(start, 'day') + 1;
+      const totalDays = end.startOf('day').diff(start.startOf('day'), 'day') + 1;
 
       for (let day = 0; day < totalDays; day++) {
         const currentStart = start.add(day, 'day').startOf('day').isAfter(start) ? start.add(day, 'day').startOf('day') : start;
@@ -79,8 +81,11 @@ export default function CalendarGrid<Route extends string>(props: Props<Route>) 
     });
     return result;
   }, []);
+  const [events, setEvents] = useState([] as any);
 
-  const events = removeExeciveEveats(splitEvents(props.events));
+  useEffect(() => {
+    setEvents(removeExeciveEveats(splitEvents(props.events)));
+  }, [props.events]);
 
   const getEventClassNames = useCallback(
     (event) => {
@@ -159,7 +164,7 @@ export default function CalendarGrid<Route extends string>(props: Props<Route>) 
             onMouseLeave={() => { setEventHovered("") }}
             style={{ backgroundColor: eventHovered === event.uuid ? 'yellow' : '', color: eventHovered === event.id ? 'black' : '' }}
             key={`time-slot-event-${event.uuid}-${dayjs(event.start).toISOString()}`}
-            href={event.href}
+            href={`/lecturer/${props.lecturer_uuid}/event/${event.uuid}`}
             className={getEventClassNames(event)}
           >
             <div className="min-h-0 overflow-hidden">{event.title}</div>

@@ -1,128 +1,102 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { reservation } from "@/components/basic/lecturer";
 import CalendarGrid from "@/components/calendar/calendarGrid";
+import dayjs from "dayjs";
 
-export default function Calendar({ reservations }: { reservations: reservation[] }) {
-  /*const calendarRef = useRef<any>(null);
+export default function Calendar({ reservations, lecturer_uuid }: { reservations: reservation[], lecturer_uuid: string }) {
+  const calendarRef = useRef<any>(null);
+  const [weekOffset, setWeekOffset] = useState(0);
 
-  useEffect(() => {
-    setCalendarTitle();
-  }, []);
-
-  const initialEvents = reservations.map(reservation => ({
+  const events = reservations.map(reservation => ({
     uuid: reservation.uuid,
     title: reservation.status,
     start: reservation.start_time,
     end: reservation.end_time,
   }));
 
-  const calendarOptions = {
-    usageStatistics: false,
-    useFormPopup: true,
-    useDetailPopup: true,
-    events: initialEvents,
-    height: '800px',
-    view: 'week',
-    week: {
-      startDayOfWeek: 1,
-      dayNames: ["Ne", "Po", "Út", "St", "Čt", "Pá", "So"],
-      workweek: true,
-      hourStart: 8,
-      hourEnd: 20,
-      EventView: false,
-      TaskView: false,
-      narrowWeekend: true,
-    },
+  const generateWorkWeek = (weeksOffset = 0) => {
+    const startOfWeek = dayjs().startOf('week').add(weeksOffset, 'week');
+    const workWeek = [];
+
+    for (let i = 0; i < 5; i++) { // Only include weekdays (5 days)
+      workWeek.push(startOfWeek.add(i + 1, 'day').format('YYYY-MM-DD') as `${number}${number}${number}${number}-${number}${number}-${number}${number}`);
+    }
+
+    return workWeek;
   };
 
   const handleClickBackButton = () => {
-    const calendarInstance = calendarRef.current.getInstance();
-    if (calendarInstance) {
-      calendarInstance.prev();
-      setCalendarTitle();
-    }
-  };
-
-  const setCalendarTitle = () => {
-    const calendarInstance = calendarRef.current.getInstance();
-    if (calendarInstance) {
-      const titleObj = document.getElementById('CalendarTitle');
-      titleObj.innerText = moment(calendarInstance.getDateRangeStart() + 0).format('YYYY MMMM DD') + " - " + moment(calendarInstance.getDateRangeEnd() + 0).format('YYYY MMMM DD');
-    }
+    setWeekOffset(weekOffset - 1);
+    // setCalendarTitle();
   };
 
   const handleClickNextButton = () => {
-    const calendarInstance = calendarRef.current.getInstance();
-    if (calendarInstance) {
-      calendarInstance.next();
-      setCalendarTitle();
-    }
-  };*/
-  const events = [
-    {
-      id: 1,
-      start: new Date('2023-09-04T09:00:00'),
-      end: new Date('2023-09-04T10:00:00'),
-      title: 'Project Kickoff Meeting',
-      href: '/project/meeting/1',
-    },
-    {
-      id: 6,
-      start: new Date('2023-09-04T12:00:00'),
-      end: new Date('2023-09-04T14:30:00'),
-      title: 'Creative Workshop',
-      href: '/workshop/creative',
-    },
-    {
-      id: 7,
-      start: new Date('2023-09-04T15:30:00'),
-      end: new Date('2023-09-04T19:30:00'),
-      title: 'Innovation Seminar',
-      href: '/seminar/innovation',
-    },
-    {
-      id: 8,
-      start: new Date('2023-09-05T10:30:00'),
-      end: new Date('2023-09-05T12:30:00'),
-      title: 'Product Presentation',
-      href: '/presentation/product',
-    },
-    // Day 3 (2023-09-06)
-    {
-      id: 9,
-      start: new Date('2023-09-05T15:00:00'),
-      end: new Date('2023-09-05T16:30:00'),
-      title: 'Team Meeting',
-      href: '/meeting/team',
-    },
-    {
-      id: 10,
-      start: new Date('2023-09-06T09:30:00'),
-      end: new Date('2023-09-06T11:30:00'),
-      title: 'Brainstorming Session',
-      href: '/session/brainstorming',
-    },
-    {
-      id: 22,
-      start: new Date('2023-09-06T11:30:00'),
-      end: new Date('2023-09-06T18:00:00'),
-      title: 'Team Training',
-      href: '/training/team',
-    },
-    {
-      id: 25,
-      start: new Date('2023-09-06T18:00:00'),
-      end: new Date('2023-09-08T14:30:00'),
-      title: 'Afternoon Training',
-      href: '/training/afternoon',
-      isSecondary: true,
-    },
-  ];
+    setWeekOffset(weekOffset + 1);
+    // setCalendarTitle();
+  };
+  // const setCalendarTitle = () => {
+  //     const titleObj = document.getElementById('CalendarTitle');
+  //     titleObj.innerText = moment(calendarInstance.getDateRangeStart() + 0).format('YYYY MMMM DD') + " - " + moment(calendarInstance.getDateRangeEnd() + 0).format('YYYY MMMM DD');
+  //   }
+  // };
 
+  // const events = [
+  //   {
+  //     uuid: "605babb7-36d2-4eb5-9023-5e4e17d441b7",
+  //     start: new Date('2023-09-04T09:00:00'),
+  //     end: new Date('2023-09-04T10:00:00'),
+  //     title: 'Project Kickoff Meeting',
+  //   },
+  //   {
+  //     uuid: "e90a9647-fad6-4345-a33b-a1179529cf36",
+  //     start: new Date('2023-09-04T12:00:00'),
+  //     end: new Date('2023-09-04T14:30:00'),
+  //     title: 'Creative Workshop',
+  //   },
+  //   {
+  //     uuid: "bafaabd7-9ed9-4a68-b562-fa506ee770ca",
+  //     start: new Date('2023-09-04T15:30:00'),
+  //     end: new Date('2023-09-04T19:30:00'),
+  //     title: 'Innovation Seminar',
+  //   },
+  //   {
+  //     uuid: "95ac5899-2dae-4031-8ac2-793eb36748a2",
+  //     start: new Date('2023-09-05T10:30:00'),
+  //     end: new Date('2023-09-05T12:30:00'),
+  //     title: 'Product Presentation',
+  //   },
+  //   // Day 3 (2023-09-06)
+  //   {
+  //     uuid: "c827507b-9ce7-4a3f-95c4-505069367fe9",
+  //     start: new Date('2023-09-05T15:00:00'),
+  //     end: new Date('2023-09-05T16:30:00'),
+  //     title: 'Team Meeting',
+  //   },
+  //   {
+  //     uuid: "dded1b4e-a862-4a78-85c2-5111f1de624e",
+  //     start: new Date('2023-09-06T09:30:00'),
+  //     end: new Date('2023-09-06T11:30:00'),
+  //     title: 'Brainstorming Session',
+  //   },
+  //   {
+  //     uuid: "3ee906fa-982d-4578-ae46-c32eca8b3c96",
+  //     start: new Date('2023-09-06T11:30:00'),
+  //     end: new Date('2023-09-06T18:00:00'),
+  //     title: 'Team Training',
+  //   },
+  //   {
+  //     uuid: "98352922-65b2-47bc-bebd-a9072240333a",
+  //     start: new Date('2023-09-06T18:00:00'),
+  //     end: new Date('2023-09-08T14:30:00'),
+  //     title: 'Afternoon Training',
+  //     isUnavailable: true,
+  //   },
+  // ];
+  //
   return (
     <div className="mt-4 border-white rounded-lg border-2 text-black">
       <div className="flex-1">
-        {/*<div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold text-black" id="CalendarTitle"></h2>
           <div className="flex items-center gap-2">
             <button onClick={handleClickBackButton} className="p-2 rounded-full hover:bg-black/10 dark:hover:bg-black/80 transition-colors">
@@ -133,16 +107,10 @@ export default function Calendar({ reservations }: { reservations: reservation[]
             </button>
           </div>
         </div>
-        <CalendarGrid ref={calendarRef} />*/}
         <CalendarGrid
-          dates={[
-            '2023-09-04',
-            '2023-09-05',
-            '2023-09-06',
-            '2023-09-07',
-            '2023-09-08',
-          ]}
+          dates={generateWorkWeek(weekOffset)}
           events={events}
+          lecturer_uuid={lecturer_uuid}
         />
       </div>
     </div>

@@ -89,10 +89,10 @@
       ]
     },
     {
-      "uuid": "a843ab6b-3c35-4d7f-9e8f-1f2b3c4d5e6f",
+      "uuid": "8a1bc15e-d1a9-4ce7-8bcf-93b43d44fc07",
       "status": "unavailable",
       "start_time": "2024-05-02T00:00:00+02:00",
-      "end_time": "2024-05-10T00:00:00+02:00"
+      "end_time": "2024-05-09T23:59:00+02:00"
     }
   ]
 }
