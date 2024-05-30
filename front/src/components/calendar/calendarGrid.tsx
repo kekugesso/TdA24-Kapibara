@@ -2,15 +2,9 @@ import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter.js';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore.js';
 import minMax from 'dayjs/plugin/minMax.js';
-import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
-
-declare module 'react' {
-  interface CSSProperties {
-    [key: `--${string}`]: string | number;
-  }
-}
+import { tag } from '@/components/basic/lecturer';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -26,35 +20,33 @@ const generateColStartClass = (index: number) => `col-start-[${index + 1}]`;
 const generateRowStartClass = (index: number) => `row-start-[${index + 1}]`;
 const generateRowSpanClass = (span: number) => `row-end-[span_${span}]`;
 
-type Props<RouteInferred extends string> = {
-  dates: `${number}${number}${number}${number}-${number}${number}-${number}${number}`[];
-  events: {
-    uuid: string;
-    start: Date;
-    end: Date;
-    title: string;
-    isUnavailable?: boolean;
-  }[];
-  lecturer_uuid: string;
-};
+class event {
+  constructor(
+    public uuid: string,
+    public start: Date,
+    public end: Date,
+    public title: string,
+    public location?: string,
+    public isUnavailable?: boolean,
+    public isMultipleDays?: boolean,
+    public subjects?: tag[]
+  ) { }
+}
 
-export default function CalendarGrid<Route extends string>(props: Props<Route>) {
+export default function CalendarGrid({ dates, initalEvents, lecturer_uuid }:
+  {
+    dates: `${number}${number}${number}${number}-${number}${number}-${number}${number}`[],
+    initalEvents: event[],
+    lecturer_uuid: string,
+  }
+) {
   const timeSlotColCount = 1;
 
-  const splitEvents = useCallback((events) => {
-    const result = [];
+  const splitEvents = useCallback((events: event[]) => {
+    const result: event[] = [];
     events.forEach((event) => {
       const start = dayjs(event.start);
       const end = dayjs(event.end);
-      // const totalDays2 = Math.max(
-      //   1,
-      //   props.dates.findIndex((date) =>
-      //     date.startsWith(end.format('YYYY-MM-DD'))) -
-      //   Math.max(0,
-      //     props.dates.findIndex((date) => date.startsWith(start.format('YYYY-MM-DD')))
-      //   ) + 1
-      // );
-      // const totalDays3 = end.diff(start, 'day') + 1;
       const totalDays = end.startOf('day').diff(start.startOf('day'), 'day') + 1;
 
       for (let day = 0; day < totalDays; day++) {
@@ -64,42 +56,45 @@ export default function CalendarGrid<Route extends string>(props: Props<Route>) 
           ...event,
           start: currentStart.toDate(),
           end: currentEnd.toDate(),
-          isMultiDay: totalDays > 1,
+          isMultipleDays: totalDays > 1,
+          isUnavailable: event.title === 'unavailable',
         });
       }
     });
     return result;
-  }, []);
+  }, [dates]);
 
-  const removeExeciveEveats = useCallback((events) => {
-    const result = [];
+  const removeExeciveEveats = useCallback((events: event[]) => {
+    const result: event[] = [];
     events.forEach((event) => {
       const date = dayjs(event.start).format('YYYY-MM-DD') as `${number}${number}${number}${number}-${number}${number}-${number}${number}`;
-      if (props.dates.includes(date)) {
+      if (dates.includes(date)) {
         result.push(event);
       }
     });
     return result;
-  }, []);
-  const [events, setEvents] = useState([] as any);
+  }, [splitEvents]);
+
+  const [events, setEvents] = useState<event[]>([]);
 
   useEffect(() => {
-    setEvents(removeExeciveEveats(splitEvents(props.events)));
-  }, [props.events]);
+    setEvents(removeExeciveEveats(splitEvents(initalEvents)));
+  }, [dates]);
+
+  const [eventHovered, setEventHovered] = useState("");
 
   const getEventClassNames = useCallback(
-    (event) => {
+    (event: event) => {
       const startDate = dayjs(event.start);
       const endDate = dayjs(event.end);
       const dateIndex = Math.max(
         0,
-        props.dates.findIndex((date) =>
+        dates.findIndex((date) =>
           date.startsWith(startDate.format('YYYY-MM-DD'))
         )
       );
 
       const startTimeIndex = timeSlots.indexOf(startDate.format('HH:mm'));
-      const durationInHours = endDate.diff(startDate, 'hour', true);
       const totalRows = (() => {
         let start = 0;
         let end = 0;
@@ -122,19 +117,52 @@ export default function CalendarGrid<Route extends string>(props: Props<Route>) 
         generateRowStartClass(startTimeIndex),
         generateRowSpanClass(totalRows),
         !event.isUnavailable ? 'bg-blue text-black' : 'bg-dark_blue text-white',
-        props.events.find(e => e.uuid === event.uuid).start.toUTCString() === event.start.toUTCString() ? 'rounded-t' : '',
-        props.events.find(e => e.uuid === event.uuid).end.toUTCString() === event.end.toUTCString() ? 'rounded-b' : ''
+        initalEvents.find(e => e.uuid === event.uuid).start.toUTCString() === event.start.toUTCString() ? 'rounded-t' : '',
+        initalEvents.find(e => e.uuid === event.uuid).end.toUTCString() === event.end.toUTCString() ? 'rounded-b' : ''
       );
     },
-    [props.dates]
+    [events, eventHovered]
   );
 
-  let [eventHovered, setEventHovered] = useState("");
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState<event | null>(null);
+  const [modalPosition, setModalPosition] = useState({ x: 0, y: 0 });
+  const displayModal = useCallback((event: any) => {
+    setModalOpen(true);
+    setModalPosition({ x: event.clientX, y: event.clientY });
+    setModalContent(event);
+  }, [])
+  const closeModal = useCallback(() => {
+    setModalOpen(false);
+    setModalContent(null);
+  }, [])
+  const Modal = ({ isVisible, onClose, children, position }) => {
+    if (!isVisible) return null;
+    const handleBackdropClick = (e) => {
+      if (e.target === e.currentTarget) {
+        onClose();
+      }
+    };
+    return (
+      <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50" onClick={handleBackdropClick}>
+        <div className="bg-white p-6 rounded-lg shadow-lg relative" style={{ top: position.y, left: position.x, position: 'absolute' }}>
+          <button
+            onClick={onClose}
+            className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
+          >
+            &times;
+          </button>
+          {children}
+        </div>
+      </div>
+    );
+  };
 
   return (
-    <div className="p-3 min-w-[650px]">
-      <div className="grid auto-rows-[32px] grid-cols-[60px_repeat(5,_1fr)] gap-1">
-        {props.dates.map((date, index) => (
+    <div className="p-3">
+      <div className="grid auto-rows-min grid-cols-[60px_repeat(5,_1fr)] gap-1">
+        {dates.map((date, index) => (
           <div
             key={`date-${date}`}
             className={twMerge(
@@ -146,7 +174,7 @@ export default function CalendarGrid<Route extends string>(props: Props<Route>) 
           </div>
         ))}
       </div>
-      <div className="mt-1 grid grid-flow-col grid-cols-[60px_repeat(5,_1fr)] grid-rows-[repeat(25,32px)] gap-1">
+      <div className="mt-1 grid grid-flow-col grid-cols-[60px_repeat(5,_1fr)] grid-rows-[repeat(25,27px)] gap-1">
         {timeSlots.map((time, index) => (
           <div
             key={`time-slot-${time}`}
@@ -158,24 +186,66 @@ export default function CalendarGrid<Route extends string>(props: Props<Route>) 
             {time.endsWith('30') ? <>&nbsp;</> : time}
           </div>
         ))}
-        {events.map((event) => (
-          <Link
-            onMouseEnter={() => { setEventHovered(event.uuid) }}
-            onMouseLeave={() => { setEventHovered("") }}
-            style={{ backgroundColor: eventHovered === event.uuid ? 'yellow' : '', color: eventHovered === event.id ? 'black' : '' }}
+        {events.map((event: event) => (
+          <button
+            onClick={(e) => displayModal({ ...event, ...e })}
+            onMouseEnter={() => setEventHovered(event.uuid)}
+            onMouseLeave={() => setEventHovered("")}
+            style={
+              {
+                backgroundColor: eventHovered === event.uuid ? 'yellow' : '',
+                color: eventHovered === event.uuid ? 'black' : ''
+              }
+            }
             key={`time-slot-event-${event.uuid}-${dayjs(event.start).toISOString()}`}
-            href={`/lecturer/${props.lecturer_uuid}/event/${event.uuid}`}
             className={getEventClassNames(event)}
           >
-            <div className="min-h-0 overflow-hidden">{event.title}</div>
+            <div className="min-h-0">{event.title}{event.location === 'Online' ? ' | 🌐💻' : ''}</div>
             {dayjs(event.end).diff(dayjs(event.start), 'minute') / 30 > 1 && (
-              <div className="pt-1 text-[10px]">
-                {dayjs(props.events.find(e => e.uuid === event.uuid).start).format('HH:mm DD-MM-YYYY')} - {dayjs(props.events.find(e => e.uuid === event.uuid).end).format('HH:mm DD-MM-YYYY')}
+              <div className="pt-1 text-[10px] overflow-hidden">
+                {
+                  event.isMultipleDays ?
+                    dayjs(initalEvents.find(e => e.uuid === event.uuid).start).format('HH:mm YYYY-MM-DD')
+                    : dayjs(initalEvents.find(e => e.uuid === event.uuid).start).format('HH:mm')
+                } - {
+                  event.isMultipleDays ?
+                    dayjs(initalEvents.find(e => e.uuid === event.uuid).end).format('HH:mm YYYY-MM-DD')
+                    : dayjs(initalEvents.find(e => e.uuid === event.uuid).end).format('HH:mm')
+                }
               </div>
             )}
-          </Link>
+          </button>
         ))}
       </div>
+      <Modal isVisible={modalOpen} onClose={closeModal} position={modalPosition}>
+        {modalContent && (
+          <div className='max-w-sm'>
+            <h2>{modalContent.title}</h2>
+            <p>{modalContent.location}</p>
+            <p>
+              {
+                modalContent.isMultipleDays ?
+                  dayjs(initalEvents.find(e => e.uuid === modalContent.uuid).start).format('HH:mm DD.MM.YYYY')
+                  : dayjs(initalEvents.find(e => e.uuid === modalContent.uuid).start).format('HH:mm')
+              } - {
+                modalContent.isMultipleDays ?
+                  dayjs(initalEvents.find(e => e.uuid === modalContent.uuid).end).format('HH:mm DD.MM.YYYY')
+                  : dayjs(initalEvents.find(e => e.uuid === modalContent.uuid).end).format('HH:mm')
+              }
+            </p>
+            {!modalContent.isUnavailable && (
+              <p>
+                {modalContent.subjects.map((subject) => (
+                  <div key={`modal_subject_${subject.uuid}`}>#{subject.name}</div>))
+                }
+              </p>
+            )}
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }
+
+
+
