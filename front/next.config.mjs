@@ -13,8 +13,8 @@ const nextConfig = {
         destination: "/lecturer/[uuid]",
       },
       {
-        source: "/reservation/:uuid",
-        destination: "/reservation/[uuid]",
+        source: "/lecturer/:uuid/event/:event_uuid",
+        destination: "/lecturer/[uuid]/event/[event_uuid]",
       },
       {
         source: "/login",

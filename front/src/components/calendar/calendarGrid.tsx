@@ -2,303 +2,250 @@ import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter.js';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore.js';
 import minMax from 'dayjs/plugin/minMax.js';
-import { Route } from 'next';
-import Link from 'next/link';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
-
-declare module 'react' {
-  interface CSSProperties {
-    [key: `--${string}`]: string | number;
-  }
-}
+import { tag } from '@/components/basic/lecturer';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 dayjs.extend(minMax);
 
-const timeSlots = [
-  '09:00',
-  '09:30',
-  '10:00',
-  '10:30',
-  '11:00',
-  '11:30',
-  '12:00',
-  '12:30',
-  '13:00',
-  '13:30',
-  '14:00',
-  '14:30',
-  '15:00',
-  '15:30',
-  '16:00',
-  '16:30',
-  '17:00',
-  '17:30',
-  '18:00',
-] as const;
+const timeSlots = Array.from({ length: 25 }, (_, i) => {
+  const hour = Math.floor(i / 2) + 8;
+  const minute = i % 2 === 0 ? '00' : '30';
+  return `${hour.toString().padStart(2, '0')}:${minute}`;
+});
 
-const colStartClasses = {
-  0: 'col-start-[1]',
-  1: 'col-start-[2]',
-  2: 'col-start-[3]',
-  3: 'col-start-[4]',
-  4: 'col-start-[5]',
-  5: 'col-start-[6]',
-  6: 'col-start-[7]',
-} as const;
+const generateColStartClass = (index: number) => `col-start-[${index + 1}]`;
+const generateRowStartClass = (index: number) => `row-start-[${index + 1}]`;
+const generateRowSpanClass = (span: number) => `row-end-[span_${span}]`;
 
-const colSpanClasses = {
-  0: 'col-end-[span_0]',
-  1: 'col-end-[span_1]',
-  2: 'col-end-[span_2]',
-  3: 'col-end-[span_3]',
-  4: 'col-end-[span_4]',
-  5: 'col-end-[span_5]',
-  6: 'col-end-[span_6]',
-  7: 'col-end-[span_7]',
-  8: 'col-end-[span_8]',
-  9: 'col-end-[span_9]',
-  10: 'col-end-[span_10]',
-  11: 'col-end-[span_11]',
-  12: 'col-end-[span_12]',
-  13: 'col-end-[span_13]',
-  14: 'col-end-[span_14]',
-  15: 'col-end-[span_15]',
-  16: 'col-end-[span_16]',
-  17: 'col-end-[span_17]',
-} as const;
+class event {
+  constructor(
+    public uuid: string,
+    public start: Date,
+    public end: Date,
+    public title: string,
+    public location?: string,
+    public isUnavailable?: boolean,
+    public isMultipleDays?: boolean,
+    public subjects?: tag[]
+  ) { }
+}
 
-const rowStartClasses = {
-  0: 'row-start-[1]',
-  1: 'row-start-[2]',
-  2: 'row-start-[3]',
-  3: 'row-start-[4]',
-  4: 'row-start-[5]',
-  5: 'row-start-[6]',
-  6: 'row-start-[7]',
-  7: 'row-start-[8]',
-  8: 'row-start-[9]',
-  9: 'row-start-[10]',
-  10: 'row-start-[11]',
-  11: 'row-start-[12]',
-  12: 'row-start-[13]',
-  13: 'row-start-[14]',
-  14: 'row-start-[15]',
-  15: 'row-start-[16]',
-  16: 'row-start-[17]',
-  17: 'row-start-[18]',
-  18: 'row-start-[19]',
-  19: 'row-start-[20]',
-  20: 'row-start-[21]',
-  21: 'row-start-[22]',
-} as const;
-
-const rowSpanClasses = {
-  2: 'row-end-[span_2]',
-  3: 'row-end-[span_3]',
-  4: 'row-end-[span_4]',
-  5: 'row-end-[span_5]',
-  6: 'row-end-[span_6]',
-  7: 'row-end-[span_7]',
-  8: 'row-end-[span_8]',
-  9: 'row-end-[span_9]',
-  10: 'row-end-[span_10]',
-  11: 'row-end-[span_11]',
-  12: 'row-end-[span_12]',
-  13: 'row-end-[span_13]',
-  14: 'row-end-[span_14]',
-  15: 'row-end-[span_15]',
-  16: 'row-end-[span_16]',
-  17: 'row-end-[span_17]',
-  18: 'row-end-[span_18]',
-} as const;
-
-type Props<RouteInferred extends string> = {
-  dates: `${number}${number}${number}${number}-${number}${number}-${number}${number}`[];
-  events: {
-    id: number;
-    start: Date;
-    end: Date;
-    title: string;
-    href: Route<RouteInferred>;
-    isSecondary?: boolean;
-  }[];
-};
-
-export default function CalendarGrid<Route extends string>(props: Props<Route>) {
+export default function CalendarGrid({ dates, initalEvents, lecturer_uuid }:
+  {
+    dates: `${number}${number}${number}${number}-${number}${number}-${number}${number}`[],
+    initalEvents: event[],
+    lecturer_uuid: string,
+  }
+) {
   const timeSlotColCount = 1;
 
-  const events = props.events.map((event) => {
-    const end = dayjs(event.end);
-    return {
-      ...event,
-      start: dayjs(event.start),
-      end: end,
-      isMultiDay: end.diff(event.start, 'hour') >= 24,
-    };
-  });
+  const splitEvents = useCallback((events: event[]) => {
+    const result: event[] = [];
+    events.forEach((event) => {
+      const start = dayjs(event.start);
+      const end = dayjs(event.end);
+      const totalDays = end.startOf('day').diff(start.startOf('day'), 'day') + 1;
+
+      for (let day = 0; day < totalDays; day++) {
+        const currentStart = start.add(day, 'day').startOf('day').isAfter(start) ? start.add(day, 'day').startOf('day') : start;
+        const currentEnd = day === totalDays - 1 ? end : currentStart.endOf('day');
+        result.push({
+          ...event,
+          start: currentStart.toDate(),
+          end: currentEnd.toDate(),
+          isMultipleDays: totalDays > 1,
+          isUnavailable: event.title === 'unavailable',
+        });
+      }
+    });
+    return result;
+  }, [dates]);
+
+  const removeExeciveEveats = useCallback((events: event[]) => {
+    const result: event[] = [];
+    events.forEach((event) => {
+      const date = dayjs(event.start).format('YYYY-MM-DD') as `${number}${number}${number}${number}-${number}${number}-${number}${number}`;
+      if (dates.includes(date)) {
+        result.push(event);
+      }
+    });
+    return result;
+  }, [splitEvents]);
+
+  const [events, setEvents] = useState<event[]>([]);
+
+  useEffect(() => {
+    setEvents(removeExeciveEveats(splitEvents(initalEvents)));
+  }, [dates]);
+
+  const [eventHovered, setEventHovered] = useState("");
 
   const getEventClassNames = useCallback(
-    (event: (typeof events)[number]) => {
-      const previousMultiDayEvents = events.filter(
-        ({ isMultiDay }, index) => isMultiDay && index < events.indexOf(event),
-      );
-      const previousNonMultiDayEvents = events.filter(
-        ({ isMultiDay }, index) => !isMultiDay && index < events.indexOf(event),
-      );
-      const isOverlappingNonMultiDay =
-        !event.isMultiDay &&
-        previousNonMultiDayEvents.reduce(
-          (isEventOverlappingPreviousEvents, otherAppointment) => {
-            return (
-              isEventOverlappingPreviousEvents ||
-              (event.start.isBefore(dayjs(otherAppointment.end)) &&
-                event.end.isAfter(dayjs(otherAppointment.start)))
-            );
-          },
-          false,
-        );
-
-      // Disallow negative index (if date outside of range, the
-      // event should start at the first date in props.dates)
+    (event: event) => {
+      const startDate = dayjs(event.start);
+      const endDate = dayjs(event.end);
       const dateIndex = Math.max(
         0,
-        props.dates.findIndex((date) =>
-          date.startsWith(event.start.format('YYYY-MM-DD')),
-        ),
+        dates.findIndex((date) =>
+          date.startsWith(startDate.format('YYYY-MM-DD'))
+        )
       );
+
+      const startTimeIndex = timeSlots.indexOf(startDate.format('HH:mm'));
+      const totalRows = (() => {
+        let start = 0;
+        let end = 0;
+        if (startDate.hour() < 8) {
+          start = 8 * 2;
+        } else {
+          start = startDate.hour() * 2 + (startDate.minute() === 30 ? 1 : 0);
+        }
+        if (endDate.hour() > 20) {
+          end = 20 * 2 + (endDate.minute() > 30 ? 1 : 0);
+        } else {
+          end = endDate.hour() * 2 + (endDate.minute() === 30 ? 1 : 0);
+        }
+        return Math.max(end - start, 1);
+      })();
 
       return twMerge(
-        'flex max-h-full flex-col break-words rounded p-[7px_6px_5px] text-[13px] leading-[20px] no-underline transition-[background-color] hover:z-10 hover:h-min hover:max-h-none hover:min-h-full',
-        colStartClasses[
-        (timeSlotColCount + dateIndex) as keyof typeof colStartClasses
-        ],
-        event.isMultiDay &&
-        colSpanClasses[
-        Math.min(
-          props.dates.length - dateIndex,
-          event.end.diff(
-            dayjs.max(event.start, dayjs(props.dates[0])),
-            'days',
-          ),
-        ) as keyof typeof colSpanClasses
-        ],
-        rowStartClasses[
-        (event.isMultiDay
-          ? previousMultiDayEvents.reduce((rowStart, multiDayEvent) => {
-            // Move the event down a row if it overlaps with a previous event
-            if (
-              event.start.isBefore(dayjs(multiDayEvent.end)) &&
-              event.end.isAfter(dayjs(multiDayEvent.start))
-            ) {
-              rowStart++;
-            }
-            return rowStart;
-          }, 1)
-          : timeSlots.indexOf(
-            dayjs(event.start).format(
-              'HH:mm',
-            ) as (typeof timeSlots)[number],
-          )) as keyof typeof rowStartClasses
-        ],
-        !event.isMultiDay &&
-        rowSpanClasses[
-        (event.end.diff(event.start, 'minute') /
-          30) as keyof typeof rowSpanClasses
-        ],
-        !event.isSecondary
-          ? 'bg-slate-800 text-white hover:bg-indigo-900'
-          : 'bg-slate-300 text-darkNavyBlue hover:bg-slate-200',
-        isOverlappingNonMultiDay &&
-        'w-[75%] ml-[25%] border border-white text-right z-20 hover:z-30',
+        'flex max-h-full flex-col break-words p-[7px_6px_5px] text-[13px] leading-[20px] no-underline transition-[background-color] hover:z-10 hover:h-min hover:max-h-none hover:min-h-full',
+        generateColStartClass(timeSlotColCount + dateIndex),
+        generateRowStartClass(startTimeIndex),
+        generateRowSpanClass(totalRows),
+        !event.isUnavailable ? 'bg-blue text-black' : 'bg-dark_blue text-white',
+        initalEvents.find(e => e.uuid === event.uuid).start.toUTCString() === event.start.toUTCString() ? 'rounded-t' : '',
+        initalEvents.find(e => e.uuid === event.uuid).end.toUTCString() === event.end.toUTCString() ? 'rounded-b' : ''
       );
     },
-    [props.dates, events, timeSlotColCount],
+    [events, eventHovered]
   );
 
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState<event | null>(null);
+  const [modalPosition, setModalPosition] = useState({ x: 0, y: 0 });
+  const displayModal = useCallback((event: any) => {
+    setModalOpen(true);
+    setModalPosition({ x: event.clientX, y: event.clientY });
+    setModalContent(event);
+  }, [])
+  const closeModal = useCallback(() => {
+    setModalOpen(false);
+    setModalContent(null);
+  }, [])
+  const Modal = ({ isVisible, onClose, children, position }) => {
+    if (!isVisible) return null;
+    const handleBackdropClick = (e) => {
+      if (e.target === e.currentTarget) {
+        onClose();
+      }
+    };
+    return (
+      <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50" onClick={handleBackdropClick}>
+        <div className="bg-white p-6 rounded-lg shadow-lg relative" style={{ top: position.y, left: position.x, position: 'absolute' }}>
+          <button
+            onClick={onClose}
+            className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
+          >
+            &times;
+          </button>
+          {children}
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="p-3 min-w-[650px]">
-      <div className="grid auto-rows-[32px] grid-cols-[60px_repeat(5,_1fr)] gap-1">
-        {props.dates.map((date, index) => {
-          return (
-            <div
-              key={`date-${date}`}
-              className={twMerge(
-                'text-darkGray col-span-1 p-2 text-center text-[13px] text-xs',
-                colStartClasses[
-                (timeSlotColCount + index) as keyof typeof colStartClasses
-                ],
-              )}
-            >
-              {date}
-            </div>
-          );
-        })}
-
-        {events
-          .filter(({ isMultiDay }) => isMultiDay)
-          .map((event) => {
-            return (
-              <Link
-                key={`event-${event.id}`}
-                href={event.href}
-                className={twMerge(
-                  getEventClassNames(event),
-                  dayjs(props.dates[0]).startOf('day').isAfter(event.start) &&
-                  'rounded-l-none ',
-                  dayjs(props.dates[props.dates.length - 1])
-                    .add(1, 'day')
-                    .startOf('day')
-                    .isBefore(event.end) && 'rounded-r-none ',
-                )}
-              >
-                {event.title}
-              </Link>
-            );
-          })}
+    <div className="p-3">
+      <div className="grid auto-rows-min grid-cols-[60px_repeat(5,_1fr)] gap-1">
+        {dates.map((date, index) => (
+          <div
+            key={`date-${date}`}
+            className={twMerge(
+              'text-white col-span-1 p-2 text-center text-[13px] text-xs',
+              generateColStartClass(timeSlotColCount + index)
+            )}
+          >
+            {date}
+          </div>
+        ))}
       </div>
-
-      <div className="mt-1 grid grid-cols-[60px_repeat(5,_1fr)] grid-rows-[repeat(17,32px)] gap-1">
-        {timeSlots.map((time, index) => {
-          return (
-            <div
-              key={`time-slot-${time}`}
-              className={twMerge(
-                rowStartClasses[index as keyof typeof rowStartClasses],
-                'text-darkGray translate-y-[-16px] text-xs leading-[30px]',
-              )}
-            >
-              {time.endsWith('30') ? <>&nbsp;</> : time}
-            </div>
-          );
-        })}
-
-        {events
-          .filter((event) => {
-            const hours = event.end.diff(event.start, 'hour');
-            return hours < 24;
-          })
-          .map((event) => {
-            return (
-              <Link
-                key={`time-slot-event-${event.id}`}
-                href={event.href}
-                className={getEventClassNames(event)}
-              >
-                <div className="min-h-0 overflow-hidden">{event.title}</div>
-                {event.end.diff(event.start, 'minute') / 30 > 1 && (
-                  <div className="pt-1 text-[10px]">
-                    {dayjs(event.start).format('HH:mm')} -{' '}
-                    {dayjs(event.end).format('HH:mm')}
-                  </div>
-                )}
-              </Link>
-            );
-          })}
+      <div className="mt-1 grid grid-flow-col grid-cols-[60px_repeat(5,_1fr)] grid-rows-[repeat(25,27px)] gap-1">
+        {timeSlots.map((time, index) => (
+          <div
+            key={`time-slot-${time}`}
+            className={twMerge(
+              generateRowStartClass(index),
+              'text-white translate-y-[-16px] text-xs leading-[30px]'
+            )}
+          >
+            {time.endsWith('30') ? <>&nbsp;</> : time}
+          </div>
+        ))}
+        {events.map((event: event) => (
+          <button
+            onClick={(e) => displayModal({ ...event, ...e })}
+            onMouseEnter={() => setEventHovered(event.uuid)}
+            onMouseLeave={() => setEventHovered("")}
+            style={
+              {
+                backgroundColor: eventHovered === event.uuid ? 'yellow' : '',
+                color: eventHovered === event.uuid ? 'black' : ''
+              }
+            }
+            key={`time-slot-event-${event.uuid}-${dayjs(event.start).toISOString()}`}
+            className={getEventClassNames(event)}
+          >
+            <div className="min-h-0">{event.title}{event.location === 'Online' ? ' | 🌐💻' : ''}</div>
+            {dayjs(event.end).diff(dayjs(event.start), 'minute') / 30 > 1 && (
+              <div className="pt-1 text-[10px] overflow-hidden">
+                {
+                  event.isMultipleDays ?
+                    dayjs(initalEvents.find(e => e.uuid === event.uuid).start).format('HH:mm YYYY-MM-DD')
+                    : dayjs(initalEvents.find(e => e.uuid === event.uuid).start).format('HH:mm')
+                } - {
+                  event.isMultipleDays ?
+                    dayjs(initalEvents.find(e => e.uuid === event.uuid).end).format('HH:mm YYYY-MM-DD')
+                    : dayjs(initalEvents.find(e => e.uuid === event.uuid).end).format('HH:mm')
+                }
+              </div>
+            )}
+          </button>
+        ))}
       </div>
+      <Modal isVisible={modalOpen} onClose={closeModal} position={modalPosition}>
+        {modalContent && (
+          <div className='max-w-sm'>
+            <h2>{modalContent.title}</h2>
+            <p>{modalContent.location}</p>
+            <p>
+              {
+                modalContent.isMultipleDays ?
+                  dayjs(initalEvents.find(e => e.uuid === modalContent.uuid).start).format('HH:mm DD.MM.YYYY')
+                  : dayjs(initalEvents.find(e => e.uuid === modalContent.uuid).start).format('HH:mm')
+              } - {
+                modalContent.isMultipleDays ?
+                  dayjs(initalEvents.find(e => e.uuid === modalContent.uuid).end).format('HH:mm DD.MM.YYYY')
+                  : dayjs(initalEvents.find(e => e.uuid === modalContent.uuid).end).format('HH:mm')
+              }
+            </p>
+            {!modalContent.isUnavailable && (
+              <p>
+                {modalContent.subjects.map((subject) => (
+                  <div key={`modal_subject_${subject.uuid}`}>#{subject.name}</div>))
+                }
+              </p>
+            )}
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }
+
+
 

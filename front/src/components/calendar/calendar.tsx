@@ -1,79 +1,61 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState, useCallback, useMemo } from "react";
 import { reservation } from "@/components/basic/lecturer";
 import CalendarGrid from "@/components/calendar/calendarGrid";
+import dayjs from "dayjs";
 
-export default function Calendar({ reservations }: { reservations: reservation[] }) {
-  const calendarRef = useRef<any>(null);
+export default function Calendar({ reservations, lecturer_uuid }: { reservations: reservation[], lecturer_uuid: string }) {
+  // const calendarRef = useRef<any>(null);
+  const [weekOffset, setWeekOffset] = useState<number>(-4);
 
-  useEffect(() => {
-    setCalendarTitle();
-  }, []);
-
-  const initialEvents = reservations.map(reservation => ({
-    uuid: reservation.uuid,
-    title: reservation.status,
-    start: reservation.start_time,
-    end: reservation.end_time,
-  }));
-
-  const calendarOptions = {
-    usageStatistics: false,
-    useFormPopup: true,
-    useDetailPopup: true,
-    events: initialEvents,
-    height: '800px',
-    view: 'week',
-    week: {
-      startDayOfWeek: 1,
-      dayNames: ["Ne", "Po", "Út", "St", "Čt", "Pá", "So"],
-      workweek: true,
-      hourStart: 8,
-      hourEnd: 20,
-      EventView: false,
-      TaskView: false,
-      narrowWeekend: true,
+  const events = useMemo(
+    () => {
+      return reservations.map(reservation => ({
+        uuid: reservation.uuid,
+        title: reservation.status,
+        start: reservation.start_time,
+        end: reservation.end_time,
+        location: reservation.location,
+        subjects: reservation.subject,
+      }));
     },
-  };
+    [reservations],
+  )
 
-  const handleClickBackButton = () => {
-    const calendarInstance = calendarRef.current.getInstance();
-    if (calendarInstance) {
-      calendarInstance.prev();
-      setCalendarTitle();
-    }
-  };
+  const generateWorkWeek = useCallback((weeksOffset = 0) => {
+    const startOfWeek = dayjs().startOf('week').add(weeksOffset, 'week');
+    const workWeek = [];
+    for (let i = 0; i < 5; i++)
+      workWeek.push(startOfWeek.add(i + 1, 'day').format('YYYY-MM-DD'));
+    return workWeek;
+  }, [weekOffset]);
 
-  const setCalendarTitle = () => {
-    const calendarInstance = calendarRef.current.getInstance();
-    if (calendarInstance) {
-      const titleObj = document.getElementById('CalendarTitle');
-      titleObj.innerText = moment(calendarInstance.getDateRangeStart() + 0).format('YYYY MMMM DD') + " - " + moment(calendarInstance.getDateRangeEnd() + 0).format('YYYY MMMM DD');
-    }
-  };
-
-  const handleClickNextButton = () => {
-    const calendarInstance = calendarRef.current.getInstance();
-    if (calendarInstance) {
-      calendarInstance.next();
-      setCalendarTitle();
-    }
-  };
+  const calendarTitle = useCallback(() => {
+    const startOfWeek = dayjs().startOf('week').add(weekOffset, 'week');
+    const endOfWeek = startOfWeek.add(4, 'day');
+    return `${startOfWeek.format('DD.MM.YYYY')} - ${endOfWeek.format('DD.MM.YYYY')}`;
+  }, [weekOffset]);
 
   return (
-    <div className="border-white border-2 text-black">
+    <div className="mt-4 border-white rounded-lg border-2 text-black hidden sm:block">
       <div className="flex-1">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-black" id="CalendarTitle"></h2>
+        <div className="flex items-center justify-between bg-white p-2">
+          <h2 className="text-2xl font-bold text-black">{calendarTitle()}</h2>
           <div className="flex items-center gap-2">
-            <button onClick={handleClickBackButton} className="p-2 rounded-full hover:bg-black/10 dark:hover:bg-black/80 transition-colors">
+            <button onClick={() => setWeekOffset(weekOffset - 1)} className="p-2 rounded-full hover:bg-black/10 dark:hover:bg-black/80 transition-colors">
               <ChevronLeftIcon className="w-5 h-5 text-black/50 dark:text-black/40" />
             </button>
-            <button onClick={handleClickNextButton} className="p-2 rounded-full hover:bg-black/10 dark:hover:bg-black/80 transition-colors">
+            <button onClick={() => setWeekOffset(weekOffset + 1)} className="p-2 rounded-full hover:bg-black/10 dark:hover:bg-black/80 transition-colors">
               <ChevronRightIcon className="w-5 h-5 text-black/50 dark:text-black/40" />
             </button>
           </div>
         </div>
-        <CalendarGrid ref={calendarRef} />
+        <CalendarGrid
+          dates={
+            generateWorkWeek(weekOffset) as `${number}${number}${number}${number}-${number}${number}-${number}${number}`[]
+          }
+          initalEvents={events}
+          lecturer_uuid={lecturer_uuid}
+        />
       </div>
     </div>
   );
