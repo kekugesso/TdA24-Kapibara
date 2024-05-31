@@ -1,6 +1,12 @@
 from rest_framework import serializers
+from django.contrib.auth.models import User
 from .models import Lecturer, Tag, LectureTag, Reservation, Contact, Student, Subject
 
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'password']
 
 class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
@@ -42,8 +48,17 @@ class LecturerSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True)
     contact = ContactSerializer()
     reservations = ReservationSerializer(many=True)
-
+    user = UserSerializer()
     class Meta:
         model = Lecturer
-        fields = ['uuid','username', 'title_before', 'first_name', 'middle_name', 'last_name', 'title_after', 'picture_url', 
+        fields = ['uuid','user', 'title_before', 'first_name', 'middle_name', 'last_name', 'title_after', 'picture_url', 
                   'location', 'claim', 'bio', 'tags', 'price_per_hour', 'contact', 'reservations']
+        
+class LecturerAllSerializer(serializers.ModelSerializer):
+    tags = TagSerializer(many=True)
+    contact = ContactSerializer()
+    user = UserSerializer()
+    class Meta:
+        model = Lecturer
+        fields = ['uuid', 'user', 'title_before', 'first_name', 'middle_name', 'last_name', 'title_after', 'picture_url', 
+                  'location', 'claim', 'bio', 'tags', 'price_per_hour', 'contact']

@@ -1,29 +1,40 @@
 import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
-from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
+from rest_framework.decorators import authentication_classes, permission_classes
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Lecturer, Tag, LectureTag, Contact, TelephoneNumber, Email, Reservation, Student, Subject, SubjectReservation
-from .serializers import LecturerSerializer, ReservationSerializer
+from .serializers import LecturerSerializer, ReservationSerializer, LecturerAllSerializer, UserSerializer
 
 
 class LecturerAPIGetAll(APIView):
     def get(self, request):
         queryset = Lecturer.objects.all()
-        serialized_data = LecturerSerializer(queryset, many=True)
+        serialized_data = LecturerAllSerializer(queryset, many=True)
         return Response(serialized_data.data, status=200)
 
 class LecturerAPIPost(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request):
-        control = False
         try:
+            control = False
             data = request.data
+            user = User(
+                username=data['username']
+            )
+            user.save()
+            user.set_password(data['password'])
+            user.save()
             data['uuid'] = str(uuid.uuid4())
             lecturer = Lecturer(
                 uuid=data['uuid'],
-                username=data['username'],
-                password=generate_password_hash(data['password']),
+                user = user,
                 first_name=data['first_name'],
                 middle_name=data['middle_name'],
                 last_name=data['last_name'],
@@ -35,6 +46,7 @@ class LecturerAPIPost(APIView):
                 bio=data['bio'],
                 price_per_hour=data['price_per_hour']
             )
+            
             lecturer.save()
             control = True
             contact = Contact(
@@ -70,12 +82,10 @@ class LecturerAPIPost(APIView):
             serialized_data = LecturerSerializer(lecturer_result)
             return Response(serialized_data.data, status=201)
         except Exception as e:
-            if control:
-                lecturer = Lecturer.objects.get(uuid=data['uuid'])
-                lecturer.delete()
-            return Response({"message": "You sent a bad json"}, status=400)
-
+            return Response(status=400)
+       
 class LecturerAPIOne(APIView):
+    permission_classes = [AllowAny]
     def get(self, request, uuid):
         lecturer = get_object_or_404(Lecturer, uuid=uuid)
         serialized_data = LecturerSerializer(lecturer)
@@ -130,9 +140,6 @@ class LecturerAPIOne(APIView):
                     email = email
                 )
                 new_email.save()
-            lecturer.username = data['username']
-            if not check_password_hash(lecturer.password, data['password']):
-                lecturer.password = generate_password_hash(data['password'])
             lecturer.first_name = data['first_name']
             lecturer.middle_name = data['middle_name']
             lecturer.last_name = data['last_name']
@@ -156,6 +163,8 @@ class ReservationAPIOne(APIView):
             return Response(serialized_data.data, status=200)
         else:
             return Response(status=404)
+    @authentication_classes([TokenAuthentication])
+    @permission_classes([IsAuthenticated])
     def delete(self, request, uuid):
         reservation = get_object_or_404(Reservation, uuid=uuid)
         if(reservation):
@@ -163,6 +172,8 @@ class ReservationAPIOne(APIView):
             return Response(status=204)
         else:
             return Response(status=404)
+    @authentication_classes([TokenAuthentication])
+    @permission_classes([IsAuthenticated])
     def put(self, request, uuid):
         try:
             reservation = get_object_or_404(Reservation, uuid=uuid)
@@ -253,4 +264,28 @@ class ReservationAPIPost(APIView):
                 reservation = Reservation.objects.get(uuid=data['uuid'])
                 reservation.delete()
             return Response({"message": "You sent a bad json"}, status=400)
-            
+
+
+class Logout(APIView):
+    @authentication_classes([TokenAuthentication])
+    @permission_classes([IsAuthenticated])
+    def post(self, request):
+        request.user.auth_token.delete()
+        return Response(status=200)
+
+class Login(APIView):
+    def post(self, request):
+        data = request.data
+        user = get_object_or_404(User, username=data['username'])
+        if not user.check_password(data['password']):
+            return Response(status=401)
+        token, created = Token.objects.get_or_create(user=user)
+        serializer = UserSerializer(instance=user)
+        return Response({'token': token.key, "user": serializer.data}, status=200)
+
+class CheckToken(APIView):
+    @authentication_classes([TokenAuthentication])
+    @permission_classes([IsAuthenticated])
+    def get(self, request):
+        user_serializer = UserSerializer(instance=request.user)
+        return Response(user_serializer.data, status=200)

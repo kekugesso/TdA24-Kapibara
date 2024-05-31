@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 class Status(models.TextChoices):
     RESERVED = 'reserved'
@@ -9,8 +10,7 @@ class Lecturer(models.Model):
     Model database for lecturers
     """
     uuid = models.TextField(max_length=255, primary_key=True)
-    username = models.TextField(null=False, unique=True)
-    password = models.TextField(null=False)
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     title_before = models.TextField(null=True)
     first_name = models.TextField(null=False)
     middle_name = models.TextField(null=True)
