@@ -29,7 +29,7 @@ export default function Card({ lecturer, index }: { lecturer: Lecturer_Card, ind
         </div>
         <div className="flex flex-wrap max-w-screen-sm text-sm text-center text-black/55 dark:text-white/25">
           {lecturer.tags.map((tag) => (
-            <Link href={"?tag=" + tag.uuid}><div className="mx-1 hover:animate-pulse hover:animate-once">#{tag.name}</div></Link>
+            <Link key={`tag_${lecturer.uuid}_${tag.uuid}`} href={"?tag=" + tag.uuid}><div className="mx-1 hover:animate-pulse hover:animate-once">#{tag.name}</div></Link>
           ))}
         </div>
       </div>
