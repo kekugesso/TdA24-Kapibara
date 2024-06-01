@@ -59,8 +59,8 @@ export default function lecturer() {
   return (
     lecturer ?
       (<Profile key={"profile_" + uuid} lecturer={lecturer} />) :
-      (<section className="flex min-h-screen bg-white dark:bg-jet text-black dark:text-white items-center justify-center">
-        <h1 className="text-6xl">Loading ...</h1>
+      (<section className="place-self-center flex bg-white dark:bg-jet text-black dark:text-white items-center justify-center">
+        <h1 className="text-6xl">Načítání...</h1>
       </section>)
   )
 }

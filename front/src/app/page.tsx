@@ -40,12 +40,16 @@ export default function Home() {
 
   //console.log(lecturers);
 
+
   return (
-    <section className="grid grid-cols-1 md:grid-cols-2 gap-4 min-h-screen bg-white dark:bg-jet text-black dark:text-white items-center justify-between p-6 sm:px-12 lg:px-24">
-      {/* Render fetched data here */}
-      {lecturers.map((lecturer, index) => (
-        <Card key={"Card_" + index} lecturer={lecturer} index={index} />
-      ))}
-    </section>
+    lecturers.length === 0 ? <section className="place-self-center flex bg-white dark:bg-jet text-black dark:text-white items-center justify-center">
+      <h1 className="text-6xl">Načítání...</h1>
+    </section> :
+      <section className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white dark:bg-jet text-black dark:text-white items-center justify-between p-6 sm:px-12 lg:px-24 justify-self-center">
+        {/* Render fetched data here */}
+        {lecturers.map((lecturer, index) => (
+          <Card key={`Card_${lecturer.uuid}`} lecturer={lecturer} index={index} />
+        ))}
+      </section>
   );
 }

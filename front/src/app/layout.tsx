@@ -19,10 +19,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="cz">
-      <body className={inter.className + 'flex flex-col h-screen justify-between'}>
-        <Theme>
+      <body>
+        <Theme className={`${inter.className} flex flex-col bg-white dark:bg-jet justify-between min-h-screen`}>
           <Nav bgColor="bg-blue dark:bg-dark_blue" />
-          <main className="mb-auto">{children}</main>
+          <main className="flex-grow flex items-center justify-center mb-auto">{children}</main>
           <Footer bgColor="bg-dark_blue" />
         </Theme>
       </body>
