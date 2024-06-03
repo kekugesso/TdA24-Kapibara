@@ -13,79 +13,86 @@ from .serializers import LecturerSerializer, ReservationSerializer, LecturerAllS
 
 
 class LecturerAPIGetAll(APIView):
+    permission_classes = [AllowAny]
     def get(self, request):
         queryset = Lecturer.objects.all()
         serialized_data = LecturerAllSerializer(queryset, many=True)
         return Response(serialized_data.data, status=200)
 
 class LecturerAPIPost(APIView):
-    permission_classes = [AllowAny]
-
+    permission_classes = [IsAuthenticated]
     def post(self, request):
-        try:
-            control = False
-            data = request.data
-            user = User(
-                username=data['username']
-            )
-            user.save()
-            user.set_password(data['password'])
-            user.save()
-            data['uuid'] = str(uuid.uuid4())
-            lecturer = Lecturer(
-                uuid=data['uuid'],
-                user = user,
-                first_name=data['first_name'],
-                middle_name=data['middle_name'],
-                last_name=data['last_name'],
-                title_before=data['title_before'],
-                title_after=data['title_after'],
-                picture_url=data['picture_url'],
-                location=data['location'],
-                claim=data['claim'],
-                bio=data['bio'],
-                price_per_hour=data['price_per_hour']
-            )
-            
-            lecturer.save()
-            control = True
-            contact = Contact(
-                lecturer = lecturer
-            )
-            contact.save()
-            data_contact = data['contact']
-            for number in data_contact['telephone_numbers']:
-                new_number = TelephoneNumber(
-                    contact = contact,
-                    phone = number
+        if(request.user.is_superuser == True):
+            try:
+                control = False
+                data = request.data
+                user = User(
+                    username=data['username']
                 )
-                new_number.save()
-            for email in data_contact['emails']:
-                new_email = Email(
-                    contact = contact,
-                    email = email
+                user.save()
+                user.set_password(data['password'])
+                user.save()
+                data['uuid'] = str(uuid.uuid4())
+                lecturer = Lecturer(
+                    uuid=data['uuid'],
+                    user = user,
+                    first_name=data['first_name'],
+                    middle_name=data['middle_name'],
+                    last_name=data['last_name'],
+                    title_before=data['title_before'],
+                    title_after=data['title_after'],
+                    picture_url=data['picture_url'],
+                    location=data['location'],
+                    claim=data['claim'],
+                    bio=data['bio'],
+                    price_per_hour=data['price_per_hour']
                 )
-                new_email.save()
-            for tag in data['tags']:
+                
+                lecturer.save()
                 control = True
-                tgas = Tag.objects.all()
-                for tg in tgas:
-                    if tg.name == tag['name']:
+                contact = Contact(
+                    lecturer = lecturer
+                )
+                contact.save()
+                data_contact = data['contact']
+                for number in data_contact['telephone_numbers']:
+                    new_number = TelephoneNumber(
+                        contact = contact,
+                        phone = number
+                    )
+                    new_number.save()
+                for email in data_contact['emails']:
+                    new_email = Email(
+                        contact = contact,
+                        email = email
+                    )
+                    new_email.save()
+                for tag in data['tags']:
+                    control = True
+                    tgas = Tag.objects.all()
+                    for tg in tgas:
+                        if tg.name == tag['name']:
+                            LectureTag(lecturer_uuid=lecturer, tag_uuid=tg).save()
+                            control = False
+                            break
+                    if control:
+                        tg = Tag(name=tag['name'], uuid=str(uuid.uuid4()))
+                        tg.save()
                         LectureTag(lecturer_uuid=lecturer, tag_uuid=tg).save()
-                        control = False
-                        break
-                if control:
-                    tg = Tag(name=tag['name'], uuid=str(uuid.uuid4()))
-                    tg.save()
-                    LectureTag(lecturer_uuid=lecturer, tag_uuid=tg).save()
-            lecturer_result = Lecturer.objects.get(uuid=data['uuid'])
-            serialized_data = LecturerSerializer(lecturer_result)
-            return Response(serialized_data.data, status=201)
-        except Exception as e:
-            return Response(status=400)
-       
+                lecturer_result = Lecturer.objects.get(uuid=data['uuid'])
+                serialized_data = LecturerSerializer(lecturer_result)
+                return Response(serialized_data.data, status=201)
+            except Exception as e:
+                return Response(status=400)
+        else:
+            return Response(status=403)
+        
 class LecturerAPIOne(APIView):
-    permission_classes = [AllowAny]
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [AllowAny()]
+        return [IsAuthenticated()]
+    
     def get(self, request, uuid):
         lecturer = get_object_or_404(Lecturer, uuid=uuid)
         serialized_data = LecturerSerializer(lecturer)
@@ -93,6 +100,10 @@ class LecturerAPIOne(APIView):
 
     def delete(self, request, uuid):
         lecturer = get_object_or_404(Lecturer, uuid=uuid)
+        user = User.objects.get(id=lecturer.user.id)
+        token = Token.objects.get(user=user)
+        token.delete()
+        user.delete()
         lecturer.delete()
         return Response(status=204)
     
@@ -156,6 +167,11 @@ class LecturerAPIOne(APIView):
             return Response({"message": "You sent a bad json"}, status=400)
 
 class ReservationAPIOne(APIView):
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [AllowAny()]
+        return [IsAuthenticated()]
+
     def get(self, request, uuid):
         reservation = get_object_or_404(Reservation, uuid=uuid)
         if(reservation):
@@ -163,8 +179,6 @@ class ReservationAPIOne(APIView):
             return Response(serialized_data.data, status=200)
         else:
             return Response(status=404)
-    @authentication_classes([TokenAuthentication])
-    @permission_classes([IsAuthenticated])
     def delete(self, request, uuid):
         reservation = get_object_or_404(Reservation, uuid=uuid)
         if(reservation):
@@ -172,8 +186,6 @@ class ReservationAPIOne(APIView):
             return Response(status=204)
         else:
             return Response(status=404)
-    @authentication_classes([TokenAuthentication])
-    @permission_classes([IsAuthenticated])
     def put(self, request, uuid):
         try:
             reservation = get_object_or_404(Reservation, uuid=uuid)
@@ -214,6 +226,7 @@ class ReservationAPIOne(APIView):
             return Response({"message": "You sent a bad json"}, status=400)
     
 class ReservationAPIAll(APIView):
+    permission_classes = [AllowAny]
     def get(self, request):
         data = request.data
         reservations = Reservation.objects.filter(lecture_uuid_id=data['lecturer_uuid'])
@@ -221,6 +234,7 @@ class ReservationAPIAll(APIView):
         return Response(serialized_data.data, status=200)
 
 class ReservationAPIPost(APIView):
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         control = False
         try:
@@ -267,13 +281,13 @@ class ReservationAPIPost(APIView):
 
 
 class Logout(APIView):
-    @authentication_classes([TokenAuthentication])
-    @permission_classes([IsAuthenticated])
+    permission_classes = [IsAuthenticated]
     def post(self, request):
         request.user.auth_token.delete()
         return Response(status=200)
 
 class Login(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         data = request.data
         user = get_object_or_404(User, username=data['username'])
@@ -284,8 +298,7 @@ class Login(APIView):
         return Response({'token': token.key, "user": serializer.data}, status=200)
 
 class CheckToken(APIView):
-    @authentication_classes([TokenAuthentication])
-    @permission_classes([IsAuthenticated])
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         user_serializer = UserSerializer(instance=request.user)
         return Response(user_serializer.data, status=200)
