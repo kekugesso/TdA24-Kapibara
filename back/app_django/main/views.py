@@ -20,7 +20,7 @@ class LecturerAPIGetAll(APIView):
         return Response(serialized_data.data, status=200)
 
 class LecturerAPIPost(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     def post(self, request):
         if(request.user.is_superuser == True):
             try:
