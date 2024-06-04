@@ -22,7 +22,7 @@ class LecturerAPIGetAll(APIView):
 class LecturerAPIPost(APIView):
     permission_classes = [AllowAny]
     def post(self, request):
-        if(request.user.is_superuser == True):
+        #if(request.user.is_superuser == True):
             try:
                 control = False
                 data = request.data
@@ -84,7 +84,7 @@ class LecturerAPIPost(APIView):
                 return Response(serialized_data.data, status=201)
             except Exception as e:
                 return Response(status=400)
-        else:
+        #else:
             return Response(status=403)
         
 class LecturerAPIOne(APIView):
