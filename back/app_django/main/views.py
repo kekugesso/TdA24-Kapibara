@@ -23,69 +23,69 @@ class LecturerAPIPost(APIView):
     permission_classes = [AllowAny]
     def post(self, request):
         #if(request.user.is_superuser == True):
-            try:
-                control = False
-                data = request.data
-                user = User(
-                    username=data['username']
+        try:
+            control = False
+            data = request.data
+            user = User(
+                username=data['username']
+            )
+            user.save()
+            user.set_password(data['password'])
+            user.save()
+            data['uuid'] = str(uuid.uuid4())
+            lecturer = Lecturer(
+                uuid=data['uuid'],
+                user = user,
+                first_name=data['first_name'],
+                middle_name=data['middle_name'],
+                last_name=data['last_name'],
+                title_before=data['title_before'],
+                title_after=data['title_after'],
+                picture_url=data['picture_url'],
+                location=data['location'],
+                claim=data['claim'],
+                bio=data['bio'],
+                price_per_hour=data['price_per_hour']
+            )
+            
+            lecturer.save()
+            control = True
+            contact = Contact(
+                lecturer = lecturer
+            )
+            contact.save()
+            data_contact = data['contact']
+            for number in data_contact['telephone_numbers']:
+                new_number = TelephoneNumber(
+                    contact = contact,
+                    phone = number
                 )
-                user.save()
-                user.set_password(data['password'])
-                user.save()
-                data['uuid'] = str(uuid.uuid4())
-                lecturer = Lecturer(
-                    uuid=data['uuid'],
-                    user = user,
-                    first_name=data['first_name'],
-                    middle_name=data['middle_name'],
-                    last_name=data['last_name'],
-                    title_before=data['title_before'],
-                    title_after=data['title_after'],
-                    picture_url=data['picture_url'],
-                    location=data['location'],
-                    claim=data['claim'],
-                    bio=data['bio'],
-                    price_per_hour=data['price_per_hour']
+                new_number.save()
+            for email in data_contact['emails']:
+                new_email = Email(
+                    contact = contact,
+                    email = email
                 )
-                
-                lecturer.save()
+                new_email.save()
+            for tag in data['tags']:
                 control = True
-                contact = Contact(
-                    lecturer = lecturer
-                )
-                contact.save()
-                data_contact = data['contact']
-                for number in data_contact['telephone_numbers']:
-                    new_number = TelephoneNumber(
-                        contact = contact,
-                        phone = number
-                    )
-                    new_number.save()
-                for email in data_contact['emails']:
-                    new_email = Email(
-                        contact = contact,
-                        email = email
-                    )
-                    new_email.save()
-                for tag in data['tags']:
-                    control = True
-                    tgas = Tag.objects.all()
-                    for tg in tgas:
-                        if tg.name == tag['name']:
-                            LectureTag(lecturer_uuid=lecturer, tag_uuid=tg).save()
-                            control = False
-                            break
-                    if control:
-                        tg = Tag(name=tag['name'], uuid=str(uuid.uuid4()))
-                        tg.save()
+                tgas = Tag.objects.all()
+                for tg in tgas:
+                    if tg.name == tag['name']:
                         LectureTag(lecturer_uuid=lecturer, tag_uuid=tg).save()
-                lecturer_result = Lecturer.objects.get(uuid=data['uuid'])
-                serialized_data = LecturerSerializer(lecturer_result)
-                return Response(serialized_data.data, status=201)
-            except Exception as e:
-                return Response(status=400)
+                        control = False
+                        break
+                if control:
+                    tg = Tag(name=tag['name'], uuid=str(uuid.uuid4()))
+                    tg.save()
+                    LectureTag(lecturer_uuid=lecturer, tag_uuid=tg).save()
+            lecturer_result = Lecturer.objects.get(uuid=data['uuid'])
+            serialized_data = LecturerSerializer(lecturer_result)
+            return Response(serialized_data.data, status=201)
+        except Exception as e:
+            return Response(status=400)
         #else:
-            return Response(status=403)
+            #return Response(status=403)
         
 class LecturerAPIOne(APIView):
     def get_permissions(self):
