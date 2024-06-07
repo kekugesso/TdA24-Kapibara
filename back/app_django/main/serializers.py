@@ -48,17 +48,15 @@ class LecturerSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True)
     contact = ContactSerializer()
     reservations = ReservationSerializer(many=True)
-    user = UserSerializer()
     class Meta:
         model = Lecturer
-        fields = ['uuid','user', 'title_before', 'first_name', 'middle_name', 'last_name', 'title_after', 'picture_url', 
+        fields = ['uuid', 'title_before', 'first_name', 'middle_name', 'last_name', 'title_after', 'picture_url', 
                   'location', 'claim', 'bio', 'tags', 'price_per_hour', 'contact', 'reservations']
         
 class LecturerAllSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True)
     contact = ContactSerializer()
-    user = UserSerializer()
     class Meta:
         model = Lecturer
-        fields = ['uuid', 'user', 'title_before', 'first_name', 'middle_name', 'last_name', 'title_after', 'picture_url', 
+        fields = ['uuid', 'title_before', 'first_name', 'middle_name', 'last_name', 'title_after', 'picture_url', 
                   'location', 'claim', 'bio', 'tags', 'price_per_hour', 'contact']

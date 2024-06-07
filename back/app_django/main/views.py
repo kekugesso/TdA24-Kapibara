@@ -226,10 +226,11 @@ class ReservationAPIOne(APIView):
             return Response({"message": "You sent a bad json"}, status=400)
     
 class ReservationAPIAll(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         data = request.data
-        reservations = Reservation.objects.filter(lecture_uuid_id=data['lecturer_uuid'])
+        one_lecturer = Lecturer.objects.get(user=request.user.id)
+        reservations = Reservation.objects.filter(lecture_uuid_id=one_lecturer.uuid)
         serialized_data = ReservationSerializer(reservations, many=True)
         return Response(serialized_data.data, status=200)
 
