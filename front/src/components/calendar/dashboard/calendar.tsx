@@ -1,10 +1,9 @@
 import React, { useRef, useEffect, useState, useCallback, useMemo } from "react";
 import { reservation } from "@/components/basic/lecturer";
-import CalendarGrid from "@/components/calendar/calendarGrid";
+import CalendarGrid from "@/components/calendar/dashboard/calendarGrid";
 import dayjs from "dayjs";
 
-export default function Calendar({ reservations, lecturer_uuid }: { reservations: reservation[], lecturer_uuid: string }) {
-  // const calendarRef = useRef<any>(null);
+export default function Calendar({ reservations }: { reservations: reservation[] }) {
   const [weekOffset, setWeekOffset] = useState<number>(0);
 
   const events = useMemo(
@@ -20,7 +19,6 @@ export default function Calendar({ reservations, lecturer_uuid }: { reservations
     },
     [reservations],
   )
-
   const generateWorkWeek = useCallback((weeksOffset = 0) => {
     const startOfWeek = dayjs().startOf('week').add(weeksOffset, 'week');
     const workWeek = [];
@@ -36,7 +34,7 @@ export default function Calendar({ reservations, lecturer_uuid }: { reservations
   }, [weekOffset]);
 
   return (
-    <div className="mt-4 border-white rounded-lg border-2 text-black hidden sm:block">
+    <div className="my-4 border-white rounded-lg border-2 text-black">
       <div className="flex-1">
         <div className="flex items-center justify-between bg-white p-2">
           <h2 className="text-2xl font-bold text-black">{calendarTitle()}</h2>
@@ -54,7 +52,6 @@ export default function Calendar({ reservations, lecturer_uuid }: { reservations
             generateWorkWeek(weekOffset) as `${number}${number}${number}${number}-${number}${number}-${number}${number}`[]
           }
           initalEvents={events}
-          lecturer_uuid={lecturer_uuid}
         />
       </div>
     </div>
