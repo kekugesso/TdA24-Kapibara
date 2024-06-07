@@ -1,9 +1,9 @@
 'use client'
 import { usePathname } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react';
-import getLecturer from '@/components/fetch/getLecturer';
 import { Lecturer_Full, tag, contact, reservation, location_reservation, status } from '@/components/basic/lecturer';
 import Profile from '@/components/sections/profile';
+import Loading from '@/components/basic/loading';
 
 export default function lecturer() {
   const pathname = usePathname()
@@ -58,9 +58,7 @@ export default function lecturer() {
 
   return (
     lecturer ?
-      (<Profile key={"profile_" + uuid} lecturer={lecturer} />) :
-      (<section className="place-self-center flex bg-white dark:bg-jet text-black dark:text-white items-center justify-center">
-        <h1 className="text-6xl">Načítání...</h1>
-      </section>)
+      <Profile key={"profile_" + uuid} lecturer={lecturer} /> :
+      <Loading />
   )
 }

@@ -2,16 +2,19 @@
 import { useEffect, useState } from 'react';
 import { Lecturer_Card, tag } from '@/components/basic/lecturer';
 import Card from '@/components/sections/card';
+import Loading from '@/components/basic/loading';
 
 
 export default function Home() {
   const [lecturers, setLecturers] = useState<Lecturer_Card[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchLecturers = async () => {
       try {
         const lecturersData = await fetch("/api/lecturers?format=json").then((response) => response.json());
         setLecturers(lecturersData.map(convertToLecturerObject));
+        setLoading(false);
       } catch (error) {
         console.error('Error fetching lecturers:', error);
       }
@@ -41,14 +44,15 @@ export default function Home() {
 
 
   return (
-    lecturers.length === 0 ? <section className="place-self-center flex bg-white dark:bg-jet text-black dark:text-white items-center justify-center">
-      <h1 className="text-6xl">Načítání...</h1>
-    </section> :
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white dark:bg-jet text-black dark:text-white items-center justify-between p-6 sm:px-12 lg:px-24 justify-self-center">
-        {/* Render fetched data here */}
-        {lecturers.map((lecturer, index) => (
-          <Card key={`Card_${lecturer.uuid}`} lecturer={lecturer} index={index} />
-        ))}
-      </section>
+    loading ? <Loading /> :
+      lecturers.length === 0 ?
+        <section className="place-self-center flex bg-white dark:bg-jet text-black dark:text-white items-center justify-center">
+          <h1 className="text-6xl">Žádní lektoři nebyli nalezeni...</h1>
+        </section> :
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white dark:bg-jet text-black dark:text-white items-center justify-between p-6 sm:px-12 lg:px-24 justify-self-center">
+          {lecturers.map((lecturer, index) => (
+            <Card key={`Card_${lecturer.uuid}`} lecturer={lecturer} index={index} />
+          ))}
+        </section>
   );
 }

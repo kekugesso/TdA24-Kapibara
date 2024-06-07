@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 
 import Login from '@/components/auth/login';
 import { useRouter } from 'next/navigation';
+import Loading from '@/components/basic/loading';
 
 export default function SignIn() {
   const router = useRouter();
@@ -39,9 +40,7 @@ export default function SignIn() {
   };
 
   if (!isMounted) {
-    return <section className="place-self-center flex bg-white dark:bg-jet text-black dark:text-white items-center justify-center">
-      <h1 className="text-6xl">Načítání...</h1>
-    </section>;
+    return <Loading />;
   }
 
   return (
