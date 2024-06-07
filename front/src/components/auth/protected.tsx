@@ -1,4 +1,4 @@
-'use server';
+'use client';
 
 export default async function Protected(route: string) {
   const token = localStorage.getItem('token');
@@ -11,11 +11,12 @@ export default async function Protected(route: string) {
       method: 'GET',
       headers: {
         'Content-Type': 'application',
-        'Authorization': `${token}`,
+        'Authorization': `Token ${token}`,
       },
     });
     const data = await response.json();
-    console.log(data);
+    console.log(response);
+    return data;
   } catch (error) {
     console.error('An error occurred', error);
   }

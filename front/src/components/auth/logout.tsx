@@ -1,4 +1,4 @@
-'use server';
+'use client';
 
 export default async function Logout() {
   try {
@@ -6,13 +6,16 @@ export default async function Logout() {
       method: 'POST',
       headers: {
         'Content-Type': 'application',
-        'Authorization': `${localStorage.getItem('token')}`,
+        'Authorization': `Token ${localStorage.getItem('token')}`,
       },
     });
-    localStorage.removeItem('token');
-    const data = await response.json();
-    console.log(data);
-    localStorage.removeItem('token');
+    if (response.status === 200) {
+      localStorage.removeItem('token');
+      return true;
+    } else {
+      return false;
+    }
+    //console.log(response.status);
   } catch (error) {
     console.error('An error occurred', error);
   }

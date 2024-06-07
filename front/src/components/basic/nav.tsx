@@ -3,14 +3,28 @@
 import Image from "next/image";
 import Link from "next/link"
 import * as reactDropdownMenu from "@radix-ui/react-dropdown-menu";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import Logout from "@/components/auth/logout";
+import { useRouter } from 'next/navigation';
 
 export default function Nav({ bgColor }: { bgColor: string }) {
+  const router = useRouter();
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
-  const handleLogout = () => {
-    // Handle logout functionality
-    throw new Error("Not implemented logout functionality");
+  const checkLoggedIn = useCallback(() => {
+    if (localStorage.token) {
+      setLoggedIn(true);
+    }
+  }, [loggedIn]);
+  const handleLogout = async () => {
+    const logout = await Logout();
+    if (logout) {
+      setLoggedIn(false);
+      router.push('/login');
+    }
   }
+  useEffect(() => {
+    checkLoggedIn();
+  }, [checkLoggedIn]);
 
   return (
     <header className={bgColor + " grid min-h-10 place-items-center px-6 py-6"}>
