@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 
 export default function SignIn() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
+  const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -24,7 +24,7 @@ export default function SignIn() {
     setLoading(true);
     setError('');
     try {
-      const token = await Login(email, password);
+      const token = await Login(userName, password);
       if (token) {
         localStorage.setItem('token', token);
         router.push('/dashboard');
@@ -52,14 +52,14 @@ export default function SignIn() {
             <h1 className="text-3xl font-bold">Přihlášení</h1>
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" htmlFor="email">Email</label>
+            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" htmlFor="username">Username</label>
             <input
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:text-black"
-              id="email"
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              id="username"
+              type="username"
+              placeholder="Username"
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
               required
             />
           </div>

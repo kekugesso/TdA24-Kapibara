@@ -1,21 +1,20 @@
-'use server';
+'use client';
 
-export default async function Login(email: string, password: string) {
-  return 'THIS IS A FAKE TOKEN';
+export default async function Login(username: string, password: string) {
   try {
     const response = await fetch('/api/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email: email, password: password }),
+      body: JSON.stringify({ username: username, password: password }),
     });
     if (!response.ok) {
       throw new Error('Error occurred with communication to the server. Please try again later.');
     }
 
     const data = await response.json();
-    console.log(data);
+    // console.log(data);
 
     if (data.token) {
       return data.token;

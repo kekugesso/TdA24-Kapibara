@@ -1,6 +1,5 @@
 'use client'
 import { useEffect, useState } from 'react';
-import getLecturers from '@/components/fetch/getLecturers';
 import { Lecturer_Card, tag } from '@/components/basic/lecturer';
 import Card from '@/components/sections/card';
 
@@ -11,7 +10,7 @@ export default function Home() {
   useEffect(() => {
     const fetchLecturers = async () => {
       try {
-        const lecturersData = await getLecturers();
+        const lecturersData = await fetch("/api/lecturers?format=json").then((response) => response.json());
         setLecturers(lecturersData.map(convertToLecturerObject));
       } catch (error) {
         console.error('Error fetching lecturers:', error);
@@ -20,7 +19,7 @@ export default function Home() {
     const convertToLecturerObject = (data: any) => {
       const tags = data.tags.map((tagData: { uuid: string; name: string; }) => new tag(tagData.uuid, tagData.name));
       const lecturer = new Lecturer_Card(
-        data.UUID,
+        data.uuid,
         data.title_before,
         data.first_name,
         data.middle_name,
