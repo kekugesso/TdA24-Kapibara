@@ -3,29 +3,12 @@
 import Image from "next/image";
 import Link from "next/link"
 import * as reactDropdownMenu from "@radix-ui/react-dropdown-menu";
-import { useCallback, useEffect, useState } from "react";
-import Logout from "@/components/auth/logout";
-import { useRouter } from 'next/navigation';
+import { useAuth } from "@/components/auth/authContext";
+import { useState } from "react";
 
 export default function Nav({ bgColor }: { bgColor: string }) {
-  const router = useRouter();
-  const [loggedIn, setLoggedIn] = useState<boolean>(false);
-  const checkLoggedIn = useCallback(() => {
-    if (localStorage.token) {
-      setLoggedIn(true);
-    }
-  }, [loggedIn]);
-  const handleLogout = async () => {
-    const logout = await Logout();
-    if (logout) {
-      setLoggedIn(false);
-      router.push('/login');
-    }
-  }
-  useEffect(() => {
-    checkLoggedIn();
-  }, [checkLoggedIn]);
-
+  const { loggedIn, logout } = useAuth();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   return (
     <header className={bgColor + " grid min-h-10 place-items-center px-6 py-6"}>
       <nav className="container px-4">
@@ -42,7 +25,7 @@ export default function Nav({ bgColor }: { bgColor: string }) {
           </Link>
           <div className="flex items-center space-x-4 z-50">
             {loggedIn ? (
-              <reactDropdownMenu.DropdownMenu>
+              <reactDropdownMenu.DropdownMenu open={dropdownOpen} onOpenChange={(open) => setDropdownOpen(open)}>
                 <reactDropdownMenu.DropdownMenuTrigger asChild>
                   <button className="flex items-center w-12 h-12 p-1 object-center rounded-full overflow-hidden text-jet">
                     <img
@@ -63,16 +46,15 @@ export default function Nav({ bgColor }: { bgColor: string }) {
                   <reactDropdownMenu.DropdownMenuItem>
                     <Link
                       className="block px-4 py-2 text-jet hover:bg-blue"
-                      href="/admin/calendar"
+                      href="/dashboard"
+                      onClick={() => setDropdownOpen(false)}
                     >
-                      Calendar
+                      Dashboard
                     </Link>
                   </reactDropdownMenu.DropdownMenuItem>
                   <reactDropdownMenu.DropdownMenuItem>
                     <button
-                      onClick={() => {
-                        handleLogout();
-                      }}
+                      onClick={logout}
                       className="block w-full text-left px-4 py-2 text-jet hover:bg-blue"
                     >
                       Logout
@@ -91,6 +73,6 @@ export default function Nav({ bgColor }: { bgColor: string }) {
         </div>
 
       </nav>
-    </header>
+    </header >
   );
 }

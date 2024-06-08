@@ -18,6 +18,9 @@ export default function Dashboard() {
     } else {
       Protected("reservations?format=json")
         .then((data: reservation[]) => {
+          if (data === undefined || data === null) {
+            router.push('/login');
+          }
           setReservations(data);
           setIsLoading(false);
         })

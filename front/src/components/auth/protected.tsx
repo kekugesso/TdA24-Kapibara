@@ -14,6 +14,11 @@ export default async function Protected(route: string) {
         'Authorization': `Token ${token}`,
       },
     });
+    if (response.status === 401) {
+      localStorage.removeItem('token');
+      console.error('Token expired');
+      return;
+    }
     const data = await response.json();
     console.log(response);
     return data;

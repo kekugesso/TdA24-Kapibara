@@ -1,12 +1,13 @@
 'use client';
 import { useState, useEffect } from 'react';
 
-import Login from '@/components/auth/login';
+import useLogin from '@/components/auth/login';
 import { useRouter } from 'next/navigation';
 import Loading from '@/components/basic/loading';
 
 export default function SignIn() {
   const router = useRouter();
+  const { handleLogin } = useLogin();
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -25,7 +26,7 @@ export default function SignIn() {
     setLoading(true);
     setError('');
     try {
-      const token = await Login(userName, password);
+      const token = await handleLogin(userName, password);
       if (token) {
         localStorage.setItem('token', token);
         router.push('/dashboard');
