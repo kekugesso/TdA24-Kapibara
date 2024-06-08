@@ -16,22 +16,6 @@ const nextConfig = {
         source: "/lecturer/:uuid/event/:event_uuid",
         destination: "/lecturer/[uuid]/event/[event_uuid]",
       },
-      {
-        source: "/login",
-        destination: "/admin",
-      },
-      {
-        source: "/calendar",
-        destination: "/admin/calendar",
-      },
-      {
-        source: "/edit-profile",
-        destination: "/admin/edit-profile",
-      },
-      {
-        source: "/logout",
-        destination: "/admin?logout=true",
-      },
     ];
   },
 };
