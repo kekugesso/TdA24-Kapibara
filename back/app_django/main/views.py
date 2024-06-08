@@ -248,7 +248,7 @@ class ReservationAPIPost(APIView):
                 end_time=data['end_time'],
                 location=data['location'],
                 description=data['description'],
-                lecture_uuid_id=data['lecture_uuid'],
+                lecture_uuid_id=data['lecturer_uuid'],
             )
             reservation.save()
             control = True
