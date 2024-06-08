@@ -1,3 +1,6 @@
 .*
+back/app_django/app_django/__pycache__/*
+back/app_django/main/__pycache__/*
+back/app_django/main/migrations/__pycache__/*
 !front/.env.local
 !front/.gitignore
