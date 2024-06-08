@@ -12,8 +12,8 @@ export default function Calendar({ reservations, lecturer_uuid }: { reservations
       return reservations.map(reservation => ({
         uuid: reservation.uuid,
         title: reservation.status,
-        start: reservation.start_time,
-        end: reservation.end_time,
+        start: dayjs(reservation.start_time).toDate(),
+        end: dayjs(reservation.end_time).toDate(),
         location: reservation.location,
         subjects: reservation.subject,
       }));
