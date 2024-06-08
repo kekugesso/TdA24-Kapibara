@@ -235,10 +235,9 @@ class ReservationAPIAll(APIView):
         return Response(serialized_data.data, status=200)
 
 class ReservationAPIPost(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     def post(self, request):
         control = False
-        one_lecturer = Lecturer.objects.get(user=request.user.id)
         try:
             data = request.data
             data['uuid'] = str(uuid.uuid4())
@@ -249,7 +248,7 @@ class ReservationAPIPost(APIView):
                 end_time=data['end_time'],
                 location=data['location'],
                 description=data['description'],
-                lecture_uuid_id=one_lecturer.uuid
+                lecture_uuid_id=data['lecture_uuid'],
             )
             reservation.save()
             control = True
