@@ -20,7 +20,7 @@ export default async function Protected(route: string) {
       return;
     }
     const data = await response.json();
-    console.log(response);
+    // console.log(response);
     return data;
   } catch (error) {
     console.error('An error occurred', error);

@@ -1,9 +1,10 @@
 import React, { useRef, useEffect, useState, useCallback, useMemo } from "react";
-import { reservation } from "@/components/basic/lecturer";
+import { _reservation } from "@/components/basic/lecturer";
 import CalendarGrid from "@/components/calendar/dashboard/calendarGrid";
 import dayjs from "dayjs";
+import Upcoming from "./upcoming";
 
-export default function Calendar({ reservations }: { reservations: reservation[] }) {
+export default function Calendar({ reservations }: { reservations: _reservation[] }) {
   const [weekOffset, setWeekOffset] = useState<number>(0);
 
   const events = useMemo(
@@ -11,8 +12,8 @@ export default function Calendar({ reservations }: { reservations: reservation[]
       return reservations.map(reservation => ({
         uuid: reservation.uuid,
         title: reservation.status,
-        start: reservation.start_time,
-        end: reservation.end_time,
+        start: dayjs(reservation.start_time).toDate(),
+        end: dayjs(reservation.end_time).toDate(),
         location: reservation.location,
         subjects: reservation.subject,
       }));
@@ -34,26 +35,29 @@ export default function Calendar({ reservations }: { reservations: reservation[]
   }, [weekOffset]);
 
   return (
-    <div className="my-4 border-white rounded-lg border-2 text-black">
-      <div className="flex-1">
-        <div className="flex items-center justify-between bg-white p-2">
-          <h2 className="text-2xl font-bold text-black">{calendarTitle()}</h2>
-          <div className="flex items-center gap-2">
-            <button onClick={() => setWeekOffset(weekOffset - 1)} className="p-2 rounded-full hover:bg-black/10 dark:hover:bg-black/80 transition-colors">
-              <ChevronLeftIcon className="w-5 h-5 text-black/50 dark:text-black/40" />
-            </button>
-            <button onClick={() => setWeekOffset(weekOffset + 1)} className="p-2 rounded-full hover:bg-black/10 dark:hover:bg-black/80 transition-colors">
-              <ChevronRightIcon className="w-5 h-5 text-black/50 dark:text-black/40" />
-            </button>
+    <div className="my-4 flex gap-4 w-full mx-5 flex-col sm:flex-row">
+      <div className="border-white rounded-lg border-2 text-black w-full">
+        <div className="flex-1">
+          <div className="flex items-center justify-between bg-white p-2">
+            <h2 className="text-2xl font-bold text-black">{calendarTitle()}</h2>
+            <div className="flex items-center gap-2">
+              <button onClick={() => setWeekOffset(weekOffset - 1)} className="p-2 rounded-full hover:bg-black/10 dark:hover:bg-black/80 transition-colors">
+                <ChevronLeftIcon className="w-5 h-5 text-black/50 dark:text-black/40" />
+              </button>
+              <button onClick={() => setWeekOffset(weekOffset + 1)} className="p-2 rounded-full hover:bg-black/10 dark:hover:bg-black/80 transition-colors">
+                <ChevronRightIcon className="w-5 h-5 text-black/50 dark:text-black/40" />
+              </button>
+            </div>
           </div>
+          <CalendarGrid
+            dates={
+              generateWorkWeek(weekOffset) as `${number}${number}${number}${number}-${number}${number}-${number}${number}`[]
+            }
+            initalEvents={events}
+          />
         </div>
-        <CalendarGrid
-          dates={
-            generateWorkWeek(weekOffset) as `${number}${number}${number}${number}-${number}${number}-${number}${number}`[]
-          }
-          initalEvents={events}
-        />
       </div>
+      <Upcoming _reservations={reservations} />
     </div>
   );
 }

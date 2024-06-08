@@ -84,6 +84,7 @@ export default function CalendarGrid({ dates, initalEvents }:
 
   const getEventClassNames = useCallback(
     (event: event) => {
+      const eventOrigin = initalEvents.find(e => e.uuid === event.uuid) as event;
       const startDate = dayjs(event.start);
       const endDate = dayjs(event.end);
       const dateIndex = Math.max(
@@ -109,15 +110,15 @@ export default function CalendarGrid({ dates, initalEvents }:
         }
         return Math.max(end - start, 1);
       })();
-
+      console.log(eventOrigin);
       return twMerge(
         'flex max-h-full flex-col break-words p-[7px_6px_5px] text-[13px] leading-[20px] no-underline transition-[background-color] hover:z-10 hover:h-min hover:max-h-none hover:min-h-full',
         generateColStartClass(timeSlotColCount + dateIndex),
         generateRowStartClass(startTimeIndex),
         generateRowSpanClass(totalRows),
         !event.isUnavailable ? 'bg-blue text-black' : 'bg-dark_blue text-white',
-        initalEvents.find(e => e.uuid === event.uuid).start.toUTCString() === event.start.toUTCString() ? 'rounded-t' : '',
-        initalEvents.find(e => e.uuid === event.uuid).end.toUTCString() === event.end.toUTCString() ? 'rounded-b' : ''
+        eventOrigin.start.toUTCString() === event.start.toUTCString() ? 'rounded-t' : '',
+        eventOrigin.end.toUTCString() === event.end.toUTCString() ? 'rounded-b' : ''
       );
     },
     [events, eventHovered]
@@ -204,12 +205,12 @@ export default function CalendarGrid({ dates, initalEvents }:
               <div className="pt-1 text-[10px] overflow-hidden">
                 {
                   event.isMultipleDays ?
-                    dayjs(initalEvents.find(e => e.uuid === event.uuid).start).format('HH:mm YYYY-MM-DD')
-                    : dayjs(initalEvents.find(e => e.uuid === event.uuid).start).format('HH:mm')
+                    dayjs((initalEvents.find(e => e.uuid === event.uuid) as event).start).format('HH:mm YYYY-MM-DD')
+                    : dayjs((initalEvents.find(e => e.uuid === event.uuid) as event).start).format('HH:mm')
                 } - {
                   event.isMultipleDays ?
-                    dayjs(initalEvents.find(e => e.uuid === event.uuid).end).format('HH:mm YYYY-MM-DD')
-                    : dayjs(initalEvents.find(e => e.uuid === event.uuid).end).format('HH:mm')
+                    dayjs((initalEvents.find(e => e.uuid === event.uuid) as event).end).format('HH:mm YYYY-MM-DD')
+                    : dayjs((initalEvents.find(e => e.uuid === event.uuid) as event).end).format('HH:mm')
                 }
               </div>
             )}
@@ -224,12 +225,12 @@ export default function CalendarGrid({ dates, initalEvents }:
             <p>
               {
                 modalContent.isMultipleDays ?
-                  dayjs(initalEvents.find(e => e.uuid === modalContent.uuid).start).format('HH:mm DD.MM.YYYY')
-                  : dayjs(initalEvents.find(e => e.uuid === modalContent.uuid).start).format('HH:mm')
+                  dayjs((initalEvents.find(e => e.uuid === modalContent.uuid) as event).start).format('HH:mm DD.MM.YYYY')
+                  : dayjs((initalEvents.find(e => e.uuid === modalContent.uuid) as event).start).format('HH:mm')
               } - {
                 modalContent.isMultipleDays ?
-                  dayjs(initalEvents.find(e => e.uuid === modalContent.uuid).end).format('HH:mm DD.MM.YYYY')
-                  : dayjs(initalEvents.find(e => e.uuid === modalContent.uuid).end).format('HH:mm')
+                  dayjs((initalEvents.find(e => e.uuid === modalContent.uuid) as event).end).format('HH:mm DD.MM.YYYY')
+                  : dayjs((initalEvents.find(e => e.uuid === modalContent.uuid) as event).end).format('HH:mm')
               }
             </p>
             {!modalContent.isUnavailable && (
