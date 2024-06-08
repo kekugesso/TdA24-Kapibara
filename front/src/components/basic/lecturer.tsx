@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 class Lecturer_Card {
   constructor(
     public uuid: string,
@@ -75,7 +77,7 @@ class reservation {
     public subject: tag[]
   ) { }
 }
-class reservation_for_lecturer {
+class _reservation {
   constructor(
     public uuid: string,
     public start_time: Date,
@@ -96,4 +98,4 @@ enum location_reservation {
   offline = 'offline'
 }
 
-export { Lecturer_Card, Lecturer_Full, contact, reservation, tag, student, status, location_reservation };
+export { Lecturer_Card, Lecturer_Full, contact, reservation, tag, student, status, location_reservation, _reservation };
