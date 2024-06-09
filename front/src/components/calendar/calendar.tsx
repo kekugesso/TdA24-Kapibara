@@ -1,10 +1,11 @@
 import React, { useRef, useEffect, useState, useCallback, useMemo } from "react";
-import { reservation } from "@/components/basic/lecturer";
+import { _reservation, reservation } from "@/components/basic/lecturer";
 import CalendarGrid from "@/components/calendar/calendarGrid";
 import dayjs from "dayjs";
+import ReservationModal from "@/components/calendar/reservationModal";
 
 export default function Calendar({ reservations, lecturer_uuid }: { reservations: reservation[], lecturer_uuid: string }) {
-  // const calendarRef = useRef<any>(null);
+  const [openModal, setOpenModal] = useState<boolean>(false);
   const [weekOffset, setWeekOffset] = useState<number>(0);
 
   const events = useMemo(
@@ -20,6 +21,21 @@ export default function Calendar({ reservations, lecturer_uuid }: { reservations
     },
     [reservations],
   )
+  const sendReservation = async (reservation: _reservation) => {
+    const response = await fetch('/api/reservation', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ...reservation,
+        lecturer_uuid: lecturer_uuid,
+      }),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to create reservation');
+    }
+  }
 
   const generateWorkWeek = useCallback((weeksOffset = 0) => {
     const startOfWeek = dayjs().startOf('week').add(weeksOffset, 'week');
@@ -47,6 +63,9 @@ export default function Calendar({ reservations, lecturer_uuid }: { reservations
             <button onClick={() => setWeekOffset(weekOffset + 1)} className="p-2 rounded-full hover:bg-black/10 dark:hover:bg-black/80 transition-colors">
               <ChevronRightIcon className="w-5 h-5 text-black/50 dark:text-black/40" />
             </button>
+            <button onClick={() => setOpenModal(true)} className="p-2 rounded-full hover:bg-black/10 dark:hover:bg-black/80 transition-colors">
+              <PlusIcon className="w-5 h-5 text-black/50 dark:text-black/40" />
+            </button>
           </div>
         </div>
         <CalendarGrid
@@ -57,6 +76,16 @@ export default function Calendar({ reservations, lecturer_uuid }: { reservations
           lecturer_uuid={lecturer_uuid}
         />
       </div>
+      <ReservationModal
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        lecturer_uuid={lecturer_uuid}
+        onReservationCreated={(reservation: _reservation) => {
+          sendReservation(reservation);
+          reservations = ([...reservations, reservation]);
+          setOpenModal(false);
+        }}
+      />
     </div>
   );
 }
@@ -98,3 +127,24 @@ function ChevronRightIcon(props: any) {
     </svg>
   );
 }
+
+function PlusIcon(props: any) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 5V19M5 12H19" />
+    </svg>
+  );
+}
+
+

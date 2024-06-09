@@ -90,12 +90,12 @@ class _reservation {
   ) { }
 }
 enum status {
-  reserved = 'reserved',
-  unavailable = 'unavailable'
+  Reserved = 'Reserved',
+  Unavailable = 'Unavailable'
 }
 enum location_reservation {
-  online = 'online',
-  offline = 'offline'
+  Online = 'Online',
+  Offline = 'Offline'
 }
 
 export { Lecturer_Card, Lecturer_Full, contact, reservation, tag, student, status, location_reservation, _reservation };
