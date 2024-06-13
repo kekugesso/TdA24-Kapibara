@@ -110,7 +110,7 @@ export default function CalendarGrid({ dates, initalEvents }:
         }
         return Math.max(end - start, 1);
       })();
-      console.log(eventOrigin);
+      // console.log(eventOrigin);
       return twMerge(
         'flex max-h-full flex-col break-words p-[7px_6px_5px] text-[13px] leading-[20px] no-underline transition-[background-color] hover:z-10 hover:h-min hover:max-h-none hover:min-h-full',
         generateColStartClass(timeSlotColCount + dateIndex),

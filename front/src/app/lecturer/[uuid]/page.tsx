@@ -13,7 +13,7 @@ export default function lecturer() {
   const fetchLecturer = useCallback(async () => {
     try {
       const lecturerData = await fetch(`/api/lecturer/${uuid}?format=json`).then((response) => response.json());
-      console.log(lecturerData);
+      // console.log(lecturerData);
       setLecturer(convertToLecturerObject(lecturerData));
     } catch (error) {
       console.error('Error fetching lecturer:', error);

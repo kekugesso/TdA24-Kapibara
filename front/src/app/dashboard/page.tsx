@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Protected from '@/components/auth/protected';
-import { _reservation } from '@/components/basic/lecturer';
+import { _reservation, tag } from '@/components/basic/lecturer';
 import Calendar from '@/components/calendar/dashboard/calendar';
 import Loading from '@/components/basic/loading';
 
@@ -11,6 +11,7 @@ export default function Dashboard() {
   const router = useRouter();
   const [isloading, setIsLoading] = useState<boolean>(true);
   const [reservations, setReservations] = useState<_reservation[]>();
+  const [subjects, setSubjects] = useState<tag[]>([]);
   const token = localStorage.getItem('token');
   useEffect(() => {
     if (!token) {
@@ -27,6 +28,13 @@ export default function Dashboard() {
         .catch((error) => {
           console.error(error);
         });
+      Protected("token?format=json")
+        .then((data: tag[]) => {
+          setSubjects(data);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     }
   }, []);
 
@@ -35,6 +43,6 @@ export default function Dashboard() {
   return (
     isloading ? <Loading /> :
       reservations &&
-      <Calendar _reservations={reservations} subjects={[]} />
+      <Calendar _reservations={reservations} subjects={subjects ? subjects : []} />
   );
 }
