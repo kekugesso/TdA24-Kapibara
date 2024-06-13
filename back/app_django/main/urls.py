@@ -12,4 +12,5 @@ urlpatterns = [
     path('api/login', views.Login.as_view()),
     path('api/logout', views.Logout.as_view()),
     path('api/token', views.CheckToken.as_view()),
+    path('api/delreservation', views.RezervationsDelete.as_view()),
 ]
