@@ -35,6 +35,6 @@ export default function Dashboard() {
   return (
     isloading ? <Loading /> :
       reservations &&
-      <Calendar reservations={reservations} />
+      <Calendar _reservations={reservations} subjects={[]} />
   );
 }

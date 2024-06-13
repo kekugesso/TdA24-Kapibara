@@ -1,15 +1,20 @@
-import React, { useRef, useEffect, useState, useCallback, useMemo } from "react";
-import { _reservation, reservation } from "@/components/basic/lecturer";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
+import { _reservation, reservation, tag } from "@/components/basic/lecturer";
 import CalendarGrid from "@/components/calendar/calendarGrid";
 import dayjs from "dayjs";
 import ReservationModal from "@/components/calendar/reservationModal";
 
-export default function Calendar({ reservations, lecturer_uuid }: { reservations: reservation[], lecturer_uuid: string }) {
+export default function Calendar({ _reservations, lecturer_uuid, subjects }: { _reservations: reservation[], lecturer_uuid: string, subjects: tag[] }) {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [weekOffset, setWeekOffset] = useState<number>(0);
+  const [reservations, setReservations] = useState<reservation[] | undefined>(_reservations);
+  useEffect(() => {
+    setReservations(_reservations);
+  }, [_reservations]);
 
   const events = useMemo(
     () => {
+      if (!reservations) return [];
       return reservations.map(reservation => ({
         uuid: reservation.uuid,
         title: reservation.status,
@@ -21,6 +26,7 @@ export default function Calendar({ reservations, lecturer_uuid }: { reservations
     },
     [reservations],
   )
+
   const sendReservation = async (reservation: _reservation) => {
     const response = await fetch('/api/reservation', {
       method: 'POST',
@@ -32,9 +38,59 @@ export default function Calendar({ reservations, lecturer_uuid }: { reservations
         lecturer_uuid: lecturer_uuid,
       }),
     });
+    const newReservation = await response.json().then((data) => {
+      return data as reservation;
+    });
+    setReservations(prevReservations => [...prevReservations, newReservation]);
     if (!response.ok) {
       throw new Error('Failed to create reservation');
     }
+  }
+
+  const checkValidTime = (reservation: _reservation) => {
+    const start = reservation.start_time;
+    const end = reservation.end_time;
+    if (start >= end) return false;
+    if (start < new Date()) return false;
+    if (start.getHours() < 8 || start.getHours() > 20) return false;
+    if (end.getHours() < 9 || end.getHours() > 20) return false;
+    if (start.getMinutes() !== 0 || end.getMinutes() !== 0) return false;
+    if (start.getSeconds() !== 0 || end.getSeconds() !== 0) return false;
+    if (start.getDay() === 0 || start.getDay() === 6) return false;
+    return true;
+  }
+
+  const checkReservationOverlap = (reservation: _reservation) => {
+    if (!reservations) return false;
+    for (const res of reservations) {
+      if (reservation.start_time >= res.end_time || reservation.end_time <= res.start_time) {
+        continue;
+      }
+      return true;
+    }
+    return false;
+  }
+
+  const checkStudentFields = (reservation: _reservation) => {
+    const student = reservation.student;
+    if (!student.first_name || !student.last_name || !student.email || !student.phone) return false;
+    if (!student.email.includes('@')) return false;
+    if (!/^\d+$/.test(student.phone)) return false;
+    return true;
+  }
+
+  const checkValidReservation = (reservation: _reservation) => {
+    class validation {
+      constructor(
+        public valid: boolean,
+        public message: string,
+      ) { }
+    }
+    if (!checkStudentFields(reservation)) return new validation(false, 'Invalid student information');
+    if (!checkValidTime(reservation)) return new validation(false, 'Invalid time');
+    if (checkReservationOverlap(reservation)) return new validation(false, 'Reservation overlap');
+    if (reservation.subject.length === 0) return new validation(false, 'No subject selected');
+    return new validation(true, '');
   }
 
   const generateWorkWeek = useCallback((weeksOffset = 0) => {
@@ -78,13 +134,13 @@ export default function Calendar({ reservations, lecturer_uuid }: { reservations
       </div>
       <ReservationModal
         open={openModal}
-        onClose={() => setOpenModal(false)}
-        lecturer_uuid={lecturer_uuid}
+        _onClose={() => setOpenModal(false)}
+        lecturer_subjects={subjects}
         onReservationCreated={(reservation: _reservation) => {
           sendReservation(reservation);
-          reservations = ([...reservations, reservation]);
           setOpenModal(false);
         }}
+        checkValidation={checkValidReservation}
       />
     </div>
   );
