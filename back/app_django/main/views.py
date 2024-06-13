@@ -299,3 +299,11 @@ class CheckToken(APIView):
         one_lecturer = Lecturer.objects.get(user=request.user.id)
         lecturer_serializer = LecturerSerializer(one_lecturer)
         return Response(lecturer_serializer.data["tags"], status=200)
+
+class RezervationsDelete(APIView):
+    permission_classes = [AllowAny]
+    def delete(self, request, uuid):
+        reservations = Reservation.objects.all(lecture_uuid=request.data["lecturer_uuid"])
+        for reservation in reservations:
+            reservation.delete()
+        return Response(status=204)
