@@ -312,8 +312,8 @@ class CheckToken(APIView):
 
 class RezervationsDelete(APIView):
     permission_classes = [AllowAny]
-    def delete(self, request, uuid):
-        reservations = Reservation.objects.all(lecture_uuid=request.data["lecturer_uuid"])
+    def delete(self, request):
+        reservations = Reservation.objects.filter(lecture_uuid=request.data["lecturer_uuid"])
         for reservation in reservations:
             reservation.delete()
         return Response(status=204)
