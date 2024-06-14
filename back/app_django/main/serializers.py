@@ -23,7 +23,16 @@ class ReservationSerializer(serializers.ModelSerializer):
     subject = SubjectSerializer(many=True)
     class Meta:
         model = Reservation
-        fields = ['uuid', 'status', 'start_time', 'end_time', 'student', 'location', 'description', 'subject']
+        fields = [
+            'uuid',
+            'status',
+            'start_time',
+            'end_time',
+            'student',
+            'location',
+            'description',
+            'subject'
+        ]
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
@@ -50,13 +59,40 @@ class LecturerSerializer(serializers.ModelSerializer):
     reservations = ReservationSerializer(many=True)
     class Meta:
         model = Lecturer
-        fields = ['uuid', 'title_before', 'first_name', 'middle_name', 'last_name', 'title_after', 'picture_url', 
-                  'location', 'claim', 'bio', 'tags', 'price_per_hour', 'contact', 'reservations']
-        
+        fields = [
+            'uuid',
+            'title_before',
+            'first_name',
+            'middle_name',
+            'last_name',
+            'title_after',
+            'picture_url',
+            'location',
+            'claim',
+            'bio',
+            'tags',
+            'price_per_hour',
+            'contact',
+            'reservations'
+        ]
+
 class LecturerAllSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True)
     contact = ContactSerializer()
     class Meta:
         model = Lecturer
-        fields = ['uuid', 'title_before', 'first_name', 'middle_name', 'last_name', 'title_after', 'picture_url', 
-                  'location', 'claim', 'bio', 'tags', 'price_per_hour', 'contact']
+        fields = [
+            'uuid',
+            'title_before',
+            'first_name',
+            'middle_name',
+            'last_name',
+            'title_after',
+            'picture_url',
+            'location',
+            'claim',
+            'bio',
+            'tags',
+            'price_per_hour',
+            'contact'
+        ]
