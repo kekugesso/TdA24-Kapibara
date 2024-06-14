@@ -57,7 +57,7 @@ export default function CalendarGrid({ dates, initalEvents, lecturer_uuid }:
           start: currentStart.toDate(),
           end: currentEnd.toDate(),
           isMultipleDays: totalDays > 1,
-          isUnavailable: event.title === 'unavailable',
+          isUnavailable: event.title === 'Unavailable',
         });
       }
     });
@@ -171,7 +171,7 @@ export default function CalendarGrid({ dates, initalEvents, lecturer_uuid }:
               generateColStartClass(timeSlotColCount + index)
             )}
           >
-            {date}
+            {dayjs(date).format('dddd (DD.MM)')}
           </div>
         ))}
       </div>
