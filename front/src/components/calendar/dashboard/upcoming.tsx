@@ -18,6 +18,11 @@ export default function Upcoming({ _reservations }: { _reservations: _reservatio
   const handleEventClose = () => {
     setSelectedEvent(undefined);
   }
+  const reservationsFiltered = () => {
+    reservations
+      .filter((reservation) => dayjs(reservation.start_time).isAfter(dayjs()))
+      .filter((reservation) => reservation.status === "Reserved");
+  }
 
   return (
     <div className="border-white rounded-lg border-2 text-white w-full sm:w-[40%]">
@@ -27,31 +32,38 @@ export default function Upcoming({ _reservations }: { _reservations: _reservatio
         </div>
       </div>
       <div className="flex flex-col gap-2 h-full">
-        {reservations.length === 0 ? (
+        {reservations
+          .filter((reservation) => dayjs(reservation.start_time).isAfter(dayjs()))
+          .filter((reservation) => reservation.status === "Reserved")
+          .length === 0 ? (
           <div className="flex items-center justify-center h-full">
             <h3 className="text-lg text-center">Žádné nadchazející rezervace</h3>
           </div>
         ) : (
-          <div className="h-[calc(100%-64px)] overflow-auto">
+          <div className="h-[80vh] overflow-auto">
             <div className="p-6 space-y-4">
-              {reservations.map((reservation: _reservation) => (
-                <div
-                  key={`Upcoming_event_${reservation.uuid}`}
-                  className={`flex flex-col gap-1 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 p-4 rounded-md transition-colors ${reservation.location === "online" ? "border-2 border-blue-500" : ""
-                    }`}
-                  onClick={() => handleEventClick(reservation)}
-                >
-                  <div className="text-sm font-medium text-gray-500 dark:text-gray-400">{reservationDate(reservation)}</div>
-                  <h3 className="text-base font-semibold">{reservation.status}</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{reservation.description}</p>
-                  <div className="flex flex-wrap gap-2 text-sm text-gray-500 dark:text-gray-400">
-                    {reservation.subject.map((subject) => (
-                      <span key={subject.uuid}>{subject.name}</span>
-                    ))}
+              {reservations
+                .filter((reservation) => dayjs(reservation.start_time).isAfter(dayjs()))
+                .filter((reservation) => reservation.status === "Reserved")
+                .sort((a, b) => dayjs(a.start_time).isAfter(dayjs(b.start_time)) ? 1 : -1)
+                .map((reservation: _reservation) => (
+                  <div
+                    key={`Upcoming_event_${reservation.uuid}`}
+                    className={`flex flex-col gap-1 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 p-4 rounded-md transition-colors ${reservation.location === "Online" ? "border-2 border-blue-500" : ""
+                      }`}
+                    onClick={() => handleEventClick(reservation)}
+                  >
+                    <div className="text-sm font-medium text-gray-500 dark:text-gray-400">{reservationDate(reservation)}</div>
+                    <h3 className="text-base font-semibold">{reservation.status}</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{reservation.description}</p>
+                    <div className="flex flex-wrap gap-2 text-sm text-gray-500 dark:text-gray-400">
+                      {reservation.subject.map((subject) => (
+                        <span key={subject.uuid}>{subject.name}</span>
+                      ))}
+                    </div>
+                    {reservation.location === "Online" ? <div className="text-sm font-medium text-blue-500">Online</div> : <div className="text-sm font-medium text-gray-500 dark:text-gray-400">Offline</div>}
                   </div>
-                  {reservation.location === "online" ? <div className="text-sm font-medium text-blue-500">Online</div> : <div className="text-sm font-medium text-gray-500 dark:text-gray-400">Offline</div>}
-                </div>
-              ))}
+                ))}
             </div>
             {// <DialogUpcoming reservation={selectedEvent} closeDialog={handleEventClose} />
             }
