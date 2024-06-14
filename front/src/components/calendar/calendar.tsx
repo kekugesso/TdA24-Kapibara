@@ -38,13 +38,13 @@ export default function Calendar({ _reservations, lecturer_uuid, subjects }: { _
         lecturer_uuid: lecturer_uuid,
       }),
     });
+    if (!response.ok) {
+      throw new Error('Failed to create reservation');
+    }
     const newReservation = await response.json().then((data) => {
       return data as reservation;
     });
     setReservations(prevReservations => [...prevReservations, newReservation]);
-    if (!response.ok) {
-      throw new Error('Failed to create reservation');
-    }
   }
 
   const checkValidTime = (reservation: _reservation) => {
@@ -102,8 +102,8 @@ export default function Calendar({ _reservations, lecturer_uuid, subjects }: { _
   }, [weekOffset]);
 
   const calendarTitle = useCallback(() => {
-    const startOfWeek = dayjs().startOf('week').add(weekOffset, 'week');
-    const endOfWeek = startOfWeek.add(4, 'day');
+    const startOfWeek = dayjs().startOf('week').add(1, 'day').add(weekOffset, 'week');
+    const endOfWeek = startOfWeek.add(5, 'day');
     return `${startOfWeek.format('DD.MM.YYYY')} - ${endOfWeek.format('DD.MM.YYYY')}`;
   }, [weekOffset]);
 
