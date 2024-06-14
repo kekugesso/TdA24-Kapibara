@@ -1,5 +1,3 @@
-import dayjs from "dayjs";
-
 class Lecturer_Card {
   constructor(
     public uuid: string,
@@ -88,6 +86,18 @@ class _reservation {
     public description: string,
     public subject: tag[]
   ) { }
+  toJson(): BodyInit {
+    return JSON.stringify({
+      uuid: this.uuid,
+      start_time: this.start_time,
+      end_time: this.end_time,
+      student: this.student,
+      location: this.location,
+      status: this.status,
+      description: this.description,
+      subject: this.subject
+    });
+  }
 }
 enum status {
   Reserved = 'Reserved',
