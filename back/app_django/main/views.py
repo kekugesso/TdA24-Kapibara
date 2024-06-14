@@ -239,41 +239,45 @@ class ReservationAPIPost(APIView):
     def post(self, request):
         control = False
         data = request.data
-        data['uuid'] = str(uuid.uuid4())
-        reservation = Reservation(
-            uuid=data['uuid'],
-            status=data['status'],
-            start_time=data['start_time'],
-            end_time=data['end_time'],
-            location=data['location'],
-            description=data['description'],
-            lecture_uuid_id=data['lecturer_uuid'],
-        )
-        reservation.save()
-        control = True
-        student = Student(
-            first_name=data['student']['first_name'],
-            last_name=data['student']['last_name'],
-            email=data['student']['email'],
-            phone=data['student']['phone'],
-            reservation_id=reservation.uuid
-        )
-        student.save()
-        subjects = Subject.objects.all()
-        for i in data['subject']:
-            for j in subjects:
-                if i['name'] == j.name:
-                    SubjectReservation(reservation_id=reservation.uuid, subject_id=j.uuid).save()
-                    data['subject'].remove(i)
-                    break
-        if(len(data['subject']) > 0):
+        try:
+            data['uuid'] = str(uuid.uuid4())
+            reservation = Reservation(
+                uuid=data['uuid'],
+                status=data['status'],
+                start_time=data['start_time'],
+                end_time=data['end_time'],
+                location=data['location'],
+                description=data['description'],
+                lecture_uuid_id=data['lecturer_uuid'],
+            )
+            reservation.save()
+            control = True
+            student = Student(
+                first_name=data['student']['first_name'],
+                last_name=data['student']['last_name'],
+                email=data['student']['email'],
+                phone=data['student']['phone'],
+                reservation_id=reservation.uuid
+            )
+            student.save()
+            subjects = Subject.objects.all()
             for i in data['subject']:
-                new_subject = Subject(name=i['name'], uuid=str(uuid.uuid4()))
-                new_subject.save()
-                SubjectReservation(reservation_id=reservation.uuid, subject_id=new_subject.uuid).save()
-        serialized_data = ReservationSerializer(reservation)
-        return Response(serialized_data.data, status=201)
-
+                for j in subjects:
+                    if i['name'] == j.name:
+                        SubjectReservation(reservation_id=reservation.uuid, subject_id=j.uuid).save()
+                        data['subject'].remove(i)
+                        break
+            if(len(data['subject']) > 0):
+                for i in data['subject']:
+                    new_subject = Subject(name=i['name'], uuid=str(uuid.uuid4()))
+                    new_subject.save()
+                    SubjectReservation(reservation_id=reservation.uuid, subject_id=new_subject.uuid).save()
+            serialized_data = ReservationSerializer(reservation)
+            return Response(serialized_data.data, status=201)
+        except Exception as e:
+            if(control):
+                reservation.delete()
+            return Response({"message": "You sent a bad json"}, status=400)
 
 
 class Logout(APIView):
@@ -307,3 +311,49 @@ class RezervationsDelete(APIView):
         for reservation in reservations:
             reservation.delete()
         return Response(status=204)
+
+class ReservationAPIPostToken(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request):
+        control = False
+        data = request.data
+        one_lecturer = Lecturer.objects.get(user=request.user.id)
+        try:
+            data['uuid'] = str(uuid.uuid4())
+            reservation = Reservation(
+                uuid=data['uuid'],
+                status=data['status'],
+                start_time=data['start_time'],
+                end_time=data['end_time'],
+                location=data['location'],
+                description=data['description'],
+                lecture_uuid_id=one_lecturer.uuid,
+            )
+            reservation.save()
+            control = True
+            student = Student(
+                first_name=data['student']['first_name'],
+                last_name=data['student']['last_name'],
+                email=data['student']['email'],
+                phone=data['student']['phone'],
+                reservation_id=reservation.uuid
+            )
+            student.save()
+            subjects = Subject.objects.all()
+            for i in data['subject']:
+                for j in subjects:
+                    if i['name'] == j.name:
+                        SubjectReservation(reservation_id=reservation.uuid, subject_id=j.uuid).save()
+                        data['subject'].remove(i)
+                        break
+            if(len(data['subject']) > 0):
+                for i in data['subject']:
+                    new_subject = Subject(name=i['name'], uuid=str(uuid.uuid4()))
+                    new_subject.save()
+                    SubjectReservation(reservation_id=reservation.uuid, subject_id=new_subject.uuid).save()
+            serialized_data = ReservationSerializer(reservation)
+            return Response(serialized_data.data, status=201)
+        except Exception as e:
+            if(control):
+                reservation.delete()
+            return Response({"message": "You sent a bad json"}, status=400)
