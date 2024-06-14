@@ -3,11 +3,14 @@ import { _reservation, location_reservation, student, tag, status } from "@/comp
 import dayjs from "dayjs";
 
 export default function ReservationModal({ open, _onClose, lecturer_subjects, onReservationCreated, checkValidation }: { open: boolean, _onClose: () => void, lecturer_subjects: tag[], onReservationCreated: (reservation: _reservation) => void, checkValidation: (reservation: _reservation) => { valid: boolean, message: string } }) {
+  const [openedReservation, setOpenedReservation] = useState<boolean>(true);
   const [student_first_name, setStudentFirstName] = useState<string>("");
   const [student_last_name, setStudentLastName] = useState<string>("");
   const [student_email, setStudentEmail] = useState<string>("");
   const [student_phone, setStudentPhone] = useState<string>("");
   const [date, setDate] = useState<Date>(new Date());
+  const [start_date, setStartDate] = useState<Date>(new Date());
+  const [end_date, setEndDate] = useState<Date>(new Date());
   const [start_hour, setStartHour] = useState<Date>(new Date());
   const [end_hour, setEndHour] = useState<Date>(new Date());
   const [location, setLocation] = useState<location_reservation>(location_reservation.Online);
@@ -31,10 +34,27 @@ export default function ReservationModal({ open, _onClose, lecturer_subjects, on
       subjects,
     );
     const validation = checkValidation(reservation);
-    console.log(validation);
+    // console.log(validation);
     if (!validation.valid) { setError(validation.message); return; }
     onReservationCreated(reservation)
   };
+
+  const createUnavailable = () => {
+    const unavailable = new _reservation(
+      "",
+      dayjs(start_date).hour(dayjs(start_hour).hour()).set('minutes', 0).set('seconds', 0).toDate(),
+      dayjs(end_date).hour(dayjs(end_hour).hour()).set('minutes', 0).set('seconds', 0).toDate(),
+      new student("", "", "", "",),
+      location_reservation.Offline,
+      status.Unavailable,
+      "",
+      [],
+    );
+    const validation = checkValidation(unavailable);
+    if (!validation.valid) { setError(validation.message); return; }
+    return onReservationCreated(unavailable);
+  }
+
   const onClose = () => {
     setStudentFirstName("");
     setStudentLastName("");
@@ -50,6 +70,19 @@ export default function ReservationModal({ open, _onClose, lecturer_subjects, on
     _onClose();
   }
 
+  const TypeSelect = () => {
+    return (
+      <select
+        value={openedReservation ? "true" : "false"}
+        onChange={(e) => setOpenedReservation(e.target.value === "true")}
+        className="form-select"
+      >
+        <option value="true">Reservation</option>
+        <option value="false">Unavailable</option>
+      </select>
+    );
+  };
+
   const Modal = ({ open, onClose, children }: { open: boolean, onClose: () => void, children: any }) => {
     if (!open) return null;
     const handleBackdropClick = (e: any) => {
@@ -61,7 +94,9 @@ export default function ReservationModal({ open, _onClose, lecturer_subjects, on
       <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50" onClick={handleBackdropClick}>
         <div className="bg-white p-4 rounded-lg shadow-lg relative max-w-screen-lg min-w-[80%] min-h-[80%] scale-90 2xl:scale-100">
           <header className="mb-3">
-            <h2 className="inline text-3xl font-semibold">Create Reservation</h2>
+            <h2 className="inline text-2xl font-semibold">
+              <TypeSelect />
+            </h2>
             <button
               onClick={onClose}
               className="inline float-end text-gray-500 hover:text-gray-800"
@@ -73,7 +108,7 @@ export default function ReservationModal({ open, _onClose, lecturer_subjects, on
           <footer className="bg-white my-2 grid gap-1">
             {error && <div className="text-red-500 text-sm">{error}</div>}
             <button
-              onClick={() => { createReservation() }}
+              onClick={() => { openedReservation ? createReservation() : createUnavailable() }}
               className="p-3 bg-blue text-blue-foreground rounded-xl"
             >
               Save
@@ -84,98 +119,142 @@ export default function ReservationModal({ open, _onClose, lecturer_subjects, on
     );
   };
 
+  const reservationForm = () => {
+    return (
+      <div className="grid gap-4 md:grid-cols-2">
+        <FormInputWithLabel
+          label="Student First Name"
+          type="student_first_name"
+          name="student_first_name"
+          value={student_first_name}
+          onChange={(e) => setStudentFirstName(e.target.value)}
+        />
+        <FormInputWithLabel
+          label="Student Last Name"
+          type="student_last_name"
+          name="student_last_name"
+          value={student_last_name}
+          onChange={(e) => setStudentLastName(e.target.value)}
+        />
+        <FormInputWithLabel
+          label="Student Email"
+          type="student_email"
+          name="student_email"
+          value={student_email}
+          onChange={(e) => setStudentEmail(e.target.value)}
+        />
+        <FormInputWithLabel
+          label="Student Phone"
+          type="student_phone"
+          name="student_phone"
+          value={student_phone}
+          onChange={(e) => setStudentPhone(e.target.value)}
+        />
+        <FormInputWithLabel
+          className="col-span-2"
+          label="Date"
+          type="date"
+          name="date"
+          value={dayjs(date).format('YYYY-MM-DD')}
+          onChange={(e) => setDate(dayjs(e.target.value, 'YYYY-MM-DD').toDate())}
+        />
+        <FormHourPickerWithLabel
+          label="Start Time"
+          name="start_time"
+          value={dayjs(start_hour).hour()}
+          onChange={(hour) => setStartHour(dayjs(start_hour).hour(hour).toDate())}
+        />
+        <FormHourPickerWithLabel
+          label="End Time"
+          name="end_time"
+          value={dayjs(end_hour).hour()}
+          onChange={(hour) => setEndHour(dayjs(end_hour).hour(hour).toDate())}
+        />
+        <FormSlectWithLabel
+          label="Location"
+          type="location"
+          name="location"
+          options={
+            [
+              "Online",
+              "Offline"
+            ]
+          }
+          value={location}
+          onChange={(e) => setLocation(e.target.value as location_reservation)}
+        />
+        <FormAdditiveSelectWithLabel
+          label="Subjects"
+          type="subjects"
+          name="subjects"
+          options={!lecturer_subjects ? [] : lecturer_subjects}
+          value={subjects}
+          onChange={(e) => setSubjects(e)}
+        />
+        <FormTextAreaWithLabel
+          label="Description"
+          type="description"
+          name="description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+      </div>
+    )
+  }
+
+  const unavailableForm = () => {
+    return (
+      <div className="grid gap-4 md:grid-cols-2">
+        <p className="col-span-2 rounded-md p-3 border-2 border-jet">
+          This will create an unavailable slot for the selected time. Students will not be able to book a reservation during this time. If you want to create a reservation, please select the reservation option above. Also note that unavailable slots can be multiple days long.
+        </p>
+        <FormInputWithLabel
+          label="Start Date"
+          type="date"
+          name="start_date"
+          value={dayjs(start_date).format('YYYY-MM-DD')}
+          onChange={(e) => setStartDate(dayjs(e.target.value, 'YYYY-MM-DD').toDate())}
+        />
+        <FormInputWithLabel
+          label="End Date"
+          type="date"
+          name="end_date"
+          value={dayjs(end_date).format('YYYY-MM-DD')}
+          onChange={(e) => setEndDate(dayjs(e.target.value, 'YYYY-MM-DD').toDate())}
+        />
+        <FormHourPickerWithLabel
+          label="Start Time"
+          name="start_time"
+          value={dayjs(start_hour).hour()}
+          onChange={(hour) => setStartHour(dayjs(start_hour).hour(hour).toDate())}
+        />
+        <FormHourPickerWithLabel
+          label="End Time"
+          name="end_time"
+          value={dayjs(end_hour).hour()}
+          onChange={(hour) => setEndHour(dayjs(end_hour).hour(hour).toDate())}
+        />
+      </div>
+    )
+  }
+
   return (
     <Modal open={open} onClose={onClose}>
       <div className="flex w-full flex-col">
         <div className="flex-1 flex">
           <div className="grid w-full gap-4 bg-blue/40 dark:bg-dark_blue/40 rounded-lg">
             <div className="flex flex-col gap-4 p-4 md:p-6">
-              <div className="grid gap-4 md:grid-cols-2">
-                <FormInputWithLabel
-                  label="Student First Name"
-                  type="student_first_name"
-                  name="student_first_name"
-                  value={student_first_name}
-                  onChange={(e) => setStudentFirstName(e.target.value)}
-                />
-                <FormInputWithLabel
-                  label="Student Last Name"
-                  type="student_last_name"
-                  name="student_last_name"
-                  value={student_last_name}
-                  onChange={(e) => setStudentLastName(e.target.value)}
-                />
-                <FormInputWithLabel
-                  label="Student Email"
-                  type="student_email"
-                  name="student_email"
-                  value={student_email}
-                  onChange={(e) => setStudentEmail(e.target.value)}
-                />
-                <FormInputWithLabel
-                  label="Student Phone"
-                  type="student_phone"
-                  name="student_phone"
-                  value={student_phone}
-                  onChange={(e) => setStudentPhone(e.target.value)}
-                />
-                <FormInputWithLabel
-                  className="col-span-2"
-                  label="Date"
-                  type="date"
-                  name="date"
-                  value={dayjs(date).format('YYYY-MM-DD')}
-                  onChange={(e) => setDate(dayjs(e.target.value, 'YYYY-MM-DD').toDate())}
-                />
-                <FormHourPickerWithLabel
-                  label="Start Time"
-                  name="start_time"
-                  value={dayjs(start_hour).hour()}
-                  onChange={(hour) => setStartHour(dayjs(start_hour).hour(hour).toDate())}
-                />
-                <FormHourPickerWithLabel
-                  label="End Time"
-                  name="end_time"
-                  value={dayjs(end_hour).hour()}
-                  onChange={(hour) => setEndHour(dayjs(end_hour).hour(hour).toDate())}
-                />
-                <FormSlectWithLabel
-                  label="Location"
-                  type="location"
-                  name="location"
-                  options={
-                    [
-                      "Online",
-                      "Offline"
-                    ]
-                  }
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value as location_reservation)}
-                />
-                <FormAdditiveSelectWithLabel
-                  label="Subjects"
-                  type="subjects"
-                  name="subjects"
-                  options={!lecturer_subjects ? [] : lecturer_subjects}
-                  value={subjects}
-                  onChange={(e) => setSubjects(e)}
-                />
-                <FormTextAreaWithLabel
-                  label="Description"
-                  type="description"
-                  name="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                />
-              </div>
+              {openedReservation ?
+                reservationForm() :
+                unavailableForm()
+              }
             </div>
           </div>
         </div>
       </div>
-    </Modal>
+    </Modal >
   );
 }
-
 
 function FormTextAreaWithLabel(props: { label: string, type: string, name: string, value: string, onChange: (e: any) => void }) {
   const [value, setValue] = useState<string>(props.value);

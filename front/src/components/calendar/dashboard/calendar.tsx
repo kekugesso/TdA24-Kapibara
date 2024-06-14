@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import { _reservation, tag } from "@/components/basic/lecturer";
+import { _reservation, status, tag } from "@/components/basic/lecturer";
 import CalendarGrid from "@/components/calendar/dashboard/calendarGrid";
 import dayjs from "dayjs";
 import Upcoming from "./upcoming";
@@ -36,14 +36,18 @@ export default function Calendar({ _reservations, subjects }: { _reservations: _
   }, [weekOffset]);
 
   const sendReservation = async (reservation: _reservation) => {
-    const response = await fetch('/api/reservation', {
+    if (reservations === undefined) {
+      console.error('Reservations not loaded');
+      return;
+    }
+    const response = await fetch('/api/reservations', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Token ${localStorage.getItem('token')}`,
       },
       body: JSON.stringify({
-        ...reservation,
-        lecturer_uuid: lecturer_uuid,
+        reservation,
       }),
     });
     const newReservation = await response.json().then((data) => {
@@ -94,11 +98,15 @@ export default function Calendar({ _reservations, subjects }: { _reservations: _
         public message: string,
       ) { }
     }
-    if (!checkStudentFields(reservation)) return new validation(false, 'Invalid student information');
-    if (!checkValidTime(reservation)) return new validation(false, 'Invalid time');
-    if (checkReservationOverlap(reservation)) return new validation(false, 'Reservation overlap');
-    if (reservation.subject.length === 0) return new validation(false, 'No subject selected');
-    return new validation(true, '');
+    if (reservation.status === status.Reserved) {
+      if (!checkStudentFields(reservation)) return new validation(false, 'Invalid student information');
+      if (!checkValidTime(reservation)) return new validation(false, 'Invalid time');
+      if (checkReservationOverlap(reservation)) return new validation(false, 'Reservation overlap');
+      if (reservation.subject.length === 0) return new validation(false, 'No subject selected');
+      return new validation(true, '');
+    } else {
+      return new validation(true, '');
+    }
   }
 
 
