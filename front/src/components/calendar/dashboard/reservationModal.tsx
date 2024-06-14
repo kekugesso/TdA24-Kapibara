@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { _reservation, location_reservation, student, tag, status } from "@/components/basic/lecturer";
 import dayjs from "dayjs";
 
 export default function ReservationModal({ open, _onClose, lecturer_subjects, onReservationCreated, checkValidation }: { open: boolean, _onClose: () => void, lecturer_subjects: tag[], onReservationCreated: (reservation: _reservation) => void, checkValidation: (reservation: _reservation) => { valid: boolean, message: string } }) {
-  const [openedReservation, setOpenedReservation] = useState<boolean>(true);
+  const [openedReservation, setOpenedReservation] = useState<boolean>(false);
   const [student_first_name, setStudentFirstName] = useState<string>("");
   const [student_last_name, setStudentLastName] = useState<string>("");
   const [student_email, setStudentEmail] = useState<string>("");
@@ -17,6 +17,10 @@ export default function ReservationModal({ open, _onClose, lecturer_subjects, on
   const [subjects, setSubjects] = useState<tag[]>([]);
   const [description, setDescription] = useState<string>("");
   const [error, setError] = useState<string>("");
+  useEffect(() => {
+    setStartHour(dayjs(new Date()).hour(8).toDate());
+    setEndHour(dayjs(new Date()).hour(8).toDate());
+  }, []);
   const createReservation = () => {
     const reservation = new _reservation(
       "",
@@ -40,10 +44,13 @@ export default function ReservationModal({ open, _onClose, lecturer_subjects, on
   };
 
   const createUnavailable = () => {
+    const start = dayjs(start_date).hour(dayjs(start_hour).hour()).set('minutes', 0).set('seconds', 0).toDate();
+    const end = dayjs(end_date).hour(dayjs(end_hour).hour()).set('minutes', 0).set('seconds', 0).toDate();
+    // console.log(start, end);
     const unavailable = new _reservation(
       "",
-      dayjs(start_date).hour(dayjs(start_hour).hour()).set('minutes', 0).set('seconds', 0).toDate(),
-      dayjs(end_date).hour(dayjs(end_hour).hour()).set('minutes', 0).set('seconds', 0).toDate(),
+      start,
+      end,
       new student("", "", "", "",),
       location_reservation.Offline,
       status.Unavailable,
@@ -282,6 +289,7 @@ function FormHourPickerWithLabel(props: { label: string, name: string, value: st
   const handleHourChange = (e) => {
     const selectedHour = parseInt(e.target.value);
     if (!isNaN(selectedHour)) {
+      // console.log(selectedHour);
       props.onChange(selectedHour);
     }
   };
@@ -306,7 +314,7 @@ function FormHourPickerWithLabel(props: { label: string, name: string, value: st
 
 function FormInputWithLabel(props: { label: string, type: string, name: string, value: string, onChange: (e: any) => void, className?: string }) {
   const [value, setValue] = useState<string>(props.value);
-  console.log(props.value);
+  // console.log(props.value);
   return (
     <div className={props.className}>
       <label
