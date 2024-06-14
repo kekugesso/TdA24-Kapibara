@@ -25,7 +25,7 @@ export default function Calendar({ _reservations, subjects }: { _reservations: _
         subjects: reservation.subject,
       }));
     },
-    [_reservations],
+    [reservations],
   )
   const generateWorkWeek = useCallback((weeksOffset = 0) => {
     const startOfWeek = dayjs().startOf('week').add(weeksOffset, 'week');
@@ -40,23 +40,29 @@ export default function Calendar({ _reservations, subjects }: { _reservations: _
       console.error('Reservations not loaded');
       return;
     }
-    const response = await fetch('/api/reservations', {
+    const response = await fetch('/api/reservationtoken', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Token ${localStorage.getItem('token')}`,
       },
-      body: JSON.stringify({
-        reservation,
-      }),
+      body: reservation.toJson(),
     });
-    const newReservation = await response.json().then((data) => {
-      return data as _reservation;
-    });
-    setReservations(prevReservations => [...prevReservations, newReservation]);
     if (!response.ok) {
       throw new Error('Failed to create reservation');
     }
+    const body = await response.json();
+    const newReservation = new _reservation(
+      body.uuid,
+      body.start_time,
+      body.end_time,
+      body.student,
+      body.location,
+      body.status,
+      body.description,
+      body.subject,
+    );
+    setReservations([...reservations, newReservation]);
   }
 
   const checkValidTime = (reservation: _reservation) => {
@@ -71,6 +77,26 @@ export default function Calendar({ _reservations, subjects }: { _reservations: _
     if (start.getDay() === 0 || start.getDay() === 6) return false;
     return true;
   }
+
+  const checkValidTimeUnavailable = (reservation: _reservation) => {
+    const start = reservation.start_time;
+    const end = reservation.end_time;
+    if (start >= end) return false;
+    if (start < new Date()) return false;
+    if (start.getHours() < 8 || start.getHours() > 20) return false;
+    if (end.getHours() < 9 || end.getHours() > 20) return false;
+    if (start.getMinutes() !== 0 || end.getMinutes() !== 0) return false;
+    if (start.getSeconds() !== 0 || end.getSeconds() !== 0) return false;
+    return true;
+  }
+  const checkValidDate = (reservation: _reservation) => {
+    const start = reservation.start_time;
+    const end = reservation.end_time;
+    if (start >= end) return false;
+    if (start.getDay() === 0 || start.getDay() === 6) return false;
+    return true;
+  }
+
 
   const checkReservationOverlap = (reservation: _reservation) => {
     if (!reservations) return false;
@@ -105,14 +131,16 @@ export default function Calendar({ _reservations, subjects }: { _reservations: _
       if (reservation.subject.length === 0) return new validation(false, 'No subject selected');
       return new validation(true, '');
     } else {
+      if (!checkValidTimeUnavailable(reservation)) return new validation(false, 'Invalid time');
+      if (!checkValidDate(reservation)) return new validation(false, 'Invalid date');
       return new validation(true, '');
     }
   }
 
 
   const calendarTitle = useCallback(() => {
-    const startOfWeek = dayjs().startOf('week').add(weekOffset, 'week');
-    const endOfWeek = startOfWeek.add(4, 'day');
+    const startOfWeek = dayjs().startOf('week').add(1, 'day').add(weekOffset, 'week');
+    const endOfWeek = startOfWeek.add(5, 'day');
     return `${startOfWeek.format('DD.MM.YYYY')} - ${endOfWeek.format('DD.MM.YYYY')}`;
   }, [weekOffset]);
 
