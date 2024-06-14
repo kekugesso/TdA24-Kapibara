@@ -25,11 +25,13 @@ class LecturerAPIPost(APIView):
         #if(request.user.is_superuser == True):
         try:
             control = False
+            control2 = False
             data = request.data
             user = User(
                 username=data['username']
             )
             user.save()
+            control2 = True
             user.set_password(data['password'])
             user.save()
             data['uuid'] = str(uuid.uuid4())
@@ -49,7 +51,7 @@ class LecturerAPIPost(APIView):
             )
             
             lecturer.save()
-            control = True
+            control2 = True
             contact = Contact(
                 lecturer = lecturer
             )
@@ -71,18 +73,22 @@ class LecturerAPIPost(APIView):
                 control = True
                 tgas = Tag.objects.all()
                 for tg in tgas:
-                    if tg.name == tag['name']:
+                    if tg.name == tag:
                         LectureTag(lecturer_uuid=lecturer, tag_uuid=tg).save()
                         control = False
                         break
                 if control:
-                    tg = Tag(name=tag['name'], uuid=str(uuid.uuid4()))
+                    tg = Tag(name=tag, uuid=str(uuid.uuid4()))
                     tg.save()
                     LectureTag(lecturer_uuid=lecturer, tag_uuid=tg).save()
             lecturer_result = Lecturer.objects.get(uuid=data['uuid'])
             serialized_data = LecturerSerializer(lecturer_result)
             return Response(serialized_data.data, status=201)
         except Exception as e:
+            if control:
+                user.delete()
+                if control2:
+                    lecturer.delete()
             return Response(status=400)
         #else:
             #return Response(status=403)
