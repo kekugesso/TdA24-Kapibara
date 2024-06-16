@@ -3,6 +3,7 @@ import { _reservation, reservation, tag } from "@/components/basic/lecturer";
 import CalendarGrid from "@/components/calendar/calendarGrid";
 import dayjs from "dayjs";
 import ReservationModal from "@/components/calendar/reservationModal";
+import { ChevronLeftIcon, ChevronRightIcon, PlusIcon } from "@/components/basic/icons";
 
 export default function Calendar({ _reservations, lecturer_uuid, subjects }: { _reservations: reservation[], lecturer_uuid: string, subjects: tag[] }) {
   const [openModal, setOpenModal] = useState<boolean>(false);
@@ -145,62 +146,3 @@ export default function Calendar({ _reservations, lecturer_uuid, subjects }: { _
     </div>
   );
 }
-
-function ChevronLeftIcon(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="m15 18-6-6 6-6" />
-    </svg>
-  );
-}
-
-function ChevronRightIcon(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="m9 18 6-6-6-6" />
-    </svg>
-  );
-}
-
-function PlusIcon(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.3"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M12 5V19M5 12H19" />
-    </svg>
-  );
-}
-
-

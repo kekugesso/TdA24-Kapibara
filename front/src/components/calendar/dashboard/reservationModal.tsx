@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { _reservation, location_reservation, student, tag, status } from "@/components/basic/lecturer";
 import dayjs from "dayjs";
+import { ExIcon } from "@/components/basic/icons";
 
 export default function ReservationModal({ open, _onClose, lecturer_subjects, onReservationCreated, checkValidation }: { open: boolean, _onClose: () => void, lecturer_subjects: tag[], onReservationCreated: (reservation: _reservation) => void, checkValidation: (reservation: _reservation) => { valid: boolean, message: string } }) {
   const [openedReservation, setOpenedReservation] = useState<boolean>(false);
@@ -425,26 +426,5 @@ function FormAdditiveSelectWithLabel(props: { label: string, type: string, name:
         )}
       </div>
     </div>
-  );
-}
-
-
-function ExIcon(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <line x1="18" y1="6" x2="6" y2="18" />
-      <line x1="6" y1="6" x2="18" y2="18" />
-    </svg>
   );
 }

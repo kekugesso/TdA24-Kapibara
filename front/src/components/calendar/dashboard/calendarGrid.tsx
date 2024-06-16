@@ -246,6 +246,3 @@ export default function CalendarGrid({ dates, initalEvents }:
     </div>
   );
 }
-
-
-

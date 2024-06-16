@@ -247,6 +247,3 @@ export default function CalendarGrid({ dates, initalEvents, lecturer_uuid }:
     </div>
   );
 }
-
-
-

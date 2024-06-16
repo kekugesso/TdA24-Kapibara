@@ -18,11 +18,6 @@ export default function Upcoming({ _reservations }: { _reservations: _reservatio
   const handleEventClose = () => {
     setSelectedEvent(undefined);
   }
-  const reservationsFiltered = () => {
-    reservations
-      .filter((reservation) => dayjs(reservation.start_time).isAfter(dayjs()))
-      .filter((reservation) => reservation.status === "Reserved");
-  }
 
   return (
     <div className="border-white rounded-lg border-2 text-white w-full sm:w-[40%]">
