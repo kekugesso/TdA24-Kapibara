@@ -6,6 +6,7 @@ import Protected from '@/components/auth/protected';
 import { _reservation, tag } from '@/components/basic/lecturer';
 import Calendar from '@/components/calendar/dashboard/calendar';
 import Loading from '@/components/basic/loading';
+import { ReservationsProvider } from '@/components/calendar/dashboard/reservationContex';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -43,6 +44,8 @@ export default function Dashboard() {
   return (
     isloading ? <Loading /> :
       reservations &&
-      <Calendar _reservations={reservations} subjects={subjects ? subjects : []} />
+      <ReservationsProvider initialReservations={reservations}>
+        <Calendar subjects={subjects ? subjects : []} />
+      </ReservationsProvider>
   );
 }

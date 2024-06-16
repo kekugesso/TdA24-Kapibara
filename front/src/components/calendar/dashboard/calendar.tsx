@@ -5,14 +5,12 @@ import dayjs from "dayjs";
 import Upcoming from "./upcoming";
 import ReservationModal from "./reservationModal";
 import { ChevronLeftIcon, ChevronRightIcon, PlusIcon } from "@/components/basic/icons";
+import { useReservations } from "./reservationContex";
 
-export default function Calendar({ _reservations, subjects }: { _reservations: _reservation[], subjects: tag[] }) {
+export default function Calendar({ subjects }: { subjects: tag[] }) {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [weekOffset, setWeekOffset] = useState<number>(0);
-  const [reservations, setReservations] = useState<_reservation[] | undefined>(_reservations);
-  useEffect(() => {
-    setReservations(_reservations);
-  }, [_reservations]);
+  const { reservations, addReservation } = useReservations();
 
   const events = useMemo(
     () => {
@@ -28,6 +26,7 @@ export default function Calendar({ _reservations, subjects }: { _reservations: _
     },
     [reservations],
   )
+
   const generateWorkWeek = useCallback((weeksOffset = 0) => {
     const startOfWeek = dayjs().startOf('week').add(weeksOffset, 'week');
     const workWeek = [];
@@ -35,53 +34,6 @@ export default function Calendar({ _reservations, subjects }: { _reservations: _
       workWeek.push(startOfWeek.add(i + 1, 'day').format('YYYY-MM-DD'));
     return workWeek;
   }, [weekOffset]);
-
-  const deleteReservation = async (uuid: string) => {
-    if (reservations === undefined) {
-      console.error('Reservations not loaded');
-      return;
-    }
-    const response = await fetch(`/api/reservation`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Token ${localStorage.getItem('token')}`,
-      },
-      body: JSON.stringify({ uuid }),
-    });
-    if (!response.ok) {
-      throw new Error('Failed to delete reservation');
-    }
-    setReservations(reservations.filter(reservation => reservation.uuid !== uuid));
-  }
-  const sendReservation = async (reservation: _reservation) => {
-    if (reservations === undefined) {
-      console.error('Reservations not loaded');
-      return;
-    }
-    const response = await fetch('/api/reservationtoken', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Token ${localStorage.getItem('token')}`,
-      },
-      body: reservation.toJson(),
-    });
-    if (!response.ok) {
-      throw new Error('Failed to create reservation');
-    }
-    const body = await response.json();
-    const newReservation = new _reservation(
-      body.uuid,
-      body.start_time,
-      body.end_time,
-      body.student,
-      body.location,
-      body.status,
-      body.description,
-      body.subject,
-    );
-    setReservations([...reservations, newReservation]);
-  }
 
   const checkValidTime = (reservation: _reservation) => {
     const start = reservation.start_time;
@@ -107,6 +59,7 @@ export default function Calendar({ _reservations, subjects }: { _reservations: _
     if (start.getSeconds() !== 0 || end.getSeconds() !== 0) return false;
     return true;
   }
+
   const checkValidDate = (reservation: _reservation) => {
     const start = reservation.start_time;
     const end = reservation.end_time;
@@ -192,13 +145,13 @@ export default function Calendar({ _reservations, subjects }: { _reservations: _
           _onClose={() => setOpenModal(false)}
           lecturer_subjects={subjects}
           onReservationCreated={(reservation: _reservation) => {
-            sendReservation(reservation);
+            addReservation(reservation);
             setOpenModal(false);
           }}
           checkValidation={checkValidReservation}
         />
       </div>
-      <Upcoming _reservations={reservations ? reservations : []} />
+      <Upcoming />
     </div>
   );
 }

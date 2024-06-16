@@ -1,16 +1,20 @@
 'use client';
 
-import { _reservation } from "@/components/basic/lecturer";
+import { _reservation, status } from "@/components/basic/lecturer";
 import { useCallback, useState } from "react";
-import DialogUpcoming from "./dialog";
+import Dialog from "./dialog";
 import dayjs from "dayjs";
+import { useReservations } from "./reservationContex";
 
-export default function Upcoming({ _reservations }: { _reservations: _reservation[] }) {
-  const [selectedEvent, setSelectedEvent] = useState<_reservation>()
-  const reservations = _reservations.filter((reservation) => dayjs(reservation.start_time).isAfter(dayjs()));
+export default function Upcoming() {
+  const [selectedEvent, setSelectedEvent] = useState<_reservation | undefined>()
+  const { reservations, deleteReservation } = useReservations();
+  const upcomingReservations = reservations.filter((reservation) => dayjs(reservation.start_time).isAfter(dayjs()) && reservation.status === status.Reserved);
+
   const reservationDate = useCallback((reservation: _reservation) => {
     return `${dayjs(reservation.start_time).format('MMMM D, YYYY')} | ${dayjs(reservation.start_time).format('h:mm A')} - ${dayjs(reservation.end_time).format('h:mm A')}`;
   }, [reservations]);
+
   const handleEventClick = (reservation: _reservation) => {
     setSelectedEvent(reservation);
   }
@@ -27,19 +31,14 @@ export default function Upcoming({ _reservations }: { _reservations: _reservatio
         </div>
       </div>
       <div className="flex flex-col gap-2 h-full">
-        {reservations
-          .filter((reservation) => dayjs(reservation.start_time).isAfter(dayjs()))
-          .filter((reservation) => reservation.status === "Reserved")
-          .length === 0 ? (
+        {upcomingReservations.length === 0 ? (
           <div className="flex items-center justify-center h-full">
             <h3 className="text-lg text-center">Žádné nadchazející rezervace</h3>
           </div>
         ) : (
           <div className="h-[80vh] overflow-auto">
             <div className="p-6 space-y-4">
-              {reservations
-                .filter((reservation) => dayjs(reservation.start_time).isAfter(dayjs()))
-                .filter((reservation) => reservation.status === "Reserved")
+              {upcomingReservations
                 .sort((a, b) => dayjs(a.start_time).isAfter(dayjs(b.start_time)) ? 1 : -1)
                 .map((reservation: _reservation) => (
                   <div
@@ -60,11 +59,15 @@ export default function Upcoming({ _reservations }: { _reservations: _reservatio
                   </div>
                 ))}
             </div>
-            {// <DialogUpcoming reservation={selectedEvent} closeDialog={handleEventClose} />
-            }
+            {selectedEvent && (
+              <Dialog
+                reservation={selectedEvent}
+                closeDialog={handleEventClose}
+                deleteReservation={() => deleteReservation(selectedEvent.uuid)}
+              />
+            )}
           </div>
-        )
-        }
+        )}
       </div>
     </div>
   );

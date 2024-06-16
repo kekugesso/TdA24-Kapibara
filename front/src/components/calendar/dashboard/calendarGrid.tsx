@@ -4,7 +4,9 @@ import isSameOrBefore from 'dayjs/plugin/isSameOrBefore.js';
 import minMax from 'dayjs/plugin/minMax.js';
 import { useCallback, useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
-import { tag } from '@/components/basic/lecturer';
+import { _reservation, tag } from '@/components/basic/lecturer';
+import { useReservations } from './reservationContex';
+import Dialog from './dialog';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -78,13 +80,12 @@ export default function CalendarGrid({ dates, initalEvents }:
 
   useEffect(() => {
     setEvents(removeExeciveEveats(splitEvents(initalEvents)));
-  }, [dates]);
+  }, [dates, initalEvents]);
 
   const [eventHovered, setEventHovered] = useState("");
 
   const getEventClassNames = useCallback(
     (event: event) => {
-      const eventOrigin = initalEvents.find(e => e.uuid === event.uuid) as event;
       const startDate = dayjs(event.start);
       const endDate = dayjs(event.end);
       const dateIndex = Math.max(
@@ -117,47 +118,32 @@ export default function CalendarGrid({ dates, initalEvents }:
         generateRowStartClass(startTimeIndex),
         generateRowSpanClass(totalRows),
         !event.isUnavailable ? 'bg-blue text-black' : 'bg-dark_blue text-white',
-        eventOrigin.start.toUTCString() === event.start.toUTCString() ? 'rounded-t' : '',
-        eventOrigin.end.toUTCString() === event.end.toUTCString() ? 'rounded-b' : ''
+        eventOrigin(event.uuid).start.toUTCString() === event.start.toUTCString() ? 'rounded-t' : '',
+        eventOrigin(event.uuid).end.toUTCString() === event.end.toUTCString() ? 'rounded-b' : ''
       );
     },
     [events, eventHovered]
   );
 
+  const eventOrigin = (uuid: string) => initalEvents.find(e => e.uuid === uuid) as event;
+  const reservationOrigin = (uuid: string) => reservations.find(e => e.uuid === uuid) as _reservation;
 
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalContent, setModalContent] = useState<event | null>(null);
-  const [modalPosition, setModalPosition] = useState({ x: 0, y: 0 });
-  const displayModal = useCallback((event: any) => {
-    setModalOpen(true);
-    setModalPosition({ x: event.clientX, y: event.clientY });
-    setModalContent(event);
-  }, [])
-  const closeModal = useCallback(() => {
-    setModalOpen(false);
-    setModalContent(null);
-  }, [])
-  const Modal = ({ isVisible, onClose, children, position }) => {
-    if (!isVisible) return null;
-    const handleBackdropClick = (e) => {
-      if (e.target === e.currentTarget) {
-        onClose();
-      }
-    };
-    return (
-      <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50" onClick={handleBackdropClick}>
-        <div className="bg-white p-6 rounded-lg shadow-lg relative" style={{ top: position.y, left: position.x, position: 'absolute' }}>
-          <button
-            onClick={onClose}
-            className="absolute top-2 right-2 text-gray-500 hover:text-gray-800"
-          >
-            &times;
-          </button>
-          {children}
-        </div>
-      </div>
-    );
-  };
+  const [selectedEvent, setSelectedEvent] = useState<_reservation | undefined>()
+  const { reservations, deleteReservation } = useReservations();
+
+  const handleEventClick = (reservation: _reservation) => {
+    setSelectedEvent(reservation);
+  }
+
+  const handleEventClose = () => {
+    setSelectedEvent(undefined);
+  }
+  const handleEventDelete = () => {
+    if (selectedEvent) {
+      deleteReservation(selectedEvent.uuid);
+      setSelectedEvent(undefined);
+    }
+  }
 
   return (
     <div className="p-3">
@@ -188,7 +174,7 @@ export default function CalendarGrid({ dates, initalEvents }:
         ))}
         {events.map((event: event) => (
           <button
-            onClick={(e) => displayModal({ ...event, ...e })}
+            onClick={() => handleEventClick(reservationOrigin(event.uuid))}
             onMouseEnter={() => setEventHovered(event.uuid)}
             onMouseLeave={() => setEventHovered("")}
             style={
@@ -205,44 +191,25 @@ export default function CalendarGrid({ dates, initalEvents }:
               <div className="pt-1 text-[10px] overflow-hidden">
                 {
                   event.isMultipleDays ?
-                    dayjs((initalEvents.find(e => e.uuid === event.uuid) as event).start).format('HH:mm YYYY-MM-DD')
-                    : dayjs((initalEvents.find(e => e.uuid === event.uuid) as event).start).format('HH:mm')
+                    dayjs(((initalEvents.find(e => e.uuid === event.uuid) as event) || event).start).format('HH:mm YYYY-MM-DD')
+                    : dayjs(((initalEvents.find(e => e.uuid === event.uuid) as event) || event).start).format('HH:mm')
                 } - {
                   event.isMultipleDays ?
-                    dayjs((initalEvents.find(e => e.uuid === event.uuid) as event).end).format('HH:mm YYYY-MM-DD')
-                    : dayjs((initalEvents.find(e => e.uuid === event.uuid) as event).end).format('HH:mm')
+                    dayjs(((initalEvents.find(e => e.uuid === event.uuid) as event) || event).end).format('HH:mm YYYY-MM-DD')
+                    : dayjs(((initalEvents.find(e => e.uuid === event.uuid) as event) || event).end).format('HH:mm')
                 }
               </div>
             )}
           </button>
         ))}
       </div>
-      <Modal isVisible={modalOpen} onClose={closeModal} position={modalPosition}>
-        {modalContent && (
-          <div className='max-w-sm'>
-            <h2>{modalContent.title}</h2>
-            <p>{modalContent.location}</p>
-            <p>
-              {
-                modalContent.isMultipleDays ?
-                  dayjs((initalEvents.find(e => e.uuid === modalContent.uuid) as event).start).format('HH:mm DD.MM.YYYY')
-                  : dayjs((initalEvents.find(e => e.uuid === modalContent.uuid) as event).start).format('HH:mm')
-              } - {
-                modalContent.isMultipleDays ?
-                  dayjs((initalEvents.find(e => e.uuid === modalContent.uuid) as event).end).format('HH:mm DD.MM.YYYY')
-                  : dayjs((initalEvents.find(e => e.uuid === modalContent.uuid) as event).end).format('HH:mm')
-              }
-            </p>
-            {!modalContent.isUnavailable && (
-              <p>
-                {modalContent.subjects.map((subject) => (
-                  <div key={`modal_subject_${subject.uuid}`}>#{subject.name}</div>))
-                }
-              </p>
-            )}
-          </div>
-        )}
-      </Modal>
+      {selectedEvent && (
+        <Dialog
+          reservation={selectedEvent}
+          closeDialog={handleEventClose}
+          deleteReservation={handleEventDelete}
+        />
+      )}
     </div>
   );
 }
