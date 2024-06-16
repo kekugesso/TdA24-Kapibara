@@ -32,7 +32,7 @@ export default function ReservationModal({ open, _onClose, lecturer_subjects, on
       subjects,
     );
     const validation = checkValidation(reservation);
-    console.log(validation);
+    // console.log(validation);
     if (!validation.valid) { setError(validation.message); return; }
     onReservationCreated(reservation)
   };
@@ -228,7 +228,7 @@ function FormHourPickerWithLabel(props: { label: string, name: string, value: st
 
 function FormInputWithLabel(props: { label: string, type: string, name: string, value: string, onChange: (e: any) => void, className?: string }) {
   const [value, setValue] = useState<string>(props.value);
-  console.log(props.value);
+  // console.log(props.value);
   return (
     <div className={props.className}>
       <label
