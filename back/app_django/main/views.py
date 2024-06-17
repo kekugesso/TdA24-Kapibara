@@ -107,8 +107,9 @@ class LecturerAPIOne(APIView):
     def delete(self, request, uuid):
         lecturer = get_object_or_404(Lecturer, uuid=uuid)
         user = User.objects.get(id=lecturer.user.id)
-        token = Token.objects.get(user=user)
-        token.delete()
+        token = Token.objects.filter(user=user).first()
+        if token:
+            token.delete()
         user.delete()
         lecturer.delete()
         return Response(status=204)
