@@ -1,40 +1,90 @@
 import { useEffect, useState } from "react";
 import { Lecturer_Card, location_reservation, tag } from "../basic/lecturer";
 import { Range as ReactRange, getTrackBackground } from 'react-range';
+import { ExIcon } from "../basic/icons";
+import { useRouter } from "next/navigation";
 
 export default function Search({ lecturers, subjects }: { lecturers: Lecturer_Card[], subjects: tag[] }) {
+  const router = useRouter();
   const maxPrice = Math.max(...lecturers.map(lecturer => lecturer.price_per_hour));
   const [range, setRange] = useState<range>({ min: 0, max: maxPrice });
   const [tags, setTags] = useState<tag[]>([]);
   const [location, setLocation] = useState<location_reservation>(location_reservation.Online);
+  const [searchOpen, setSearchOpen] = useState<boolean>(false);
 
+  // Function to update query parameters
+  const updateQueryParams = (params: Partial<SearchParams>) => {
+    const query = { ...router.query, ...params };
+    router.push({
+      pathname: router.pathname,
+      query,
+    });
+  };
+
+  // Convert search to URL query and update router
+  const handleSearch = () => {
+    const searchParams = {
+      range,
+      tags,
+      location,
+    };
+    const queryParams: Partial<SearchParams> = {
+      location: searchParams.location,
+    };
+    updateQueryParams(queryParams);
+  };
+
+  useEffect(() => {
+    // Load search parameters from URL query
+    const { location } = router.query;
+    if (location && Object.values(location_reservation).includes(location as location_reservation)) {
+      setLocation(location as location_reservation);
+    }
+  }, [router.query]);
+
+
+  const searchOptions = () => {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-3 md:grid-flow-col gap-5 bg-white dark:bg-jet text-black z-50 border-white border-2 rounded-lg mt-3 items-center justify-between p-7 sm:px-12 lg:px-24 justify-self-center">
+        <FormSlectWithLabel
+          label="Lokace"
+          type="text"
+          name="location"
+          options={Object.values(location_reservation)}
+          value={location}
+          onChange={(e) => { setLocation(e.target.value as location_reservation) }}
+        />
+        <FormAdditiveSelectWithLabel
+          label="Předměty"
+          type="text"
+          name="tags"
+          options={subjects}
+          value={tags}
+          onChange={(e) => { setTags(e) }}
+        />
+        <Range
+          label="Cena za hodinu"
+          name="price"
+          range={{ min: 0, max: maxPrice } as range}
+          value={range}
+          setRange={setRange}
+        />
+        <button
+          onClick={() => setSearchOpen(false)}
+          className="inline top-5 right-5 bg-white dark:bg-jet m-3 text-gray-600"
+        >
+          <ExIcon className="h-6 w-6" />
+        </button>
+      </div>
+    )
+  };
 
   return (
-    <section className="flex bg-white dark:bg-jet text-black items-center justify-between z-50">
-      <FormSlectWithLabel
-        label="Lokace"
-        type="text"
-        name="location"
-        options={Object.values(location_reservation)}
-        value={location}
-        onChange={(e) => { setLocation(e.target.value as location_reservation) }}
-      />
-      <FormAdditiveSelectWithLabel
-        label="Předměty"
-        type="text"
-        name="tags"
-        options={subjects}
-        value={tags}
-        onChange={(e) => { setTags(e) }}
-      />
-      <Range
-        label="Cena za hodinu"
-        name="price"
-        range={{ min: 0, max: maxPrice } as range}
-        value={range}
-        setRange={setRange}
-      />
-    </section>
+    searchOpen ? searchOptions() : (
+      <div className="flex flex-col items-center justify-center">
+        <button onClick={() => setSearchOpen(true)} className="bg-white dark:bg-jet m-3 text-gray-600">Filtrovat</button>
+      </div>
+    )
   );
 }
 
@@ -60,7 +110,7 @@ function Range({ label, name, range, value, setRange }: { label: string, name: s
   return (
     <div>
       <label
-        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-1"
+        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-1 dark:text-white"
         htmlFor={name}
       >
         {label}
@@ -97,8 +147,8 @@ function Range({ label, name, range, value, setRange }: { label: string, name: s
               {...props}
               style={{
                 ...props.style,
-                height: '24px',
-                width: '24px',
+                height: '16px',
+                width: '16px',
                 backgroundColor: '#FFF',
                 border: '1px solid #CCC',
                 borderRadius: '50%',
@@ -106,7 +156,7 @@ function Range({ label, name, range, value, setRange }: { label: string, name: s
             />
           )}
         />
-        <div className="flex justify-between text-sm mt-2 w-full">
+        <div className="flex justify-between text-sm mt-2 w-full dark:text-white">
           <span>Min: {values[0]}</span>
           <span>Max: {values[1]}</span>
         </div>
@@ -120,7 +170,7 @@ function FormSlectWithLabel(props: { label: string, type: string, name: string, 
   return (
     <div>
       <label
-        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-1"
+        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-1 dark:text-white"
         htmlFor={props.name}
       >
         {props.label}
@@ -167,7 +217,7 @@ function FormAdditiveSelectWithLabel(props: { label: string, type: string, name:
   return (
     <div>
       <label
-        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-1"
+        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-1 dark:text-white"
         htmlFor={props.name}
       >
         {props.label}
