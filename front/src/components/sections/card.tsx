@@ -2,14 +2,30 @@ import { Lecturer_Card } from "@/components/basic/lecturer";
 import Link from 'next/link'
 import { IsVisible } from "@/components/functions/isVisible";
 import { useRef } from "react";
+import { useRouter } from "next/navigation";
 
 function isOdd(num: number) {
   return num % 2 !== 0;
 }
 
 export default function Card({ lecturer, index }: { lecturer: Lecturer_Card, index: number }) {
+  const router = useRouter();
   const ref = useRef(null)
   const isVisible = IsVisible(ref);
+
+  const addTagToSearchParams = (uuid: string) => {
+    const params = new URLSearchParams(window.location.search);
+    const existingTags = params.getAll("tags");
+
+    if (!existingTags.includes(uuid)) {
+      params.append("tags", uuid);
+      router.replace(`?${params.toString()}`);
+    }
+  };
+  const handleTagClick = (e: any, uuid: string) => {
+    e.preventDefault();
+    addTagToSearchParams(uuid);
+  }
 
   return (
     <Link href={"/lecturer/" + lecturer.uuid} className="transition ease-in-out delay-100 hover:scale-105 xl:hover:scale-[1.03] duration-300">
@@ -29,7 +45,7 @@ export default function Card({ lecturer, index }: { lecturer: Lecturer_Card, ind
         </div>
         <div className="flex flex-wrap max-w-screen-sm text-sm text-center text-black/55 dark:text-white/25">
           {lecturer.tags.map((tag) => (
-            <Link key={`tag_${lecturer.uuid}_${tag.uuid}`} href={"?tag=" + tag.uuid}><div className="mx-1 hover:animate-pulse hover:animate-once">#{tag.name}</div></Link>
+            <Link key={`tag_${lecturer.uuid}_${tag.uuid}`} onClick={(e) => handleTagClick(e, tag.uuid)} href={`?tag=${tag.uuid}`}><div className="mx-1 hover:animate-pulse hover:animate-once">#{tag.name}</div></Link>
           ))}
         </div>
       </div>
