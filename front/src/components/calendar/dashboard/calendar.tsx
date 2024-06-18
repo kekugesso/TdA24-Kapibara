@@ -83,8 +83,8 @@ export default function Calendar({ subjects }: { subjects: tag[] }) {
   const checkStudentFields = (reservation: _reservation) => {
     const student = reservation.student;
     if (!student.first_name || !student.last_name || !student.email || !student.phone) return false;
-    if (!student.email.includes('@')) return false;
-    if (!/^\d+$/.test(student.phone)) return false;
+    if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(student.email)) return false;
+    if (!/^\+[1-9]{1}[0-9]{3,14}$/.test(student.phone)) return false;
     return true;
   }
 
