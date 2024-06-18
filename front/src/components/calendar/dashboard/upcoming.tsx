@@ -24,13 +24,13 @@ export default function Upcoming() {
   }
 
   return (
-    <div className="border-white rounded-lg border-2 text-white w-full sm:w-[40%]">
+    <div className="border-jet dark:border-white dark:rounded-lg border-2 text-white w-full sm:w-[40%]">
       <div className="flex-1">
-        <div className="flex items-center justify-between bg-white p-3">
+        <div className="flex items-center justify-between bg-gray-200 p-3">
           <h2 className="text-2xl font-bold text-black">Nadcházející rezervace</h2>
         </div>
       </div>
-      <div className="flex flex-col gap-2 h-full">
+      <div className="flex flex-col gap-2 h-full text-black dark:text-white">
         {upcomingReservations.length === 0 ? (
           <div className="flex items-center justify-center h-full">
             <h3 className="text-lg text-center">Žádné nadchazející rezervace</h3>

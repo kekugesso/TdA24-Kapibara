@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import { _reservation, status, tag } from "@/components/basic/lecturer";
 import CalendarGrid from "@/components/calendar/dashboard/calendarGrid";
 import dayjs from "dayjs";
@@ -117,9 +117,9 @@ export default function Calendar({ subjects }: { subjects: tag[] }) {
 
   return (
     <div className="my-4 flex gap-4 w-full mx-5 flex-col sm:flex-row">
-      <div className="border-white rounded-lg border-2 text-black w-full">
+      <div className="border-jet dark:border-white dark:rounded-lg border-2 text-black w-full">
         <div className="flex-1">
-          <div className="flex items-center justify-between bg-white p-2">
+          <div className="flex items-center justify-between bg-gray-200 p-2">
             <h2 className="text-2xl font-bold text-black">{calendarTitle()}</h2>
             <div className="flex items-center gap-2">
               <button onClick={() => setWeekOffset(weekOffset - 1)} className="p-2 rounded-full hover:bg-black/10 dark:hover:bg-black/80 transition-colors">

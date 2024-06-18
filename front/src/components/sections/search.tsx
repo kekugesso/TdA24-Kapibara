@@ -51,7 +51,7 @@ export default function Search({ lecturers, subjects }: { lecturers: Lecturer_Ca
 
   const searchOptions = () => {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-3 md:grid-flow-col gap-5 bg-white dark:bg-jet text-black z-50 border-white border-2 rounded-lg mt-3 items-center justify-between p-7 sm:px-12 lg:px-24 justify-self-center">
+      <div className="grid grid-cols-1 md:grid-cols-3 md:grid-flow-col gap-5 bg-gray-200 dark:bg-jet text-black z-50 border-white border-2 rounded-lg mt-3 items-center justify-between p-7 sm:px-12 lg:px-24 justify-self-center">
         <FormSlectWithLabel
           label="Lokace"
           type="text"
@@ -182,7 +182,7 @@ function FormSlectWithLabel(props: { label: string, type: string, name: string, 
         {props.label}
       </label>
       <select
-        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 bg-white dark:bg-jet"
         id={props.name}
         value={props.value}
         onChange={props.onChange}

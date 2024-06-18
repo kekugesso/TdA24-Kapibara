@@ -167,7 +167,7 @@ export default function CalendarGrid({ dates, initalEvents, lecturer_uuid }:
           <div
             key={`date-${date}`}
             className={twMerge(
-              'text-white col-span-1 p-2 text-center text-[13px] text-xs',
+              'text-black dark:text-white col-span-1 p-2 text-center text-[13px] text-xs',
               generateColStartClass(timeSlotColCount + index)
             )}
           >
@@ -181,7 +181,7 @@ export default function CalendarGrid({ dates, initalEvents, lecturer_uuid }:
             key={`time-slot-${time}`}
             className={twMerge(
               generateRowStartClass(index),
-              'text-white translate-y-[-16px] text-xs leading-[30px]'
+              'text-black dark:text-white translate-y-[-16px] text-xs leading-[30px]'
             )}
           >
             {time.endsWith('30') ? <>&nbsp;</> : time}

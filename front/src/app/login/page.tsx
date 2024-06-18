@@ -45,8 +45,8 @@ export default function SignIn() {
   }
 
   return (
-    <section className="flex w-full items-center justify-center bg-jet">
-      <form onSubmit={handleSubmit} className="w-full max-w-md rounded-lg bg-white p-8 shadow-lg dark:bg-jet">
+    <section className="flex w-full items-center justify-center ">
+      <form onSubmit={handleSubmit} className="w-full max-w-md rounded-lg bg-gray-300 p-8 shadow-lg dark:bg-jet">
         <div className="space-y-8">
           <div className="space-y-2 text-center">
             <h1 className="text-3xl font-bold">Přihlášení</h1>
