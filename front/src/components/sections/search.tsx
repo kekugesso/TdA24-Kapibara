@@ -2,46 +2,52 @@ import { useEffect, useState } from "react";
 import { Lecturer_Card, location_reservation, tag } from "../basic/lecturer";
 import { Range as ReactRange, getTrackBackground } from 'react-range';
 import { ExIcon } from "../basic/icons";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function Search({ lecturers, subjects }: { lecturers: Lecturer_Card[], subjects: tag[] }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const maxPrice = Math.max(...lecturers.map(lecturer => lecturer.price_per_hour));
   const [range, setRange] = useState<range>({ min: 0, max: maxPrice });
   const [tags, setTags] = useState<tag[]>([]);
-  const [location, setLocation] = useState<location_reservation>(location_reservation.Online);
+  const [locations, setLocations] = useState<string[]>(
+    [
+      "Anywhere",
+      ...lecturers.map(lecturer => lecturer.location)
+        .filter((location, index, self) => self.findIndex(l => l === location) === index)
+    ]
+  );
+  const [location, setLocation] = useState<string>("Anywhere");
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
 
-  // Function to update query parameters
-  const updateQueryParams = (params: Partial<SearchParams>) => {
-    const query = { ...router.query, ...params };
-    router.push({
-      pathname: router.pathname,
-      query,
-    });
+  const convertSearchToSearchParameters = (search: { range: range, tags: tag[], location: string }) => {
+    const params = new URLSearchParams();
+    params.append("minPrice", search.range.min.toString());
+    params.append("maxPrice", search.range.max.toString());
+    params.append("location", search.location);
+    search.tags.forEach(tag => params.append("tags", tag.uuid));
+    return params;
   };
 
-  // Convert search to URL query and update router
-  const handleSearch = () => {
-    const searchParams = {
-      range,
-      tags,
-      location,
-    };
-    const queryParams: Partial<SearchParams> = {
-      location: searchParams.location,
-    };
-    updateQueryParams(queryParams);
+  const convertSearchParametersToSearch = (searchParameters: URLSearchParams) => {
+    const query_minPrice = parseInt(searchParameters.get("minPrice") || "0");
+    const query_maxPrice = parseInt(searchParameters.get("maxPrice") || maxPrice.toString());
+    const location = searchParameters.get("location") || "Anywhere";
+    const tags = searchParameters.getAll("tags").map(uuid => subjects.find(subject => subject.uuid === uuid)).filter(Boolean) as tag[];
+    return { range: { min: query_minPrice, max: query_maxPrice }, tags, location };
   };
 
   useEffect(() => {
-    // Load search parameters from URL query
-    const { location } = router.query;
-    if (location && Object.values(location_reservation).includes(location as location_reservation)) {
-      setLocation(location as location_reservation);
-    }
-  }, [router.query]);
+    const searchParamsObj = convertSearchParametersToSearch(new URLSearchParams(searchParams.toString()));
+    setRange(searchParamsObj.range);
+    setTags(searchParamsObj.tags);
+    setLocation(searchParamsObj.location);
+  }, [searchParams]);
 
+  useEffect(() => {
+    const params = convertSearchToSearchParameters({ range, tags, location });
+    router.replace(`?${params.toString()}`);
+  }, [range, tags, location]);
 
   const searchOptions = () => {
     return (
@@ -50,9 +56,9 @@ export default function Search({ lecturers, subjects }: { lecturers: Lecturer_Ca
           label="Lokace"
           type="text"
           name="location"
-          options={Object.values(location_reservation)}
+          options={locations}
           value={location}
-          onChange={(e) => { setLocation(e.target.value as location_reservation) }}
+          onChange={(e) => { setLocation(e.target.value) }}
         />
         <FormAdditiveSelectWithLabel
           label="Předměty"
